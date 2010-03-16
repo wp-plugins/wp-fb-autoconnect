@@ -1,7 +1,7 @@
 === Plugin Name ===
 Contributors: Justin_K
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T88Y2AZ53836U
-Tags: facebook, connect, facebook connect, fbconnect, widget, login, logon
+Tags: facebook connect, facebook, connect, widget, login, logon
 Requires at least: 2.5
 Tested up to: 2.9.2
 Stable tag: 1.0.0
