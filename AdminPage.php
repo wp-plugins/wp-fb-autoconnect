@@ -39,30 +39,30 @@ function jfb_admin_page()
           update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
           update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
           
-          //When we save the main options, try to connect to Facebook with the key and secret, to make sure they're valid
-          if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/client/facebook.php');
-          else                                        require_once('facebook-platform/php4client/facebook.php');
-          $facebook = new Facebook($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec], null, true);
-          $facebook->api_client->session_key = 0;          
-          $isValid = true;
-          try
-          {
-              $appInfo = $facebook->api_client->admin_getAppProperties(array('app_id', 'application_name'));
-          }
-          catch (Exception $e)
-          {
-              $isValid = false;
-          }
-          
-          if( !$isValid ):
+          //When saving the main options, make sure the key and secret are valid.
+          if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/validate_php5.php');
+          else                                        require_once('facebook-platform/validate_php4.php');
+          $fbValid = jfb_validate_key($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec]);
+         
+          //Save the options (if valid)
+          if( $fbValid ):
+              if( method_exists($fbValid->api_client, 'admin_getAppProperties') )
+              {
+                $appInfo = $fbValid->api_client->admin_getAppProperties(array('app_id', 'application_name'));
+                $appID = sprintf("%.0f", $appInfo['app_id']);  
+                $message = '"' . $appInfo['application_name'] . '" (ID ' . $appID . ')';
+              }
+              else
+              {
+                $message = "Key " . $_POST[$opt_jfb_api_key];
+              }
+              update_option( $opt_jfb_valid, 1 );
+              jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 2, $message );
+              ?><div class="updated"><p><strong>Main Options saved for <?php echo $message ?></strong></p></div><?php
+          else:
               jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 3, 'ERROR: ' . $_POST[$opt_jfb_api_key]);
               update_option( $opt_jfb_valid, 0 );
               ?><div class="updated"><p><strong>ERROR:</strong> Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?</p></div><?php
-          else : 
-              $appID = sprintf("%.0f", $appInfo['app_id']);  
-              update_option( $opt_jfb_valid, 1 );
-              jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 2, '"' . $appInfo['application_name'] . '" - ' . $appID );
-              ?><div class="updated"><p><strong>Main Options saved for <?php echo '"' . $appInfo['application_name'] . '" (AppID ' . $appID . ')' ?></strong></p></div><?php
           endif;
       }
       if( isset($_POST['debug_opts_updated']) )
