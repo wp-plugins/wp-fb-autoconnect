@@ -42,13 +42,22 @@ function jfb_admin_page()
           if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/client/facebook.php');
           else                                        require_once('facebook-platform/php4client/facebook.php');
           $facebook = new Facebook($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec], null, true);
-          if( !$facebook->api_client->session_key ):
+          $facebook->api_client->session_key = 0;          
+          $isValid = true;
+          try
+          {
+              $appInfo = $facebook->api_client->admin_getAppProperties(array('app_id', 'application_name'));
+          }
+          catch (Exception $e)
+          {
+              $isValid = false;
+          }
+          
+          if( !$isValid ):
               jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 3, 'ERROR: ' . $_POST[$opt_jfb_api_key]);
               update_option( $opt_jfb_valid, 0 );
               ?><div class="updated"><p><strong>ERROR:</strong> Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?</p></div><?php
           else : 
-              $facebook->api_client->session_key = 0;
-              $appInfo = $facebook->api_client->admin_getAppProperties(array('app_id', 'application_name'));
               $appID = sprintf("%.0f", $appInfo['app_id']);  
               update_option( $opt_jfb_valid, 1 );
               jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 2, $appID . ' - "' . $appInfo['application_name'] . '"' );
