@@ -47,9 +47,15 @@ if( $fbuser['contact_email'] )
     $jfb_log .= "FB: Email privilege granted (" .$fbuser['contact_email'] . ")\n";
 else
 {
-    $fbuser['contact_email'] = 'email@unknown.com';
+    $fbuser['contact_email'] = $jfb_default_email;
     $jfb_log .= "FB: Email privilege denied\n";
 }
+
+
+//Run a hook so users can`examine this Facebook user *before* letting them login.  You might use this
+//to limit logins based on friendship status - if someone isn't your friend, you could redirect them
+//to an error page (and terminate this script).
+do_action('wpfb_connect', array('FB_ID' => $fb_uid, 'facebook' => $facebook) );
 
 
 //Examine all existing WP users to see if any of them match this Facebook user. 
@@ -81,7 +87,7 @@ foreach ($wp_users as $wp_user)
 //If we couldn't find any usermeta identifying an existing WP user for this FB user, we'll use
 //FB to see if they've registered an email address on FB that matches any of our WP users' emails.
 //We can do this even without the email extended_permission, because we use email *hashes*.
-if( !$user_login_id )
+if( !$user_login_id && count($wp_user_hashes) > 0 )
 {
     //First we send Facebook a list of email hashes we want to check against this user
     $jfb_log .= "FP: Searching for user by email...\n";
@@ -110,6 +116,21 @@ if( !$user_login_id )
                 }
             }
         }    
+    }
+}
+
+
+//If we found an existing user, check if they'd previously denied access to their email but have now allowed it.
+//If so, we'll want to update their WP account with their *real* email.
+if( $user_login_id )
+{
+    if( $user_data->user_email == $jfb_default_email && $fbuser['contact_email'] != $jfb_default_email )
+    {
+        $jfb_log .= "WP: Previously denied email has now been allowed; updating to (".$fbuser['contact_email'].")\n";
+        $user_upd = array();
+        $user_upd['ID']         = $user_login_id;
+        $user_upd['user_email'] = $fbuser['contact_email'];
+        wp_update_user($user_upd);
     }
 }
 

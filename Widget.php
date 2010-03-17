@@ -28,7 +28,7 @@ class Widget_LoginLogout extends WP_Widget
         if( $userdata->ID ):
         ?>
             <div style='text-align:center'>
-              <?php echo __(Welcome) . ', ' . $userdata->display_name?>!<br />
+              <?php echo __('Welcome') . ', ' . $userdata->display_name?>!<br />
               <small>
                 <a href="<?php echo get_settings('siteurl')?>/wp-admin/profile.php"><?php _e("Edit Profile")?></a> | <a href=" <?php echo wp_logout_url( $_SERVER['REQUEST_URI'] )?>"><?php _e("Logout")?></a>
               </small>

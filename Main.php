@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -56,6 +56,7 @@ function jfb_output_facebook_init()
     if( !get_option($opt_jfb_valid) ) return;
     $xd_receiver = plugins_url(dirname(plugin_basename(__FILE__))) . "/facebook-platform/xd_receiver.htm";
     ?>
+    <script type="text/javascript" src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php"></script>
     <script type="text/javascript">//<!--
     FB.init("<?php echo get_option($opt_jfb_api_key)?>","<?php echo $xd_receiver?>");
     //--></script>
@@ -69,12 +70,15 @@ function jfb_output_facebook_init()
  */
 function jfb_output_facebook_callback($redirectTo=0)
 {
-     global $opt_jfb_ask_perms, $opt_jfb_valid, $jfb_nonce_name, $jfb_js_callbackfunc;
+     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_valid, $jfb_nonce_name, $jfb_js_callbackfunc;
      if( !get_option($opt_jfb_valid) ) return;
      if( !$redirectTo ) $redirectTo = $_SERVER['REQUEST_URI'];
      $process_logon = plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php";
  ?>
-    <span id="_login_frm"></span>
+    <form name="fblogin_form" action="<?php echo $process_logon?>" method="post">
+      <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
+      <?php wp_nonce_field ($jfb_nonce_name) ?>   
+    </form>
     <script type="text/javascript">//<!--
     function <?php echo $jfb_js_callbackfunc?>()
     {
@@ -84,15 +88,10 @@ function jfb_output_facebook_callback($redirectTo=0)
 
         <?php 
         //Optionally request permissions to get their real email address before redirecting to the logon script.
-        $ask_for_email_permission = get_option($opt_jfb_ask_perms);
+        $ask_for_email_permission = get_option($opt_jfb_ask_perms) || get_option($opt_jfb_req_perms);
         if( $ask_for_email_permission ) echo "FB.Connect.showPermissionDialog('email', function(reply){\n";
+        if( get_option($opt_jfb_req_perms) ) echo 'if(!reply){ alert("Sorry, this site requires an e-mail address to log you in."); return; }';
         ?>
-            //Redirect them to the logon script
-            document.getElementById('_login_frm').innerHTML = 
-                '<form name="fblogin_form" action="<?php echo $process_logon?>" method="POST">'+
-                '<input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />'+
-                '<?php wp_nonce_field ($jfb_nonce_name) ?>' +   
-                '</form>';
                 document.fblogin_form.submit();
         <?php if( $ask_for_email_permission ) echo "});\n"; ?>
     }
@@ -101,20 +100,9 @@ function jfb_output_facebook_callback($redirectTo=0)
 
 
 
-/*
- * Include the FB javascript in the header (only when not already logged in)
- */
-add_action('wp_head', 'jfb_output_fb_header');
-function jfb_output_fb_header()
-{ 
-    global $opt_jfb_always_inc, $current_user;
-    if( !get_option($opt_jfb_always_inc) && isset($current_user) && $current_user->ID != 0 ) return;
-    echo '<script type="text/javascript" src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php"></script>';
-}
-
-
 /**
   * Include the FB class in the <html> tag (only when not already logged in)
+  * So stupid IE will render the button correctly
   */
 add_filter('language_attributes', 'jfb_output_fb_namespace');
 function jfb_output_fb_namespace()
@@ -157,6 +145,5 @@ function jfb_auth($name, $version, $event, $message=0)
                             'data'        => $data));
     wp_remote_post("http://auth.justin-klein.com", $args);
 }
-
 
 ?>

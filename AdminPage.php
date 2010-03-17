@@ -28,7 +28,7 @@ function jfb_add_plugin_links($links, $file)
 function jfb_admin_page()
 {
     global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
-    global $opt_jfb_ask_perms, $opt_jfb_hide_button, $opt_jfb_always_inc, $opt_jfb_mod_done, $opt_jfb_valid;
+    global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_always_inc, $opt_jfb_mod_done, $opt_jfb_valid;
     ?>
     <div class="wrap">
     <?php
@@ -37,6 +37,7 @@ function jfb_admin_page()
           update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
           update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
           update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
+          update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
           
           //When we save the main options, try to connect to Facebook with the key and secret, to make sure they're valid
           if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/client/facebook.php');
@@ -60,7 +61,7 @@ function jfb_admin_page()
           else : 
               $appID = sprintf("%.0f", $appInfo['app_id']);  
               update_option( $opt_jfb_valid, 1 );
-              jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 2, $appID . ' - "' . $appInfo['application_name'] . '"' );
+              jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 2, '"' . $appInfo['application_name'] . '" - ' . $appID );
               ?><div class="updated"><p><strong>Main Options saved for <?php echo '"' . $appInfo['application_name'] . '" (AppID ' . $appID . ')' ?></strong></p></div><?php
           endif;
       }
@@ -113,7 +114,8 @@ function jfb_admin_page()
     <form name="formMainOptions" method="post" action="">
         <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
         <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> API Secret<br /><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Ask the user for permission to get their email address<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> ASK the user for permission to get their email address<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> REQUIRE user for permission to get their email address<br />
         <input type="hidden" name="main_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
