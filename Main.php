@@ -146,6 +146,7 @@ function jfb_auth($name, $version, $event, $message=0)
                   'plugin'      => $name,
                   'version'     => $version,
                   'wp_version'  => $GLOBALS['wp_version'],
+                  'php_version' => PHP_VERSION,
                   'event'       => $event,
                   'message'     => $message,                  
                   'SERVER'      => $_SERVER));
