@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * This file tries to include the Wordpress header by searching UP the directory structure, and dies on failure
  */

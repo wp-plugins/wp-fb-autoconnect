@@ -1,4 +1,4 @@
-<?
+<?php
 /** This file offers an example of a more advanced way to automate Facebook Logins.
  *  Please make sure you understand the "How It Works" section on the plugin homepage first.
  *  

@@ -1,8 +1,8 @@
-<?
+<?php
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -22,9 +22,9 @@ function jfb_output_facebook_btn()
     if( !get_option($opt_jfb_valid) ) return;
     ?>
     <script type="text/javascript">//<!--
-    document.write('<span id="fbLoginButton"><fb:login-button v="2" size="small" onlogin="<?=$jfb_js_callbackfunc?>();">Login with Facebook</fb:login-button></span>');
+    document.write('<span id="fbLoginButton"><fb:login-button v="2" size="small" onlogin="<?php echo $jfb_js_callbackfunc?>();">Login with Facebook</fb:login-button></span>');
     //--></script>
-    <?
+    <?php
 }
 
 
@@ -39,11 +39,11 @@ function jfb_output_facebook_instapopup()
     <script type="text/javascript">//<!--
     function showPopup()
     {
-        FB.ensureInit( function(){FB.Connect.requireSession(<?=$jfb_js_callbackfunc?>);}); 
+        FB.ensureInit( function(){FB.Connect.requireSession(<?php echo $jfb_js_callbackfunc?>);}); 
     }
     window.onload = showPopup;
     //--></script>
-    <?
+    <?php
 }
 
 
@@ -57,9 +57,9 @@ function jfb_output_facebook_init()
     $xd_receiver = plugins_url(dirname(plugin_basename(__FILE__))) . "/facebook-platform/xd_receiver.htm";
     ?>
     <script type="text/javascript">//<!--
-    FB.init("<?=get_option($opt_jfb_api_key)?>","<?=$xd_receiver?>");
+    FB.init("<?php echo get_option($opt_jfb_api_key)?>","<?php echo $xd_receiver?>");
     //--></script>
-    <?    
+    <?php    
 }
 
 
@@ -76,27 +76,27 @@ function jfb_output_facebook_callback($redirectTo=0)
  ?>
     <span id="_login_frm"></span>
     <script type="text/javascript">//<!--
-    function <?=$jfb_js_callbackfunc?>()
+    function <?php echo $jfb_js_callbackfunc?>()
     {
         //Make sure we have a valid session
         if (!FB.Facebook.apiClient.get_session())
         { alert('Facebook failed to log you in!'); return; }
 
-        <? 
+        <?php 
         //Optionally request permissions to get their real email address before redirecting to the logon script.
         $ask_for_email_permission = get_option($opt_jfb_ask_perms);
         if( $ask_for_email_permission ) echo "FB.Connect.showPermissionDialog('email', function(reply){\n";
         ?>
             //Redirect them to the logon script
             document.getElementById('_login_frm').innerHTML = 
-                '<form name="fblogin_form" action="<?=$process_logon?>" method="POST">'+
-                '<input type="hidden" name="redirectTo" value="<?=$redirectTo?>" />'+
-                '<? wp_nonce_field ($jfb_nonce_name) ?>' +   
+                '<form name="fblogin_form" action="<?php echo $process_logon?>" method="POST">'+
+                '<input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />'+
+                '<?php wp_nonce_field ($jfb_nonce_name) ?>' +   
                 '</form>';
                 document.fblogin_form.submit();
-        <? if( $ask_for_email_permission ) echo "});\n"; ?>
+        <?php if( $ask_for_email_permission ) echo "});\n"; ?>
     }
-    //--></script><?
+    //--></script><?php
 }
 
 

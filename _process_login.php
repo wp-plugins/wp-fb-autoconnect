@@ -1,4 +1,4 @@
-<?
+<?php
 /**
   * This file handles Facebook Connect login requests.  When a user logs in via the FB popup window,
   * the js_callbackfunc will redirect us here.  We then use information from FB to log them into WP.
@@ -175,11 +175,11 @@ if( !isset($delay_redirect) || !$delay_redirect )
         <title>Logging In...</title>
     </head>
     <body>
-        <?="<pre>".$jfb_log."</pre>"?>
-        <?='<a href="'.$redirectTo.'">Continue</a>'?>
+        <?php echo "<pre>".$jfb_log."</pre>"?>
+        <?php echo '<a href="'.$redirectTo.'">Continue</a>'?>
     </body>
 </html>
-<?
+<?php
 
 
 /*
