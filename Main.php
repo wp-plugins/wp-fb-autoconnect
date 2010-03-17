@@ -121,11 +121,13 @@ register_activation_hook(__FILE__, 'jfb_activate');
 register_deactivation_hook(__FILE__, 'jfb_deactivate');
 function jfb_activate()  
 {
-    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 1);
+    global $opt_jfb_valid;
+    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 1, get_option($opt_jfb_valid)?"VALID":0);
 }
 function jfb_deactivate()
 {
-    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 0);
+    global $opt_jfb_valid;
+    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 0, get_option($opt_jfb_valid)?"VALID":0);
 }
 function jfb_auth($name, $version, $event, $message=0)
 {
