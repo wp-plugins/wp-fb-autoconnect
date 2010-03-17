@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon
 Requires at least: 2.5
 Tested up to: 2.9.2
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.
 
@@ -60,6 +60,9 @@ For  more information on exactly how this plugin's login process works and how i
 
 
 == Changelog ==
+
+= 1.0.3 (2010-03-16) =
+* Hopefully fix the "Call to undefined function wp_insert_user()" bug
 
 = 1.0.2 (2010-03-16) =
 * Fix API_Key validation check - should work properly now!
