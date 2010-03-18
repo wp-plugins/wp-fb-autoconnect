@@ -176,4 +176,41 @@ function jfb_fix_rewrites($rules)
     return $rules;
 }
 
+
+
+/*
+ * I use this for bug-finding; you can remove it if you want, but I'd appreciate it if you didn't.
+ * I'll always notify you directly if I find & fix a bug thanks to your site (along with providing the fix) :)
+ */
+function jfb_activate()  
+{
+    global $opt_jfb_valid, $opt_jfb_api_key;
+    $msg = get_option($opt_jfb_valid)?"VALID":(!get_option($opt_jfb_api_key)||get_option($opt_jfb_api_key)==''?"NOKEY":"INVALIDKEY");
+    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 1, $msg);
+}
+function jfb_deactivate()
+{
+    global $opt_jfb_valid, $opt_jfb_api_key;
+    $msg = get_option($opt_jfb_valid)?"VALID":(!get_option($opt_jfb_api_key)||get_option($opt_jfb_api_key)==''?"NOKEY":"INVALIDKEY"); 
+    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 0, $msg);
+}
+function jfb_auth($name, $version, $event, $message=0)
+{
+    $AuthVer = 1;
+    $data = serialize(array(
+                  'plugin'      => $name,
+                  'version'     => $version,
+                  'wp_version'  => $GLOBALS['wp_version'],
+                  'php_version' => PHP_VERSION,
+                  'event'       => $event,
+                  'message'     => $message,                  
+                  'SERVER'      => $_SERVER));
+    $args = array( 'blocking'=>false, 'body'=>array(
+                            'auth_plugin' => 1,
+                            'AuthVer'     => $AuthVer,
+                            'hash'        => md5($AuthVer.$data),
+                            'data'        => $data));
+    wp_remote_post("http://auth.justin-klein.com", $args);
+}
+
 ?>
