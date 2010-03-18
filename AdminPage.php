@@ -182,8 +182,6 @@ function jfb_fix_rewrites($rules)
  * I use this for bug-finding; you can remove it if you want, but I'd appreciate it if you didn't.
  * I'll always notify you directly if I find & fix a bug thanks to your site (along with providing the fix) :)
  */
-register_activation_hook(__FILE__, 'jfb_activate');
-register_deactivation_hook(__FILE__, 'jfb_deactivate');
 function jfb_activate()  
 {
     global $opt_jfb_valid, $opt_jfb_api_key;
