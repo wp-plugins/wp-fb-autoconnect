@@ -89,33 +89,40 @@ foreach ($wp_users as $wp_user)
 //We can do this even without the email extended_permission, because we use email *hashes*.
 if( !$user_login_id && count($wp_user_hashes) > 0 )
 {
-    //First we send Facebook a list of email hashes we want to check against this user
-    $jfb_log .= "FP: Searching for user by email...\n";
-    $ret = $facebook->api_client->connect_registerUsers(json_encode($wp_user_hashes));
-    if( !$ret ) j_die("Error: Could not register hashes with Facebook (connect_registerUsers).\n");
-    
-    //Next we get the hashes for the current FB user; This will only return hashes we
-    //registered above, so if we get back nothing we know the current FB user is not on our blog
-    $this_fbuser_hashes = $facebook->api_client->users_getInfo($fb_uid, array('email_hashes'));
-    $this_fbuser_hashes = $this_fbuser_hashes[0]['email_hashes'];
-    
-    //If we did get back a hash, all we need to do is find which WP user it came from - and that's who's logging in! 
-    if(!empty($this_fbuser_hashes)) 
+    if(version_compare(PHP_VERSION, '5', "<"))
     {
-        foreach( $this_fbuser_hashes as $this_fbuser_hash )
+        $jfb_log .= "FP: CANNOT search for users by email in PHP4\n";
+    }
+    else
+    {
+        //First we send Facebook a list of email hashes we want to check against this user
+        $jfb_log .= "FP: Searching for user by email...\n";
+        $ret = $facebook->api_client->connect_registerUsers(json_encode($wp_user_hashes));
+        if( !$ret ) j_die("Error: Could not register hashes with Facebook (connect_registerUsers).\n");
+        
+        //Next we get the hashes for the current FB user; This will only return hashes we
+        //registered above, so if we get back nothing we know the current FB user is not on our blog
+        $this_fbuser_hashes = $facebook->api_client->users_getInfo($fb_uid, array('email_hashes'));
+        $this_fbuser_hashes = $this_fbuser_hashes[0]['email_hashes'];
+        
+        //If we did get back a hash, all we need to do is find which WP user it came from - and that's who's logging in! 
+        if(!empty($this_fbuser_hashes)) 
         {
-            foreach( $wp_user_hashes as $this_wpuser_id => $this_wpuser_hash )
+            foreach( $this_fbuser_hashes as $this_fbuser_hash )
             {
-                if( $this_fbuser_hash == $this_wpuser_hash['email_hash'] )
+                foreach( $wp_user_hashes as $this_wpuser_id => $this_wpuser_hash )
                 {
-                    $user_login_id   = $this_wpuser_id;
-                    $user_data       = get_userdata($user_login_id);
-                    $user_login_name = $user_data->user_login;
-                    $jfb_log .= "FB: Found existing user by email (" . $user_login_name . ")\n";
-                    break;
+                    if( $this_fbuser_hash == $this_wpuser_hash['email_hash'] )
+                    {
+                        $user_login_id   = $this_wpuser_id;
+                        $user_data       = get_userdata($user_login_id);
+                        $user_login_name = $user_data->user_login;
+                        $jfb_log .= "FB: Found existing user by email (" . $user_login_name . ")\n";
+                        break;
+                    }
                 }
-            }
-        }    
+            }    
+        }
     }
 }
 
