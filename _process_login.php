@@ -77,10 +77,13 @@ foreach ($wp_users as $wp_user)
     }
 
     //In case we don't find them by meta, we'll need to search for them by email below.
-    //Precalculate each user's Facebook mail-hash (http://wiki.developers.facebook.com/index.php/Connect.registerUsers)
-    $email= strtolower(trim($user_data->user_email));
-    $hash = sprintf('%u_%s', crc32($email), md5($email));
-    $wp_user_hashes[$wp_user->ID] = array('email_hash' => $hash);
+    //Precalculate each non-FB-connected user's mail-hash (http://wiki.developers.facebook.com/index.php/Connect.registerUsers)
+    if( !$meta_uid )
+    {
+        $email= strtolower(trim($user_data->user_email));
+        $hash = sprintf('%u_%s', crc32($email), md5($email));
+        $wp_user_hashes[$wp_user->ID] = array('email_hash' => $hash);
+    }
 }
 
 
@@ -96,12 +99,20 @@ if( !$user_login_id && count($wp_user_hashes) > 0 )
     else
     {
         //First we send Facebook a list of email hashes we want to check against this user
+        //It can accept 1,000 at a time.
         $jfb_log .= "FP: Searching for user by email...\n";
-        $ret = $facebook->api_client->connect_registerUsers(json_encode($wp_user_hashes));
-        if( !$ret ) j_die("Error: Could not register hashes with Facebook (connect_registerUsers).\n");
+        $jfb_log .= "    Registering hashes for " . count($wp_user_hashes) . " of " . count($wp_users) . " total users...\n";
+        $hash_chunks = array_chunk( $wp_user_hashes, 1000 );
+        foreach( $hash_chunks as $num => $hashes )
+        {
+            $jfb_log .= "    #" . ($num*1000) . "-" . ($num*1000+count($hashes)-1) . "\n";
+            $ret = $facebook->api_client->connect_registerUsers(json_encode($wp_user_hashes));
+            if( !$ret ) j_die("Error: Could not register hashes with Facebook (connect_registerUsers).\n");
+        }  
         
         //Next we get the hashes for the current FB user; This will only return hashes we
         //registered above, so if we get back nothing we know the current FB user is not on our blog
+        $jfb_log .= "    Looking up current user...\n";
         $this_fbuser_hashes = $facebook->api_client->users_getInfo($fb_uid, array('email_hashes'));
         $this_fbuser_hashes = $this_fbuser_hashes[0]['email_hashes'];
         

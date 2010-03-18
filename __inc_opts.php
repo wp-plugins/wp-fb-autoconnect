@@ -2,7 +2,7 @@
 
 //General Info
 global $jfb_version, $jfb_homepage;
-$jfb_version    = "1.0.6";
+$jfb_version    = "1.0.7";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 
