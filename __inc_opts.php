@@ -2,13 +2,14 @@
 
 //General Info
 global $jfb_version, $jfb_homepage;
-$jfb_version    = "1.0.7.1";
+$jfb_version    = "1.0.8";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 
 //Database options
 global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $opt_jfb_ask_perms;
-global $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_always_inc, $opt_jfb_mod_done, $opt_jfb_valid;
+global $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_valid;
+global $opt_jfb_buddypress;
 $opt_jfb_api_key    = "jfb_api_key";
 $opt_jfb_api_sec    = "jfb_api_sec";
 $opt_jfb_email_to   = "jfb_email_to";
@@ -16,9 +17,9 @@ $opt_jfb_delay_redir= "jfb_delay_redirect";
 $opt_jfb_ask_perms  = "jfb_ask_permissions";
 $opt_jfb_req_perms  = "jfb_req_permissions";
 $opt_jfb_hide_button= "jfb_hide_button";
-$opt_jfb_always_inc = "jfb_always_inc";
 $opt_jfb_mod_done   = "jfb_modrewrite_done";
 $opt_jfb_valid      = "jfb_session_valid";
+$opt_jfb_buddypress = "jfb_include_buddypress";
 
 
 //Shouldn't ever need to change these

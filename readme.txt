@@ -1,12 +1,12 @@
 === Plugin Name ===
 Contributors: Justin_K
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T88Y2AZ53836U
-Tags: facebook connect, facebook, connect, widget, login, logon
+Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 2.9.2
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 
-A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.
+A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
 
 == Description ==
@@ -21,6 +21,7 @@ The simple concept behind WP-FB AutoConnect is to offer an easy-to-use, no-thril
 * No contact with Facebook servers after the login completes - so no slow pageloads.
 * Simple, well-documented source makes it easy to extend and customize.
 * Won't bloat your database with duplicate user accounts, extra fields, or unnecessary complications.
+* Built-in BuddyPress support.
 
 This plugin is a great starting point for coders looking to add customized Facebook integration to their blogs.  For complete information, see the [plugin's homepage](http://www.justin-klein.com/projects/wp-fb-autoconnect).
 
@@ -42,7 +43,7 @@ Then you can install the plugin:
 2. Login to your Wordpress admin panel and activate the plugin.
 3. Navigate to Settings -> WP-FB AutoConn.
 4. Enter your Application's API Key and Secret (obtained above), and click "Save."
-5. Navigate to Appearance -> Widgets, and add the WP-FB AutoConnect widget to your sidebar
+5. Navigate to Appearance -> Widgets, and add the WP-FB AutoConnect widget to your sidebar, *OR* if you're using BuddyPress, select the "Include Buddypress filters" option to insert a Facebook button into the standard BuddyPress login panel. 
 
 That's it - users should now be able to use the widget to login to your blog with their Facebook accounts.
 
@@ -60,6 +61,10 @@ For  more information on exactly how this plugin's login process works and how i
 
 
 == Changelog ==
+
+= 1.0.8 (2010-13-18) =
+* Add option to include Buddypress-specific filters
+* Cleanup the Admin panel & update documentation
 
 = 1.0.7 (2010-13-17) =
 * Fix email hash-lookup for blogs with over 1,000 existing users

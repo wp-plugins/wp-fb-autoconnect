@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -19,7 +19,11 @@ require_once("Widget.php");
 function jfb_output_facebook_btn()
 {
     global $jfb_js_callbackfunc, $opt_jfb_valid;
-    if( !get_option($opt_jfb_valid) ) return;
+    if( !get_option($opt_jfb_valid) )
+    {
+        echo "<!--WARNING: Invalid or Unset Facebook API Key-->";
+        return;
+    }
     ?>
     <script type="text/javascript">//<!--
     document.write('<span id="fbLoginButton"><fb:login-button v="2" size="small" onlogin="<?php echo $jfb_js_callbackfunc?>();">Login with Facebook</fb:login-button></span>');
@@ -107,11 +111,17 @@ function jfb_output_facebook_callback($redirectTo=0)
 add_filter('language_attributes', 'jfb_output_fb_namespace');
 function jfb_output_fb_namespace()
 {
-    global $opt_jfb_always_inc, $current_user;
-    if( !get_option($opt_jfb_always_inc) && isset($current_user) && $current_user->ID != 0 ) return;
+    global $current_user;
+    if( isset($current_user) && $current_user->ID != 0 ) return;
     echo 'xmlns:fb="http://www.facebook.com/2008/fbml"';
 }
 
+
+/**
+  * If we're using BuddyPress, include its filters
+  */
+global $opt_jfb_buddypress;
+if( get_option($opt_jfb_buddypress) ) require_once("BuddyPress.php");
 
 
 /*
@@ -122,12 +132,12 @@ register_deactivation_hook(__FILE__, 'jfb_deactivate');
 function jfb_activate()  
 {
     global $opt_jfb_valid;
-    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 1, get_option($opt_jfb_valid)?"VALID":0);
+    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 1, get_option($opt_jfb_valid)?"VALID":"NOKEY");
 }
 function jfb_deactivate()
 {
     global $opt_jfb_valid;
-    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 0, get_option($opt_jfb_valid)?"VALID":0);
+    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 0, get_option($opt_jfb_valid)?"VALID":"NOKEY");
 }
 function jfb_auth($name, $version, $event, $message=0)
 {

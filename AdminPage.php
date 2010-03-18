@@ -28,23 +28,17 @@ function jfb_add_plugin_links($links, $file)
 function jfb_admin_page()
 {
     global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
-    global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_always_inc, $opt_jfb_mod_done, $opt_jfb_valid;
+    global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done;
+    global $opt_jfb_buddypress, $opt_jfb_valid;
     ?>
     <div class="wrap">
     <?php
       if( isset($_POST['main_opts_updated']) )
       {
-          update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
-          update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
-          update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
-          update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
-          
           //When saving the main options, make sure the key and secret are valid.
           if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/validate_php5.php');
           else                                        require_once('facebook-platform/validate_php4.php');
           $fbValid = jfb_validate_key($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec]);
-         
-          //Save the options (if valid)
           if( $fbValid ):
               if( method_exists($fbValid->api_client, 'admin_getAppProperties') )
               {
@@ -57,21 +51,28 @@ function jfb_admin_page()
                 $message = "Key " . $_POST[$opt_jfb_api_key];
               }
               update_option( $opt_jfb_valid, 1 );
-              jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 2, $message );
               ?><div class="updated"><p><strong>Main Options saved for <?php echo $message ?></strong></p></div><?php
           else:
-              jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 3, 'ERROR: ' . $_POST[$opt_jfb_api_key]);
               update_option( $opt_jfb_valid, 0 );
-              ?><div class="updated"><p><strong>ERROR:</strong> Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?</p></div><?php
+              $message = "ERROR: Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?";
+              ?><div class="updated"><p><?php echo $message ?></p></div><?php
           endif;
+          
+          //We'll update the options either way - but if jfb_valid isn't set, the plugin won't show a Facebook button.
+          if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
+             jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 2, $message );
+          update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
+          update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
+          update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
+          update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
+          update_option( $opt_jfb_buddypress, $_POST[$opt_jfb_buddypress] );
+          if( $_POST[$opt_jfb_email_to] )   update_option( $opt_jfb_email_to, get_bloginfo('admin_email') );
+          else                              update_option( $opt_jfb_email_to, 0 );
       }
       if( isset($_POST['debug_opts_updated']) )
       {
-          if( $_POST[$opt_jfb_email_to] )   update_option( $opt_jfb_email_to, get_bloginfo('admin_email') );
-          else                              update_option( $opt_jfb_email_to, 0 );
           update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
           update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );          
-          update_option( $opt_jfb_always_inc, $_POST[$opt_jfb_always_inc] );
           ?><div class="updated"><p><strong><?php _e('Debug Options saved.', 'mt_trans_domain' ); ?></strong></p></div><?php
       }
       if( isset($_POST['mod_rewrite_update']) )
@@ -104,18 +105,24 @@ function jfb_admin_page()
       <li>Click "Save Changes" (on Facebook).</li>
       <li>Click "Save" below.</li>
     </ol>
-    <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a> and allow your readers to login with their Facebook accounts.<br /><br />
+    <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a>, or if you're using BuddyPress, select the option below to automatically add a Facebook button to your built-in login panel.<br /><br />
     For more complete documentation and help, visit the <a href="<?php echo $jfb_homepage?>">plugin homepage</a>.<br />
      
     <br />
     <hr />
     
-    <h4>Main Options:</h4>
+    <h3>Main Options:</h3>
     <form name="formMainOptions" method="post" action="">
+        <b>Facebook:</b><br />
         <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
         <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> API Secret<br /><br />
+        <b>BuddyPress</b>:<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Include BUDDYPRESS filters<br />
+        <br /><b>E-Mail:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> ASK the user for permission to get their email address<br />
         <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> REQUIRE user for permission to get their email address<br />
+        <br /><b>Notification:</b><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="1" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
         <input type="hidden" name="main_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
@@ -136,10 +143,8 @@ function jfb_admin_page()
     
     <h4>Debug Options:</h4>
     <form name="formDebugOptions" method="post" action="">
-        <input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="1" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (Not for production sites!)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_always_inc?>" value="1" <?php echo get_option($opt_jfb_always_inc)?'checked="checked"':''?> /> Always include the Facebook API JavaScript (even when logged in)<br />
         <input type="hidden" name="debug_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
