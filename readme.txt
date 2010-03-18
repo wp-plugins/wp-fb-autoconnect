@@ -32,7 +32,7 @@ To allow your users to login with their Facebook accounts, you must first setup 
 1. Visit [www.facebook.com/developers/createapp.php](http://www.facebook.com/developers/createapp.php)
 2. Type in a name (i.e. the name of your blog). This is what Facebook will show on the login popup.
 3. Note the API Key and Secret; you'll need them in a minute.
-4. Click the "Connect" tab and enter your site's URL under "Connect URL" (i.e. http://www.example.com/)
+4. Click the "Connect" tab and enter your site's URL under "Connect URL."  Note: http://example.com/ and http://www.example.com/ are *not* the same thing - make sure you enter your site's actual URL!
 5. Click the "Advanced" tab and enter your site's domain under "Email Domain" (i.e. example.com). This is only required if you want to be able to access your users' email addresses (optional).
 6. Click "Save Changes."
 
