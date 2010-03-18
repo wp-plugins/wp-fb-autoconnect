@@ -125,7 +125,7 @@ if( get_option($opt_jfb_buddypress) ) require_once("BuddyPress.php");
 
 
 /*
- * 
+ * Activate
  */
 register_activation_hook(__FILE__, 'jfb_activate');
 register_deactivation_hook(__FILE__, 'jfb_deactivate');
