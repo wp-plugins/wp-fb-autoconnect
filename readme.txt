@@ -43,7 +43,7 @@ Then you can install the plugin:
 2. Login to your Wordpress admin panel and activate the plugin.
 3. Navigate to Settings -> WP-FB AutoConn.
 4. Enter your Application's API Key and Secret (obtained above), and click "Save."
-5. Navigate to Appearance -> Widgets, and add the WP-FB AutoConnect widget to your sidebar, *OR* if you're using BuddyPress, select the "Include Buddypress filters" option to insert a Facebook button into the standard BuddyPress login panel. 
+5. Navigate to Appearance -> Widgets, and add the WP-FB AutoConnect widget to your sidebar, *OR* if you're using BuddyPress, a Facebook button will be automatically added to its built-in login panel. 
 
 That's it - users should now be able to use the widget to login to your blog with their Facebook accounts.
 
