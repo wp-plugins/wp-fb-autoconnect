@@ -44,8 +44,15 @@ function jfb_admin_page()
               if( method_exists($fbValid->api_client, 'admin_getAppProperties') )
               {
                 $appInfo = $fbValid->api_client->admin_getAppProperties(array('app_id', 'application_name'));
-                $appID = sprintf("%.0f", $appInfo['app_id']);  
-                $message = '"' . $appInfo['application_name'] . '" (ID ' . $appID . ')';
+                if( is_array($appInfo) )
+                {
+                    $message = '"' . $appInfo['application_name'] . '" (ID ' . sprintf("%.0f", $appInfo['app_id']) . ')';
+                }
+                else
+                {
+                    $message = "Key " . $_POST[$opt_jfb_api_key];
+                    jfb_auth($jfb_name, $jfb_version, 3, "BUG!! appInfo = " . print_r($appInfo, true) );
+                }
               }
               else
               {
@@ -102,7 +109,7 @@ function jfb_admin_page()
       <li>Visit <a href="http://www.facebook.com/developers/createapp.php" target="_lnk">www.facebook.com/developers/createapp.php</a></li>
       <li>Type in a name (i.e. the name of your website).  This is the name your users will see on the Facebook login popup.</li>
       <li>Copy the API Key and Secret to the boxes below.</li>
-      <li>Click the "Connect" tab (back on Facebook) and under "Connect URL" enter the URL to your website (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same thing - make sure you enter the right URL!</li>
+      <li>Click the "Connect" tab (back on Facebook) and under "Connect URL" enter the URL to your website (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same - be sure it matches what you've set under Settings-&gt;General-&gt;Wordpress Address.</li>
       <li>Click the "Advanced" tab and enter your site's domain under "Email Domain" (i.e. example.com).  This is only required if you want to access your users' email addresses (optional).</li>
       <li>Click "Save Changes" (on Facebook).</li>
       <li>Click "Save" below.</li>

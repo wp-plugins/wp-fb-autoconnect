@@ -99,13 +99,14 @@ if( !$user_login_id && count($wp_user_hashes) > 0 )
     else
     {
         //First we send Facebook a list of email hashes we want to check against this user
-        //It can accept 1,000 at a time.
+        //It *should* accept 1000 at a time, but some users have reported crashes...so I'll try 750...
+        $insert_limit = 750;
         $jfb_log .= "FP: Searching for user by email...\n";
         $jfb_log .= "    Registering hashes for " . count($wp_user_hashes) . " candidates of " . count($wp_users) . " total users...\n";
-        $hash_chunks = array_chunk( $wp_user_hashes, 1000 );
+        $hash_chunks = array_chunk( $wp_user_hashes, $insert_limit );
         foreach( $hash_chunks as $num => $hashes )
         {
-            $jfb_log .= "    #" . ($num*1000) . "-" . ($num*1000+count($hashes)-1) . "\n";
+            $jfb_log .= "    #" . ($num*$insert_limit) . "-" . ($num*$insert_limit+count($hashes)-1) . "\n";
             $ret = $facebook->api_client->connect_registerUsers(json_encode($wp_user_hashes));
             if( !$ret ) j_die("Error: Could not register hashes with Facebook (connect_registerUsers).\n");
         }  
