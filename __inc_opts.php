@@ -1,8 +1,9 @@
 <?php
 
 //General Info
-global $jfb_version, $jfb_homepage;
-$jfb_version    = "1.0.8.1";
+global $jfb_name, $jfb_version, $jfb_homepage;
+$jfb_name       = "WP-FB AutoConnect";
+$jfb_version    = "1.1.0";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 

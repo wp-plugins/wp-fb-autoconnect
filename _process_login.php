@@ -8,7 +8,7 @@
 //Include our options and the Wordpress core
 require_once("__inc_opts.php");
 require_once("__inc_wp.php");
-$jfb_log = "Starting login process...\n";
+$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ")...\n";
 
 
 //Check the nonce to make sure this was a valid login attempt (not a hack)
@@ -101,7 +101,7 @@ if( !$user_login_id && count($wp_user_hashes) > 0 )
         //First we send Facebook a list of email hashes we want to check against this user
         //It can accept 1,000 at a time.
         $jfb_log .= "FP: Searching for user by email...\n";
-        $jfb_log .= "    Registering hashes for " . count($wp_user_hashes) . " of " . count($wp_users) . " total users...\n";
+        $jfb_log .= "    Registering hashes for " . count($wp_user_hashes) . " candidates of " . count($wp_users) . " total users...\n";
         $hash_chunks = array_chunk( $wp_user_hashes, 1000 );
         foreach( $hash_chunks as $num => $hashes )
         {
@@ -158,7 +158,7 @@ if( $user_login_id )
 //account we register will have a bogus email address (but that's OK, since we still know their Facebook ID)
 if( !$user_login_id )
 {
-    $jfb_log .= "WP: No user found. Automatically registering FB_". $fb_uid . "\n";
+    $jfb_log .= "WP: No user found. Automatically registering (FB_". $fb_uid . ")\n";
     $user_data = array();
     $user_data['user_login']    = "FB_" . $fb_uid;
     $user_data['user_pass']     = substr( md5( uniqid( microtime() ).$_SERVER["REMOTE_ADDR"] ), 0, 15);
@@ -168,6 +168,9 @@ if( !$user_login_id )
     $user_data['display_name']  = $fbuser['first_name'];
     $user_data['user_url']      = $fbuser["profile_url"];
     $user_data['user_email']    = $fbuser['contact_email'];
+    
+    //Run a filter so the user can be modified to something different before registration
+    $user_data = apply_filters('wpfb_insert_user', $user_data, $fbuser );
     
     //Insert a new user to our database and notify the site admin
     $user_login_id   = wp_insert_user($user_data);
@@ -193,9 +196,9 @@ do_action('wp_login', $user_login_name);
 
 //Email logs if requested
 $jfb_log .= "Login complete!\n";
-$jfb_log .= "  WP User : <a href=\"" . admin_url("user-edit.php?user_id=$user_login_id") . "\">$user_login_name</a>\n";
-$jfb_log .= "  FB User : <a href=\"" . $fbuser["profile_url"] . "\">$fb_uid</a>\n";
-$jfb_log .= "  Redirect: <a href=\"" . $redirectTo . "\">$redirectTo</a>\n";
+$jfb_log .= "   WP User : $user_login_name (" . admin_url("user-edit.php?user_id=$user_login_id") . ")\n";
+$jfb_log .= "   FB User : " . $fbuser['name'] . " (" . $fbuser["profile_url"] . ")\n";
+$jfb_log .= "   Redirect: " . $redirectTo . "\n";
 j_mail("Facebook Login: " . $user_login_name, $jfb_log);
 
 

@@ -27,6 +27,7 @@ function jfb_add_plugin_links($links, $file)
  */
 function jfb_admin_page()
 {
+    global $jfb_name, $jfb_version;
     global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done;
     global $opt_jfb_buddypress, $opt_jfb_valid;
@@ -51,26 +52,27 @@ function jfb_admin_page()
                 $message = "Key " . $_POST[$opt_jfb_api_key];
               }
               update_option( $opt_jfb_valid, 1 );
+              if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
+                 jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
               ?><div class="updated"><p><strong>Main Options saved for <?php echo $message ?></strong></p></div><?php
           else:
               update_option( $opt_jfb_valid, 0 );
               $message = "ERROR: Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?";
+              jfb_auth($jfb_name, $jfb_version, 3, $message );
               ?><div class="updated"><p><?php echo $message ?></p></div><?php
           endif;
           
           //We'll update the options either way - but if jfb_valid isn't set, the plugin won't show a Facebook button.
-          if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
-             jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 2, $message );
           update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
           update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
           update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
           update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
-          update_option( $opt_jfb_buddypress, $_POST[$opt_jfb_buddypress] );
           if( $_POST[$opt_jfb_email_to] )   update_option( $opt_jfb_email_to, get_bloginfo('admin_email') );
           else                              update_option( $opt_jfb_email_to, 0 );
       }
       if( isset($_POST['debug_opts_updated']) )
       {
+          update_option( $opt_jfb_buddypress, !$_POST[$opt_jfb_buddypress] );
           update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
           update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );          
           ?><div class="updated"><p><strong><?php _e('Debug Options saved.', 'mt_trans_domain' ); ?></strong></p></div><?php
@@ -105,7 +107,7 @@ function jfb_admin_page()
       <li>Click "Save Changes" (on Facebook).</li>
       <li>Click "Save" below.</li>
     </ol>
-    <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a>, or if you're using BuddyPress, select the option below to automatically add a Facebook button to your built-in login panel.<br /><br />
+    <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a>, or if you're using BuddyPress, a Facebook button will be automatically added to its built-in login panel.<br /><br />
     For more complete documentation and help, visit the <a href="<?php echo $jfb_homepage?>">plugin homepage</a>.<br />
      
     <br />
@@ -116,8 +118,6 @@ function jfb_admin_page()
         <b>Facebook:</b><br />
         <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
         <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> API Secret<br /><br />
-        <b>BuddyPress</b>:<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Include BUDDYPRESS filters<br />
         <br /><b>E-Mail:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> ASK the user for permission to get their email address<br />
         <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> REQUIRE user for permission to get their email address<br />
@@ -145,6 +145,7 @@ function jfb_admin_page()
     <form name="formDebugOptions" method="post" action="">
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (Not for production sites!)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo !get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Disable BuddyPress filters<br />        
         <input type="hidden" name="debug_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
@@ -184,15 +185,15 @@ function jfb_fix_rewrites($rules)
  */
 function jfb_activate()  
 {
-    global $opt_jfb_valid, $opt_jfb_api_key;
+    global $jfb_name, $jfb_version, $opt_jfb_valid, $opt_jfb_api_key;
     $msg = get_option($opt_jfb_valid)?"VALID":(!get_option($opt_jfb_api_key)||get_option($opt_jfb_api_key)==''?"NOKEY":"INVALIDKEY");
-    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 1, $msg);
+    jfb_auth($jfb_name, $jfb_version, 1, "ON: " . $msg);
 }
 function jfb_deactivate()
 {
-    global $opt_jfb_valid, $opt_jfb_api_key;
+    global $jfb_name, $jfb_version, $opt_jfb_valid, $opt_jfb_api_key;
     $msg = get_option($opt_jfb_valid)?"VALID":(!get_option($opt_jfb_api_key)||get_option($opt_jfb_api_key)==''?"NOKEY":"INVALIDKEY"); 
-    jfb_auth(plugin_basename( __FILE__ ), $GLOBALS['jfb_version'], 0, $msg);
+    jfb_auth($jfb_name, $jfb_version, 0, "OFF: " . $msg);
 }
 function jfb_auth($name, $version, $event, $message=0)
 {
