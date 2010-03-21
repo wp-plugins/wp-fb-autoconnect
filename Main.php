@@ -2,10 +2,30 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
+
+
+/*
+ * Copyright 2010 Justin Klein (email: justin@justin-klein.com)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 
 require_once("__inc_opts.php");
 require_once("AdminPage.php");
@@ -37,14 +57,15 @@ function jfb_output_facebook_btn()
  * As an alternative to jfb_output_facebook_btn, this will setup an event to automatically popup the
  * Facebook Connect dialog as soon as the page finishes loading (as if they clicked the button manually) 
  */
-function jfb_output_facebook_instapopup()
+function jfb_output_facebook_instapopup( $callbackName=0 )
 {
     global $jfb_js_callbackfunc;
+    if( !$callbackName ) $callbackName = $jfb_js_callbackfunc;
     ?>
     <script type="text/javascript">//<!--
     function showPopup()
     {
-        FB.ensureInit( function(){FB.Connect.requireSession(<?php echo $jfb_js_callbackfunc?>);}); 
+        FB.ensureInit( function(){FB.Connect.requireSession(<?php echo $callbackName?>);}); 
     }
     window.onload = showPopup;
     //--></script>
@@ -73,19 +94,20 @@ function jfb_output_facebook_init()
 /*
  * Output the JS callback function that'll handle FB logins
  */
-function jfb_output_facebook_callback($redirectTo=0)
+function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
 {
      global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_valid, $jfb_nonce_name, $jfb_js_callbackfunc;
      if( !get_option($opt_jfb_valid) ) return;
-     if( !$redirectTo ) $redirectTo = $_SERVER['REQUEST_URI'];
+     if( !$redirectTo )  $redirectTo = $_SERVER['REQUEST_URI'];
+     if( !$callbackName )$callbackName = $jfb_js_callbackfunc;
      $process_logon = plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php";
  ?>
-    <form name="fblogin_form" action="<?php echo $process_logon?>" method="post">
+    <form name="<?php echo $callbackName ?>_form" action="<?php echo $process_logon?>" method="post">
       <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
       <?php wp_nonce_field ($jfb_nonce_name) ?>   
     </form>
     <script type="text/javascript">//<!--
-    function <?php echo $jfb_js_callbackfunc?>()
+    function <?php echo $callbackName ?>()
     {
         //Make sure we have a valid session
         if (!FB.Facebook.apiClient.get_session())
@@ -97,7 +119,7 @@ function jfb_output_facebook_callback($redirectTo=0)
         if( $ask_for_email_permission ) echo "FB.Connect.showPermissionDialog('email', function(reply){\n";
         if( get_option($opt_jfb_req_perms) ) echo 'if(!reply){ alert("Sorry, this site requires an e-mail address to log you in."); return; }';
         ?>
-                document.fblogin_form.submit();
+                document.<?php echo $callbackName ?>_form.submit();
         <?php if( $ask_for_email_permission ) echo "});\n"; ?>
     }
     //--></script><?php

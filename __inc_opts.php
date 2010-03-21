@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "1.1.1";
+$jfb_version    = "1.1.2";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 
@@ -39,12 +39,17 @@ function j_die($msg)
 }
 
 //Log reporting function
-function j_mail($subj, $msg)
+function j_mail($subj, $msg='')
 {
-    global $opt_jfb_email_to;
+    global $opt_jfb_email_to, $jfb_log;
     $email_to = get_option($opt_jfb_email_to);
     if( isset($email_to) && $email_to )
+    {
+        if( $msg )            $msg .= "\n\n";
+        if( isset($jfb_log) ) $msg .= "---LOG:---\n" . $jfb_log;
+        $msg .= "\n---REQUEST:---\n" . print_r($_REQUEST, true);
         mail($email_to, $subj, $msg);
+    }
 }
 
 ?>

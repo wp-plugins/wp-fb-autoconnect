@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 2.9.2
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -62,28 +62,36 @@ For more information on exactly how this plugin's login process works and how it
 
 == Changelog ==
 
-= 1.1.1 (2010-13-19) =
+= 1.1.2 (2010-03-21) =
+* Logging: On failure, show the accumulated log up to the point of failure
+* Logging: Show REQUEST variables
+* Main: Add optional params to jfb_output_facebook_callback() and jfb_output_facebook_instapopup() so the default callback name can be overridden, allowing multiple login-handlers with different redirects and different email policies
+* Main: auto-submitted login form's name based on the js callback name, to support multiple handlers
+* Autologin: Fixed issue if both a button an autopopup were on the same page
+* Include license
+
+= 1.1.1 (2010-03-19) =
 * Hopefully fix a crash on sites with more than 1,000 existing users
 * Fix bug on some PHP4 configurations
 
-= 1.1.0 (2010-13-18) =
+= 1.1.0 (2010-03-18) =
 * BuddyPress option is automatically enabled for BP installations
 * Add wpfb_insert_user filter to run just before inserting an auto-created user
 * Improved support for BuddyPress: use "pretty" usernames to fix profile links
 * Include client IP in connection logs
 * Cleanups/revisions to connection logs
 
-= 1.0.8 (2010-13-18) =
+= 1.0.8 (2010-03-18) =
 * Add option to include Buddypress-specific filters
 * Cleanup the Admin panel & update documentation
 
-= 1.0.7 (2010-13-17) =
+= 1.0.7 (2010-03-17) =
 * Fix email hash-lookup for blogs with over 1,000 existing users
 
-= 1.0.6 (2010-13-17) =
+= 1.0.6 (2010-03-17) =
 * Oops - Add support for PHP4 (really this time)
 
-= 1.0.5 (2010-13-17) =
+= 1.0.5 (2010-03-17) =
 * Add support for PHP4
 
 = 1.0.4 (2010-03-17) =

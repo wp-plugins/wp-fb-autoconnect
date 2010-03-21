@@ -95,21 +95,13 @@ function jfb_admin_page()
       }
     ?>
     <h2>WP-FB AutoConnect Options</h2>
-      <div style="position:absolute; right:60px; margin-top:-50px;">
-      <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-        <input type="hidden" name="cmd" value="_s-xclick" />
-        <input type="hidden" name="hosted_button_id" value="T88Y2AZ53836U" />
-        <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!" />
-        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
-      </form>
-      </div>
       
     To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:<br /><br />
     <ol>
       <li>Visit <a href="http://www.facebook.com/developers/createapp.php" target="_lnk">www.facebook.com/developers/createapp.php</a></li>
       <li>Type in a name (i.e. the name of your website).  This is the name your users will see on the Facebook login popup.</li>
       <li>Copy the API Key and Secret to the boxes below.</li>
-      <li>Click the "Connect" tab (back on Facebook) and under "Connect URL" enter the URL to your website (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same - be sure it matches what you've set under Settings-&gt;General-&gt;Wordpress Address.</li>
+      <li>Click the "Connect" tab (back on Facebook) and under "Connect URL" enter the URL to your website (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
       <li>Click the "Advanced" tab and enter your site's domain under "Email Domain" (i.e. example.com).  This is only required if you want to access your users' email addresses (optional).</li>
       <li>Click "Save Changes" (on Facebook).</li>
       <li>Click "Save" below.</li>
@@ -120,7 +112,17 @@ function jfb_admin_page()
     <br />
     <hr />
     
-    <h3>Main Options:</h3>
+    <h3>Development</h3>
+    Many hours have gone into making this plugin as versatile and easy to use and as possible, far beyond my own personal needs. Although I offer it to you freely, please keep in mind that each hour spent extending and supporting it was an hour that could've also gone towards income-generating work. If you find it useful, a modest donation would be greatly appreciated :)
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+        <input type="hidden" name="cmd" value="_s-xclick" />
+        <input type="hidden" name="hosted_button_id" value="T88Y2AZ53836U" />
+        <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!" />
+        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+    </form>
+    <hr />
+    
+    <h3>Main Options</h3>
     <form name="formMainOptions" method="post" action="">
         <b>Facebook:</b><br />
         <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
@@ -148,7 +150,7 @@ function jfb_admin_page()
     </form>
     <hr />
     
-    <h4>Debug Options:</h4>
+    <h4>Debug Options</h4>
     <form name="formDebugOptions" method="post" action="">
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (Not for production sites!)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />

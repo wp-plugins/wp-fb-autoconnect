@@ -200,7 +200,7 @@ $jfb_log .= "Login complete!\n";
 $jfb_log .= "   WP User : $user_login_name (" . admin_url("user-edit.php?user_id=$user_login_id") . ")\n";
 $jfb_log .= "   FB User : " . $fbuser['name'] . " (" . $fbuser["profile_url"] . ")\n";
 $jfb_log .= "   Redirect: " . $redirectTo . "\n";
-j_mail("Facebook Login: " . $user_login_name, $jfb_log);
+j_mail("Facebook Login: " . $user_login_name);
 
 
 //Redirect the user back to where they were

@@ -69,9 +69,12 @@ j_mail("Facebook Autologin", "Post " . $_REQUEST['p'] . " requires login: Showin
     echo '<div id="main-col"><div id="content" class="post">';
     
     //Output Facebook Javascript to immediately show a login prompt to the user
-    jfb_output_facebook_init();
-    jfb_output_facebook_callback(get_permalink($post->ID));
-    jfb_output_facebook_instapopup();
+    //Note: In my case, the FB api has already been initialized via my sidebar widget, so I don't need to
+    //call jfb_output_facebook_init() again - I just create another login callback, this time which
+    //redirects to the destination post instead of back ot the current page.
+    //jfb_output_facebook_init();
+    jfb_output_facebook_callback(get_permalink($post->ID), "autologin_callback");
+    jfb_output_facebook_instapopup("autologin_callback");
     
     //Show the user a message.  Since the post is private and the user isn't yet logged in, you can
     //use your discression as to what information you reveal about the destination post.
