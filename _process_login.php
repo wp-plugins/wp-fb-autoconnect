@@ -24,9 +24,21 @@ $redirectTo = $_POST['redirectTo'];
 $jfb_log .= "WP: Found redirect URL ($redirectTo)\n";
 
 
+//Include Facebook, making sure another plugin didn't already do so
+if( class_exists('Facebook') )
+{
+    $jfb_log .= "WP: WARNING - Another plugin has already included the Facebook API. "
+             .  "If the login fails, please contact the other plugin's author and ask them not to "
+             .  "include Facebook for every page throughout Wordpress.\n";
+}
+else
+{
+    if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/client/facebook.php');
+    else                                        require_once('facebook-platform/php4client/facebook.php');    
+}
+
+
 //Connect to FB and make sure we've got a valid session (we should already from the cookie set by JS)  
-if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/client/facebook.php');
-else                                        require_once('facebook-platform/php4client/facebook.php');
 $facebook = new Facebook(get_option($opt_jfb_api_key), get_option($opt_jfb_api_sec), null, true);    
 $fb_uid = $facebook->get_loggedin_user();
 if(!$fb_uid) j_die("Error: Failed to get the Facebook session. Please verify your API Key and Secret.");
@@ -34,9 +46,9 @@ $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 
 //Get the user info from FB
-$fbuser = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email', 'email_hashes'));
-$fbuser = $fbuser[0];
-if( !$fbuser ) j_die("Error: Could not access the Facebook API client (failed on users_getInfo())."); 
+$fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email', 'email_hashes'));
+$fbuser = $fbuserarray[0];
+if( !$fbuser ) j_die("Error: Could not access the Facebook API client (failed on users_getInfo()): " . print_r($fbuserarray, true) ); 
 $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 
 

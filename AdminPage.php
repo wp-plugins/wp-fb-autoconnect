@@ -33,12 +33,25 @@ function jfb_admin_page()
     global $opt_jfb_buddypress, $opt_jfb_valid;
     ?>
     <div class="wrap">
+     <h2>WP-FB AutoConnect Options</h2>
     <?php
+    
+      //Show a warning if they're using a naughty other plugin
+      if( class_exists('Facebook') )
+      {
+          jfb_auth($jfb_name, $jfb_version, 3, "API WARNING!! Facebook already detected." );
+          ?><div class="error"><p><strong>Warning:</strong> Another plugin has included the Facebook API throughout all of Wordpress.  I suggest you contact that plugin's author and ask them to include it only in pages where it's actually needed.<br /><br />Things may work fine as-is, but *if* the API version included by the other plugin is older than the one required by WP-FB AutoConnect, it's possible that the login process could fail.</p></div><?php
+      }
+      
+      //Update options
       if( isset($_POST['main_opts_updated']) )
       {
           //When saving the main options, make sure the key and secret are valid.
-          if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/validate_php5.php');
-          else                                        require_once('facebook-platform/validate_php4.php');
+          if( !class_exists('Facebook') )
+          {
+            if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/validate_php5.php');
+            else                                        require_once('facebook-platform/validate_php4.php');
+          }
           $fbValid = jfb_validate_key($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec]);
           if( $fbValid ):
               if( method_exists($fbValid->api_client, 'admin_getAppProperties') )
@@ -94,7 +107,6 @@ function jfb_admin_page()
           ?><div class="updated"><p><strong><?php _e('HTACCESS Updated.', 'mt_trans_domain' ); ?></strong></p></div><?php          
       }
     ?>
-    <h2>WP-FB AutoConnect Options</h2>
       
     To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:<br /><br />
     <ol>
