@@ -45,7 +45,7 @@ function jbp_bp_modify_userdata( $wp_userdata, $fb_userdata )
     {
         $username = $name;
     }
-    $username = strtolower( $username );
+    $username = strtolower( sanitize_user($username) );
 
     $wp_userdata['user_login']   = $username;
     $wp_userdata['user_nicename']= $username;

@@ -30,7 +30,7 @@ function jfb_admin_page()
     global $jfb_name, $jfb_version;
     global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done;
-    global $opt_jfb_buddypress, $opt_jfb_valid;
+    global $opt_jfb_buddypress, $opt_jfb_valid, $opt_jfb_fulllogerr;
     ?>
     <div class="wrap">
      <h2>WP-FB AutoConnect Options</h2>
@@ -94,7 +94,8 @@ function jfb_admin_page()
       {
           update_option( $opt_jfb_buddypress, !$_POST[$opt_jfb_buddypress] );
           update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
-          update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );          
+          update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );
+          update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );          
           ?><div class="updated"><p><strong><?php _e('Debug Options saved.', 'mt_trans_domain' ); ?></strong></p></div><?php
       }
       if( isset($_POST['mod_rewrite_update']) )
@@ -105,6 +106,21 @@ function jfb_admin_page()
           $wp_rewrite->flush_rules();
           update_option( $opt_jfb_mod_done, true );
           ?><div class="updated"><p><strong><?php _e('HTACCESS Updated.', 'mt_trans_domain' ); ?></strong></p></div><?php          
+      }
+      if( isset($_POST['remove_all_settings']) )
+      {
+          delete_option($opt_jfb_api_key);
+          delete_option($opt_jfb_api_sec);
+          delete_option($opt_jfb_email_to);
+          delete_option($opt_jfb_delay_redir);
+          delete_option($opt_jfb_ask_perms);
+          delete_option($opt_jfb_req_perms);
+          delete_option($opt_jfb_hide_button);
+          delete_option($opt_jfb_mod_done);
+          delete_option($opt_jfb_valid);
+          delete_option($opt_jfb_buddypress);
+          delete_option($opt_jfb_fulllogerr);
+          ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
       }
     ?>
       
@@ -166,9 +182,17 @@ function jfb_admin_page()
     <form name="formDebugOptions" method="post" action="">
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (Not for production sites!)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo !get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Disable BuddyPress filters<br />        
+        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo !get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Disable BuddyPress filters<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error<br />        
         <input type="hidden" name="debug_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
+    </form>
+    <hr />
+    
+    <h4>Delete All Plugin Options</h4>
+    <form name="formDebugOptions" method="post" action="">
+        <input type="hidden" name="remove_all_settings" value="1" />
+        <div class="submit"><input type="submit" name="Submit" value="Delete" /></div>
     </form>
       
    </div><?php

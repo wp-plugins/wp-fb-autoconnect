@@ -8,7 +8,7 @@
 //Include our options and the Wordpress core
 require_once("__inc_opts.php");
 require_once("__inc_wp.php");
-$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ")...\n";
+$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version)\n";
 
 
 //Check the nonce to make sure this was a valid login attempt (not a hack)
@@ -48,7 +48,7 @@ $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 //Get the user info from FB
 $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email', 'email_hashes'));
 $fbuser = $fbuserarray[0];
-if( !$fbuser ) j_die("Error: Could not access the Facebook API client (failed on users_getInfo()): " . print_r($fbuserarray, true) ); 
+if( !$fbuser ) j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)): " . print_r($fbuserarray, true) ); 
 $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 
 
