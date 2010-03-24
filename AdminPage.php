@@ -61,15 +61,22 @@ function jfb_admin_page()
                 {
                     $message = '"' . $appInfo['application_name'] . '" (ID ' . sprintf("%.0f", $appInfo['app_id']) . ')';
                 }
+                else if( $appInfo->app_id )
+                {   //Why does this happen? Presumably because another plugin includes a different version of the API that uses objects instead of arrays
+                    $message = '"' . $appInfo->application_name . '" (ID ' . sprintf("%.0f", $appInfo->app_id) . ')';
+                    jfb_auth($jfb_name, $jfb_version, 3, "BUG Object instead of array (appInfo = " . print_r($appInfo, true) . ")" );
+                }
                 else
                 {
                     $message = "Key " . $_POST[$opt_jfb_api_key];
-                    jfb_auth($jfb_name, $jfb_version, 3, "BUG!! appInfo = " . print_r($appInfo, true) );
+                    jfb_auth($jfb_name, $jfb_version, 3, "BUG Unknown instead of array (getAppProperties returns: " . print_r($appInfo, true) . ")" );
+                    ?><div class="error"><p><strong>Warning:</strong> Facebook failed to retrieve your Application's properties!  The plugin is very unlikely to work until it's fixed.<br /><br />I've thus far not been able to determine the exact cause of this extremely rare problem, but my best guess is that you've made a mistake somewhere in your configuration.  If you see this warning and figure out how to fix it, please let me know <b><a href="<?php echo $jfb_homepage ?>">here</a></b> so I can clarify my setup instructions.</p></div><?php
                 }
               }
               else
               {
                 $message = "Key " . $_POST[$opt_jfb_api_key];
+                jfb_auth($jfb_name, $jfb_version, 3, "BUG Undefined (no getAppProperties())");
               }
               update_option( $opt_jfb_valid, 1 );
               if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
