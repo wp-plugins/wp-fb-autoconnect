@@ -110,43 +110,42 @@ if( !$user_login_id && count($wp_user_hashes) > 0 )
     }
     else
     {
-        //First we send Facebook a list of email hashes we want to check against this user
-        //It *should* accept 1000 at a time, but some users have reported crashes...so I'll try 750...
-        $insert_limit = 750;
-        $jfb_log .= "FP: Searching for user by email...\n";
-        $jfb_log .= "    Registering hashes for " . count($wp_user_hashes) . " candidates of " . count($wp_users) . " total users...\n";
+        //Search for users via their email hashes.  Facebook can handle 1000 at a time.
+        $insert_limit = 1000;
         $hash_chunks = array_chunk( $wp_user_hashes, $insert_limit );
+        $jfb_log .= "FP: Searching for user by email (" . count($wp_user_hashes) . " candidates of " . count($wp_users) . " total users)...\n";
         foreach( $hash_chunks as $num => $hashes )
         {
-            $jfb_log .= "    #" . ($num*$insert_limit) . "-" . ($num*$insert_limit+count($hashes)-1) . "\n";
-            $ret = $facebook->api_client->connect_registerUsers(json_encode($wp_user_hashes));
+            //First we send Facebook a list of email hashes we want to check against this FB user.
+            $jfb_log .= "    Checking Users #" . ($num*$insert_limit) . "-" . ($num*$insert_limit+count($hashes)-1) . "\n";
+            $ret = $facebook->api_client->connect_registerUsers(json_encode($hashes));
             if( !$ret ) j_die("Error: Could not register hashes with Facebook (connect_registerUsers).\n");
-        }  
-        
-        //Next we get the hashes for the current FB user; This will only return hashes we
-        //registered above, so if we get back nothing we know the current FB user is not on our blog
-        $jfb_log .= "    Looking up current user...\n";
-        $this_fbuser_hashes = $facebook->api_client->users_getInfo($fb_uid, array('email_hashes'));
-        $this_fbuser_hashes = $this_fbuser_hashes[0]['email_hashes'];
-        
-        //If we did get back a hash, all we need to do is find which WP user it came from - and that's who's logging in! 
-        if(!empty($this_fbuser_hashes)) 
-        {
-            foreach( $this_fbuser_hashes as $this_fbuser_hash )
+            
+            //Next we get the hashes for the current FB user; This will only return hashes we
+            //registered above, so if we get back nothing we know the current FB user is not in this group of WP users.
+            $this_fbuser_hashes = $facebook->api_client->users_getInfo($fb_uid, array('email_hashes'));
+            $this_fbuser_hashes = $this_fbuser_hashes[0]['email_hashes'];
+
+            //If we did get back a hash, all we need to do is find which WP user it came from - and that's who's logging in! 
+            if(!empty($this_fbuser_hashes)) 
             {
-                foreach( $wp_user_hashes as $this_wpuser_id => $this_wpuser_hash )
+                foreach( $this_fbuser_hashes as $this_fbuser_hash )
                 {
-                    if( $this_fbuser_hash == $this_wpuser_hash['email_hash'] )
-                    {
-                        $user_login_id   = $this_wpuser_id;
-                        $user_data       = get_userdata($user_login_id);
-                        $user_login_name = $user_data->user_login;
-                        $jfb_log .= "FB: Found existing user by email (" . $user_login_name . ")\n";
-                        break;
+                    foreach( $wp_user_hashes as $this_wpuser_id => $this_wpuser_hash )
+                    { 
+                        if( $this_fbuser_hash == $this_wpuser_hash['email_hash'] )
+                        {
+                            $user_login_id   = $this_wpuser_id;
+                            $user_data       = get_userdata($user_login_id);
+                            $user_login_name = $user_data->user_login;
+                            $jfb_log .= "FB: Found existing user by email (" . $user_login_name . ")\n";
+                            break;
+                        }
                     }
-                }
-            }    
-        }
+                }    
+            }
+            if( $user_login_id ) break;
+        }  //Try the next group of hashes
     }
 }
 
