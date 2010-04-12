@@ -173,7 +173,7 @@ if( !$user_login_id )
     $jfb_log .= "WP: No user found. Automatically registering (FB_". $fb_uid . ")\n";
     $user_data = array();
     $user_data['user_login']    = "FB_" . $fb_uid;
-    $user_data['user_pass']     = substr( md5( uniqid( microtime() ).$_SERVER["REMOTE_ADDR"] ), 0, 15);
+    $user_data['user_pass']     = wp_generate_password();
     $user_data['first_name']    = $fbuser['first_name'];
     $user_data['last_name']     = $fbuser['last_name'];
     $user_data['user_nicename'] = $fbuser['name'];
