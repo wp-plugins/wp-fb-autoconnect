@@ -188,6 +188,9 @@ if( !$user_login_id )
     $user_login_id   = wp_insert_user($user_data);
     $user_login_name = $user_data['user_login'];
     wp_new_user_notification($user_login_name);
+    
+    //Run an action so i.e. usermeta can be added to a user after registration
+    do_action('wpfb_inserted_user', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook) );
 }
 
 
