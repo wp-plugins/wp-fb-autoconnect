@@ -29,7 +29,7 @@ function jfb_admin_page()
 {
     global $jfb_name, $jfb_version;
     global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
-    global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done;
+    global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_buddypress, $opt_jfb_valid, $opt_jfb_fulllogerr;
     ?>
     <div class="wrap">
@@ -94,6 +94,8 @@ function jfb_admin_page()
           update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
           update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
           update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
+          update_option( $opt_jfb_ask_stream, $_POST[$opt_jfb_ask_stream] );
+          update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );
           if( $_POST[$opt_jfb_email_to] )   update_option( $opt_jfb_email_to, get_bloginfo('admin_email') );
           else                              update_option( $opt_jfb_email_to, 0 );
       }
@@ -122,6 +124,8 @@ function jfb_admin_page()
           delete_option($opt_jfb_delay_redir);
           delete_option($opt_jfb_ask_perms);
           delete_option($opt_jfb_req_perms);
+          delete_option($opt_jfb_ask_stream);
+          delete_option($opt_jfb_stream_content);
           delete_option($opt_jfb_hide_button);
           delete_option($opt_jfb_mod_done);
           delete_option($opt_jfb_valid);
@@ -165,7 +169,11 @@ function jfb_admin_page()
         <br /><b>E-Mail:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> ASK the user for permission to get their email address<br />
         <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> REQUIRE user for permission to get their email address<br />
-        <br /><b>Notification:</b><br />
+        <br /><b>Announcement:</b><br />
+		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
+		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:</i><br />
+		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />        
+        <br /><b>Logging:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="1" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
         <input type="hidden" name="main_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>

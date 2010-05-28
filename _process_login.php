@@ -191,8 +191,19 @@ if( !$user_login_id )
     
     //Run an action so i.e. usermeta can be added to a user after registration
     do_action('wpfb_inserted_user', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook) );
-}
 
+    //If the option was selected and permission exists, publish an announcement about the user's registration to their wall
+    if( get_option($opt_jfb_ask_stream) )
+    {
+        if( $facebook->api_client->users_hasAppPermission('publish_stream') )
+        {
+            $facebook->api_client->stream_publish(get_option($opt_jfb_stream_content));
+            $jfb_log .= "FB: Publishing registration news to user's wall.\n";
+        }
+        else
+            $jfb_log .= "FB: User has DENIED permission to publish to their wall.\n";
+    }
+}
 
 //Tag the user with our meta so we can recognize them next time, without resorting to email hashes
 update_usermeta($user_login_id, $jfb_uid_meta_name, $fb_uid);
