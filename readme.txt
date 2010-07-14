@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 2.9.2
-Stable tag: 1.1.9
+Stable tag: 1.2.0
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -61,6 +61,10 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+
+= 1.2.0 (2010-07-14) =
+* BuddyPress usernames generated via "First Name + Last Name" instead of "Name" (as reported [here](http://www.justin-klein.com/projects/wp-fb-autoconnect/comment-page-6#comment-12258)
+* Fetch Facebook profile images and use those as BuddyPress avatars
 
 = 1.1.9 (2010-05-28) =
 * Again redo how the "Require Email" option is enforced
