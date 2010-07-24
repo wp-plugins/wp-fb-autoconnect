@@ -30,7 +30,7 @@ function jfb_admin_page()
     global $jfb_name, $jfb_version;
     global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
-    global $opt_jfb_buddypress, $opt_jfb_valid, $opt_jfb_fulllogerr;
+    global $opt_jfb_buddypress, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce;
     ?>
     <div class="wrap">
      <h2>WP-FB AutoConnect Options</h2>
@@ -104,7 +104,8 @@ function jfb_admin_page()
           update_option( $opt_jfb_buddypress, !$_POST[$opt_jfb_buddypress] );
           update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
           update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );
-          update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );          
+          update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
+          update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );          
           ?><div class="updated"><p><strong><?php _e('Debug Options saved.', 'mt_trans_domain' ); ?></strong></p></div><?php
       }
       if( isset($_POST['mod_rewrite_update']) )
@@ -131,6 +132,7 @@ function jfb_admin_page()
           delete_option($opt_jfb_valid);
           delete_option($opt_jfb_buddypress);
           delete_option($opt_jfb_fulllogerr);
+          delete_option($opt_jfb_disablenonce);
           ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
       }
     ?>
@@ -197,8 +199,9 @@ function jfb_admin_page()
     <form name="formDebugOptions" method="post" action="">
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (Not for production sites!)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo !get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Disable BuddyPress filters<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error<br />        
+        <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo !get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> DISABLE BuddyPress filters<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> DISABLE nonce security check<br />        
         <input type="hidden" name="debug_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>

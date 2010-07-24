@@ -11,10 +11,15 @@ require_once("__inc_wp.php");
 $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version)\n";
 
 
-//Check the nonce to make sure this was a valid login attempt (not a hack)
-if( wp_verify_nonce ($_REQUEST ['_wpnonce'], $jfb_nonce_name) != 1 )
-    j_die("Failed nonce check. Login aborted.");
-$jfb_log .= "WP: nonce check passed\n";
+//Check the nonce to make sure this was a valid login attempt (not a hack), unless the check has been disabled (not recommended!)
+if( !get_option($opt_jfb_disablenonce) )
+{
+    if( wp_verify_nonce ($_REQUEST ['_wpnonce'], $jfb_nonce_name) != 1 )
+        j_die("Failed nonce check. Login aborted.");
+    $jfb_log .= "WP: nonce check passed\n";
+}
+else
+    $jfb_log .= "WP: nonce check DISABLED\n";
 
     
 //Get the redirect URL
