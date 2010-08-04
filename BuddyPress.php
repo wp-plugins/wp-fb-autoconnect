@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * BuddyPress-specific actions/filters go here.
  */

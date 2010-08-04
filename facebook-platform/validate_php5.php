@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Use the key and secret to generate an auth_token, just to test if they're valid.
  * If so, return a Facebook API instance.  Otherwise, return null.
