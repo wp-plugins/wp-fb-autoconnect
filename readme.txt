@@ -61,7 +61,7 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
-= 1.2.5 (2010-08-xx) =
+= 1.2.5 (2010-08-08) =
 * New Feature: Use Facebook profile pictures as Wordpress avatars
 * Code reorganization; BuddyPress code is now in Main.php, avatars are fetched in _process_login.php, etc.
 
