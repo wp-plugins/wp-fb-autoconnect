@@ -45,7 +45,7 @@ class Widget_LoginLogout extends WP_Widget
                 <span id="forgotText"><a href="<?php echo get_settings('siteurl')?>/wp-login.php?action=lostpassword"><?php _e('Forgot')?>?</a></span><br />
                 <?php //echo "<input name='rememberme' type='hidden' id='rememberme' value='forever' />";?>
                 <?php echo wp_register('',''); ?>
-                <input type='hidden' name='redirect_to' value='<?php echo $_SERVER['REQUEST_URI']?>' />
+                <input type='hidden' name='redirect_to' value='<?php echo htmlspecialchars($_SERVER['REQUEST_URI'])?>' />
             </form>
             <?php
             global $opt_jfb_hide_button;
