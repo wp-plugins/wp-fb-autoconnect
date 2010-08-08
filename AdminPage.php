@@ -30,7 +30,7 @@ function jfb_admin_page()
     global $jfb_name, $jfb_version;
     global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
-    global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce;
+    global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce;
     ?>
     <div class="wrap">
      <h2>WP-FB AutoConnect Options</h2>
@@ -95,6 +95,7 @@ function jfb_admin_page()
           update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
           update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
           update_option( $opt_jfb_ask_stream, $_POST[$opt_jfb_ask_stream] );
+          update_option( $opt_jfb_wp_avatars, $_POST[$opt_jfb_wp_avatars] );
           update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );
           if( $_POST[$opt_jfb_email_to] )   update_option( $opt_jfb_email_to, get_bloginfo('admin_email') );
           else                              update_option( $opt_jfb_email_to, 0 );
@@ -137,6 +138,7 @@ function jfb_admin_page()
           delete_option($opt_jfb_valid);
           delete_option($opt_jfb_buddypress);
           delete_option($opt_jfb_bp_avatars);
+          delete_option($opt_jfb_wp_avatars);
           delete_option($opt_jfb_fulllogerr);
           delete_option($opt_jfb_disablenonce);
           ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
@@ -180,7 +182,9 @@ function jfb_admin_page()
         <br /><b>Announcement:</b><br />
 		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
 		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:</i><br />
-		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />        
+		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
+		<br /><b>Wordpress Avatars:</b><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as Wordpress avatars<br />
         <br /><b>Logging:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="1" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
         <input type="hidden" name="main_opts_updated" value="1" />

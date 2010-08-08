@@ -51,7 +51,7 @@ $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 
 //Get the user info from FB
-$fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email', 'email_hashes'));
+$fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email', 'email_hashes', 'pic_square', 'pic_big'));
 $fbuser = $fbuserarray[0];
 if( !$fbuser ) j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)): " . print_r($fbuserarray, true) ); 
 $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
@@ -214,10 +214,13 @@ if( !$user_login_id )
 update_usermeta($user_login_id, $jfb_uid_meta_name, $fb_uid);
 $jfb_log .= "WP: Updated usermeta ($jfb_uid_meta_name)\n";
 
+//Also store the user's facebook avatar(s), in case the user wants to use them (optional)
+update_usermeta($user_login_id, 'facebook_avatar_thumb', $fbuser['pic_square']);
+update_usermeta($user_login_id, 'facebook_avatar_full', $fbuser['pic_big']);
+$jfb_log .= "WP: Updated avatars (" . $fbuser['pic_square'] . ")\n";
 
 //Log them in, and run a custom action.  You can use this to modify a logging-in user however you like, i.e:
 //  -Check if the user is friends with you on Facebook, and if so, give them special permissions.
-//  -Set the user's Wordpress avatar to their Facebook icon
 //  -Add an item to a "Recent Facebook Visitors" log
 //  -...etc
 wp_set_auth_cookie($user_login_id);
