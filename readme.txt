@@ -63,6 +63,7 @@ For more information on exactly how this plugin's login process works and how it
 == Changelog ==
 = 1.3.0 (2010-08-08) =
 * Update Facebook API; PHP5 is now the minimum requirement
+* This should (hopefully) fix the conflict with newer OpenGraph plugins (i.e. Like Button)
 
 = 1.2.5 (2010-08-08) =
 * New Feature: Use Facebook profile pictures as Wordpress avatars
