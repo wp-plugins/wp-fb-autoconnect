@@ -7,7 +7,7 @@
 
 function jfb_validate_key($key, $secret)
 {
-      require_once('client/facebook.php');
+      require_once('php/facebook.php');
       $facebook = new Facebook($key, $secret, null, true);
       $facebook->api_client->session_key = 0;
       try

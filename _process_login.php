@@ -38,8 +38,10 @@ if( class_exists('Facebook') )
 }
 else
 {
-    if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/client/facebook.php');
-    else                                        require_once('facebook-platform/php4client/facebook.php');    
+    if(version_compare('5', PHP_VERSION, "<="))
+        require_once('facebook-platform/php/facebook.php');
+    else
+        j_die("Error: This plugin requires PHP5 or better.");    
 }
 
 

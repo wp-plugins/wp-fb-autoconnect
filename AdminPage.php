@@ -28,7 +28,7 @@ function jfb_add_plugin_links($links, $file)
 function jfb_admin_page()
 {
     global $jfb_name, $jfb_version;
-    global $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
+    global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce;
     ?>
@@ -43,45 +43,42 @@ function jfb_admin_page()
           ?><div class="error"><p><strong>Warning:</strong> Another plugin has included the Facebook API throughout all of Wordpress.  I suggest you contact that plugin's author and ask them to include it only in pages where it's actually needed.<br /><br />Things may work fine as-is, but *if* the API version included by the other plugin is older than the one required by WP-FB AutoConnect, it's possible that the login process could fail.</p></div><?php
       }
       
+      if(version_compare('5', PHP_VERSION, ">"))
+      {
+          ?><div class="error"><p>Sorry, but as of v1.3.0, WP-FB AutoConnect requires PHP5.</p></div><?php
+          die();
+      }
+      
       //Update options
       if( isset($_POST['main_opts_updated']) )
       {
           //When saving the main options, make sure the key and secret are valid.
-          if( !class_exists('Facebook') )
-          {
-            if(version_compare('5', PHP_VERSION, "<=")) require_once('facebook-platform/validate_php5.php');
-            else                                        require_once('facebook-platform/validate_php4.php');
-          }
+          if( !class_exists('Facebook') ) require_once('facebook-platform/validate_php5.php');
           $fbValid = jfb_validate_key($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec]);
-          if( $fbValid ):
-              if( method_exists($fbValid->api_client, 'admin_getAppProperties') )
-              {
+          if( $fbValid && method_exists($fbValid->api_client, 'admin_getAppProperties') ):
                 $appInfo = $fbValid->api_client->admin_getAppProperties(array('app_id', 'application_name'));
                 if( is_array($appInfo) )
                 {
-                    $message = '"' . $appInfo['application_name'] . '" (ID ' . sprintf("%.0f", $appInfo['app_id']) . ')';
+                    $appID = sprintf("%.0f", $appInfo['app_id']);
+                    $message = '"' . $appInfo['application_name'] . '" (ID ' . $appID . ')'; 
                 }
                 else if( $appInfo->app_id )
                 {   //Why does this happen? Presumably because another plugin includes a different version of the API that uses objects instead of arrays
-                    $message = '"' . $appInfo->application_name . '" (ID ' . sprintf("%.0f", $appInfo->app_id) . ')';
+                    $appID = sprintf("%.0f", $appInfo->app_id);
+                    $message = '"' . $appInfo->application_name . '" (ID ' . $appID . ')';
                     jfb_auth($jfb_name, $jfb_version, 3, "BUG Object instead of array (appInfo = " . print_r($appInfo, true) . ")" );
                 }
                 else
                 {
                     $message = "Key " . $_POST[$opt_jfb_api_key];
                     jfb_auth($jfb_name, $jfb_version, 3, "BUG Unknown instead of array (getAppProperties returns: " . print_r($appInfo, true) . ")" );
+                    $appID = 0;
                     ?><div class="error"><p><strong>Warning:</strong> Facebook failed to retrieve your Application's properties!  The plugin is very unlikely to work until it's fixed.<br /><br />I've thus far not been able to determine the exact cause of this extremely rare problem, but my best guess is that you've made a mistake somewhere in your configuration.  If you see this warning and figure out how to fix it, please let me know <b><a href="<?php echo $jfb_homepage ?>">here</a></b> so I can clarify my setup instructions.</p></div><?php
                 }
-              }
-              else
-              {
-                $message = "Key " . $_POST[$opt_jfb_api_key];
-                jfb_auth($jfb_name, $jfb_version, 3, "BUG Undefined (no getAppProperties())");
-              }
-              update_option( $opt_jfb_valid, 1 );
-              if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
-                 jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
-              ?><div class="updated"><p><strong>Main Options saved for <?php echo $message ?></strong></p></div><?php
+                update_option( $opt_jfb_valid, 1 );
+                if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
+                   jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
+                ?><div class="updated"><p><strong>Main Options saved for <?php echo $message ?></strong></p></div><?php
           else:
               update_option( $opt_jfb_valid, 0 );
               $message = "ERROR: Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?";
@@ -90,6 +87,7 @@ function jfb_admin_page()
           endif;
           
           //We'll update the options either way - but if jfb_valid isn't set, the plugin won't show a Facebook button.
+          update_option( $opt_jfb_app_id, $appID);
           update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
           update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
           update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
