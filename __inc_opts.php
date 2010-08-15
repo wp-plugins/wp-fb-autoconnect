@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "1.3.0";
+$jfb_version    = "1.3.1";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 
@@ -35,7 +35,7 @@ global $jfb_nonce_name, $jfb_uid_meta_name, $jfb_js_callbackfunc, $jfb_default_e
 $jfb_nonce_name     = "ahe4t50q4efy0";
 $jfb_uid_meta_name  = "facebook_uid";
 $jfb_js_callbackfunc= "jfb_js_login_callback";
-$jfb_default_email  = 'email@unknown.com';
+$jfb_default_email  = '@unknown.com';
 
 
 //Error reporting function

@@ -66,7 +66,7 @@ if( $fbuser['contact_email'] )
     $jfb_log .= "FB: Email privilege granted (" .$fbuser['contact_email'] . ")\n";
 else
 {
-    $fbuser['contact_email'] = $jfb_default_email;
+    $fbuser['contact_email'] = "FB_" . $fb_uid . $jfb_default_email;
     $jfb_log .= "FB: Email privilege denied\n";
 }
 
@@ -161,7 +161,7 @@ if( !$user_login_id && count($wp_user_hashes) > 0 )
 //If so, we'll want to update their WP account with their *real* email.
 if( $user_login_id )
 {
-    if( $user_data->user_email == $jfb_default_email && $fbuser['contact_email'] != $jfb_default_email )
+    if( strpos($user_data->user_email, $jfb_default_email) !== FALSE && strpos($fbuser['contact_email'], $jfb_default_email) === FALSE )
     {
         $jfb_log .= "WP: Previously denied email has now been allowed; updating to (".$fbuser['contact_email'].")\n";
         $user_upd = array();
@@ -191,8 +191,16 @@ if( !$user_login_id )
     //Run a filter so the user can be modified to something different before registration
     $user_data = apply_filters('wpfb_insert_user', $user_data, $fbuser );
     
-    //Insert a new user to our database and notify the site admin
+    //Insert a new user to our database and make sure it worked
     $user_login_id   = wp_insert_user($user_data);
+    if( get_class($user_login_id) == "WP_Error" )
+    {
+        $jfb_log .= "LOGIN ERROR: wp_insert_user() failed.\n";
+        $jfb_log .= print_r($user_login_id, true) . "\n";
+        j_die("Error: wp_insert_user failed!  This should never happen; if you see this bug, please report it to the plugin author at $jfb_homepage.");        
+    }
+    
+    //Success! Notify the site admin.
     $user_login_name = $user_data['user_login'];
     wp_new_user_notification($user_login_name);
     
@@ -221,11 +229,11 @@ update_usermeta($user_login_id, 'facebook_avatar_thumb', $fbuser['pic_square']);
 update_usermeta($user_login_id, 'facebook_avatar_full', $fbuser['pic_big']);
 $jfb_log .= "WP: Updated avatars (" . $fbuser['pic_square'] . ")\n";
 
-//Log them in, and run a custom action.  You can use this to modify a logging-in user however you like, i.e:
-//  -Check if the user is friends with you on Facebook, and if so, give them special permissions.
-//  -Add an item to a "Recent Facebook Visitors" log
-//  -...etc
+//Log them in
 wp_set_auth_cookie($user_login_id);
+
+//Run a custom action.  You can use this to modify a logging-in user however you like,
+//i.e. add them to a "Recent FB Visitors" log, assign a role if they're friends with you on Facebook, etc.
 do_action('wpfb_login', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook) );
 do_action('wp_login', $user_login_name);
 
