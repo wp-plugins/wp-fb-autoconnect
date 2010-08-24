@@ -193,10 +193,9 @@ if( !$user_login_id )
     
     //Insert a new user to our database and make sure it worked
     $user_login_id   = wp_insert_user($user_data);
-    if( get_class($user_login_id) == "WP_Error" )
+    if( is_wp_error($user_login_id) )
     {
-        $jfb_log .= "LOGIN ERROR: wp_insert_user() failed.\n";
-        $jfb_log .= print_r($user_login_id, true) . "\n";
+        $jfb_log .= "WP: Error creating user: " . $user_login_id->get_error_message() . "\n";
         j_die("Error: wp_insert_user failed!  This should never happen; if you see this bug, please report it to the plugin author at $jfb_homepage.");        
     }
     
@@ -232,7 +231,11 @@ if( $fbuser['pic_square'] )
     $jfb_log .= "WP: Updated avatars (" . $fbuser['pic_square'] . ")\n";
 }
 else
-    $jfb_log .= "FB: User does not have a profile picture; avatar will not be fetched.\n";
+{
+    update_usermeta($user_login_id, 'facebook_avatar_thumb', '');
+    update_usermeta($user_login_id, 'facebook_avatar_full', '');
+    $jfb_log .= "FB: User does not have a profile picture; clearing cached avatar (if present).\n";
+}
 
 //Log them in
 wp_set_auth_cookie($user_login_id);
