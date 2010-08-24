@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.3.4
+ * Version: 1.3.5
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -100,17 +100,22 @@ function jfb_output_facebook_init()
  */
 function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
 {
+     //Make sure the plugin is setup properly before doing anything
      global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_valid, $jfb_nonce_name, $jfb_js_callbackfunc, $opt_jfb_ask_stream;
      if( !get_option($opt_jfb_valid) ) return;
+     
+     //Get out our params
      if( !$redirectTo )  $redirectTo = htmlspecialchars($_SERVER['REQUEST_URI']);
      if( !$callbackName )$callbackName = $jfb_js_callbackfunc;
-     $process_logon = plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php";
- ?>
-    <form name="<?php echo $callbackName ?>_form" action="<?php echo $process_logon?>" method="post">
+     
+     //Output an html form that we'll submit via JS once the FB login is complete; it redirects us to the PHP script that logs us into WP.  
+  ?><form name="<?php echo $callbackName ?>_form" method="post" action="<?php echo plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php"?>" >
       <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
       <?php wp_nonce_field ($jfb_nonce_name) ?>   
-    </form>
-    <script type="text/javascript">//<!--
+    </form><?php
+
+    //Output the JS callback function, which Facebook will automatically call once it's been logged in.
+    ?><script type="text/javascript">//<!--
     function <?php echo $callbackName ?>()
     {
         //Make sure we have a valid session
@@ -121,28 +126,31 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         //Optionally request permissions to get their real email and to publish to their wall before redirecting to the logon script.
         $ask_for_email_permission = get_option($opt_jfb_ask_perms) || get_option($opt_jfb_req_perms);
         if( $ask_for_email_permission && get_option($opt_jfb_ask_stream) )                     //Ask for both
-            echo "FB.Connect.showPermissionDialog('email,publish_stream', function(reply){\n";
+            echo "FB.Connect.showPermissionDialog('email,publish_stream', function(reply)\n        {\n";
         else if( $ask_for_email_permission )                                                   //Ask for email only
-            echo "FB.Connect.showPermissionDialog('email', function(reply){\n";
+            echo "FB.Connect.showPermissionDialog('email', function(reply)\n        {\n";
         else if( get_option($opt_jfb_ask_stream) )                                             //Ask for publish only
-            echo "FB.Connect.showPermissionDialog('publish_stream', function(reply){\n";
+            echo "FB.Connect.showPermissionDialog('publish_stream', function(reply)\n        {\n";
         
-        //If we REQUIRE their email address, make sure they approved it before redirecting to the logon script            
-        if( get_option($opt_jfb_req_perms) )
+        //If we're not requiring their email, just redirect them (no matter if they approve or not)
+        if( !get_option($opt_jfb_req_perms) )
         {
-            echo "            FB.Facebook.apiClient.users_hasAppPermission('email', function (emailCheck){\n". 
+            echo "            document." . $callbackName . "_form.submit();\n";
+            if( $ask_for_email_permission || get_option($opt_jfb_ask_stream) )
+               echo "        });\n";
+        }        
+        
+        
+        //If we REQUIRE their email address, make sure they accept the extended permissions before redirecting to the logon script            
+        else
+        {
+            echo "            FB.Facebook.apiClient.users_hasAppPermission('email', function (emailCheck)\n".
+                 "            {\n". 
 		         "                 if(emailCheck) document." . $callbackName . "_form.submit();\n" .
                  "                 else           alert('Sorry, this site requires an e-mail address to log you in.');\n" .
                  "            });\n";
-        }
-        
-        //Otherwise, just redirect them (no matter if they approve or not)
-        else
-            echo "            document." . $callbackName . "_form.submit();\n";
-            
-        //Close the showPermissionDialog({...}); if it was opened.
-        if( $ask_for_email_permission || get_option($opt_jfb_ask_stream) )
             echo "        });\n";
+        }
         ?>
     }
     //--></script><?php

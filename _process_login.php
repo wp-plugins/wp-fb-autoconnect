@@ -62,16 +62,18 @@ $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 //See if we were given permission to access the user's email
 //This isn't required, and will only matter if it's a new user without an existing WP account
 //(since we'll auto-register an account for them, using the contact_email we get from Facebook - if we can...)
+//If "contact_email" is set, it (as well as "email") contain the users's real email.
+//If "contact_email" is unset and "email" is set, the user granted permission, but chose an anonymouse proxy address.
+//If "contact_email" and "email" are both unset, the user denied permission.
 if( $fbuser['contact_email'] )
-    $jfb_log .= "FB: Email privilege granted (" .$fbuser['contact_email'] . ")\n";
+    $jfb_log .= "FB: Email privilege granted (" .$fbuser['email'] . ")\n";
 else if( $fbuser['email'] )
 {
-    $fbuser['contact_email'] = $fbuser['email'];
     $jfb_log .= "FB: Email privilege granted, but only for an anonymous proxy address (" . $fbuser['email'] . ")\n";
 }
 else
 {
-    $fbuser['contact_email'] = "FB_" . $fb_uid . $jfb_default_email;
+    $fbuser['email'] = "FB_" . $fb_uid . $jfb_default_email;
     $jfb_log .= "FB: Email privilege denied\n";
 }
 
@@ -111,10 +113,25 @@ foreach ($wp_users as $wp_user)
 }
 
 
-//If we couldn't find any usermeta identifying an existing WP user for this FB user, we'll use
-//FB to see if they've registered an email address on FB that matches any of our WP users' emails.
-//We can do this even without the email extended_permission, because we use email *hashes*.
-if( !$user_login_id && count($wp_user_hashes) > 0 )
+//Next, try to lookup their email directly (via Wordpress).  Obviously this will only work if they've revealed
+//their "real" address - otherwise we'll use Hashes (which'll work even if they denied access to their FB email).
+if ( !$user_login_id && $fbuser['contact_email'] )
+{
+    $jfb_log .= "WP: Searching for user by email address...\n";
+    if ( $wp_user = get_user_by('email', $fbuser['email']) )
+    {
+        $user_login_id = $wp_user->ID;
+        $user_data = get_userdata($wp_user->ID);
+        $user_login_name = $user_data->user_login;
+        $jfb_log .= "WP: Found existing user (" . $user_login_name . ") by email (" . $fbuser['email'] . ")\n";
+    }
+}
+
+
+//If we still haven't found the user, and if they've denied direct access to their email address (so we can't search for them with get_user_by()),
+//we can still use FB email hashes to see if they've registered an address that matches any of our existing WP users.
+//Note that we ONLY do this if the user denied the email extended_permission - otherwise, the check above would've already found them.
+if( !$user_login_id && !$fbuser['contact_email'] && count($wp_user_hashes) > 0 )
 {
     if(version_compare(PHP_VERSION, '5', "<"))
     {
@@ -125,13 +142,17 @@ if( !$user_login_id && count($wp_user_hashes) > 0 )
         //Search for users via their email hashes.  Facebook can handle 1000 at a time.
         $insert_limit = 1000;
         $hash_chunks = array_chunk( $wp_user_hashes, $insert_limit );
-        $jfb_log .= "FP: Searching for user by email (" . count($wp_user_hashes) . " candidates of " . count($wp_users) . " total users)...\n";
+        $jfb_log .= "FP: Searching for user by email hashes (" . count($wp_user_hashes) . " candidates of " . count($wp_users) . " total users)...\n";
         foreach( $hash_chunks as $num => $hashes )
         {
             //First we send Facebook a list of email hashes we want to check against this FB user.
             $jfb_log .= "    Checking Users #" . ($num*$insert_limit) . "-" . ($num*$insert_limit+count($hashes)-1) . "\n";
             $ret = $facebook->api_client->connect_registerUsers(json_encode($hashes));
-            if( !$ret ) j_die("Error: Could not register hashes with Facebook (connect_registerUsers).\n");
+            if( !$ret )
+            {
+                $jfb_log .= "    WARNING: Could not register hashes with Facebook (connect_registerUsers).  Hash lookup will cease here.\n";
+                break;
+            }
             
             //Next we get the hashes for the current FB user; This will only return hashes we
             //registered above, so if we get back nothing we know the current FB user is not in this group of WP users.
@@ -150,7 +171,7 @@ if( !$user_login_id && count($wp_user_hashes) > 0 )
                             $user_login_id   = $this_wpuser_id;
                             $user_data       = get_userdata($user_login_id);
                             $user_login_name = $user_data->user_login;
-                            $jfb_log .= "FB: Found existing user by email (" . $user_login_name . ")\n";
+                            $jfb_log .= "FB: Found existing user by email hash (" . $user_login_name . ")\n";
                             break;
                         }
                     }
@@ -168,22 +189,22 @@ if( $user_login_id )
 {
     //Check 1: It was previously denied, but is now allowed
     $updateEmail = false;
-    if( strpos($user_data->user_email, $jfb_default_email) !== FALSE && strpos($fbuser['contact_email'], $jfb_default_email) === FALSE )
+    if( strpos($user_data->user_email, $jfb_default_email) !== FALSE && strpos($fbuser['email'], $jfb_default_email) === FALSE )
     {
-        $jfb_log .= "WP: Previously DENIED email has now been allowed; updating to (".$fbuser['contact_email'].")\n";
+        $jfb_log .= "WP: Previously DENIED email has now been allowed; updating to (".$fbuser['email'].")\n";
         $updateEmail = true;
     }
     //Check 2: It was previously allowed, but only as an anonymous proxy.  They've now revealed their "true" email.
-    if( strpos($user_data->user_email, "@proxymail.facebook.com") !== FALSE && strpos($fbuser['contact_email'], "@proxymail.facebook.com") === FALSE )
+    if( strpos($user_data->user_email, "@proxymail.facebook.com") !== FALSE && strpos($fbuser['email'], "@proxymail.facebook.com") === FALSE )
     {
-        $jfb_log .= "WP: Previously PROXIED email has now been allowed; updating to (".$fbuser['contact_email'].")\n";
+        $jfb_log .= "WP: Previously PROXIED email has now been allowed; updating to (".$fbuser['email'].")\n";
         $updateEmail = true;
     }
     if( $updateEmail )
     {
         $user_upd = array();
         $user_upd['ID']         = $user_login_id;
-        $user_upd['user_email'] = $fbuser['contact_email'];
+        $user_upd['user_email'] = $fbuser['email'];
         wp_update_user($user_upd);
     }
 }
@@ -203,7 +224,7 @@ if( !$user_login_id )
     $user_data['user_nicename'] = $fbuser['name'];
     $user_data['display_name']  = $fbuser['first_name'];
     $user_data['user_url']      = $fbuser["profile_url"];
-    $user_data['user_email']    = $fbuser['contact_email'];
+    $user_data['user_email']    = $fbuser["email"];
     
     //Run a filter so the user can be modified to something different before registration
     $user_data = apply_filters('wpfb_insert_user', $user_data, $fbuser );
