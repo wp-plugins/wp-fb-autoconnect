@@ -175,8 +175,8 @@ function jfb_admin_page()
         <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
         <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> API Secret<br /><br />
         <br /><b>E-Mail:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> ASK the user for permission to get their email address<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> REQUIRE user for permission to get their email address<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Ask for permission to get the connecting user's email address<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> Ask <u><i>and require</i></u> permission to get the connecting user's email address<br />
         <br /><b>Announcement:</b><br />
 		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
 		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:</i><br />

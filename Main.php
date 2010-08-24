@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.3.3
+ * Version: 1.3.4
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -129,7 +129,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         
         //If we REQUIRE their email address, make sure they approved it before redirecting to the logon script            
         if( get_option($opt_jfb_req_perms) )
-        { 
+        {
             echo "            FB.Facebook.apiClient.users_hasAppPermission('email', function (emailCheck){\n". 
 		         "                 if(emailCheck) document." . $callbackName . "_form.submit();\n" .
                  "                 else           alert('Sorry, this site requires an e-mail address to log you in.');\n" .

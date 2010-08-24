@@ -53,7 +53,7 @@ $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 
 //Get the user info from FB
-$fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email', 'email_hashes', 'pic_square', 'pic_big'));
+$fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email', 'email', 'email_hashes', 'pic_square', 'pic_big'));
 $fbuser = $fbuserarray[0];
 if( !$fbuser ) j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)): " . print_r($fbuserarray, true) ); 
 $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
@@ -64,6 +64,11 @@ $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 //(since we'll auto-register an account for them, using the contact_email we get from Facebook - if we can...)
 if( $fbuser['contact_email'] )
     $jfb_log .= "FB: Email privilege granted (" .$fbuser['contact_email'] . ")\n";
+else if( $fbuser['email'] )
+{
+    $fbuser['contact_email'] = $fbuser['email'];
+    $jfb_log .= "FB: Email privilege granted, but only for an anonymous proxy address (" . $fbuser['email'] . ")\n";
+}
 else
 {
     $fbuser['contact_email'] = "FB_" . $fb_uid . $jfb_default_email;
@@ -161,9 +166,21 @@ if( !$user_login_id && count($wp_user_hashes) > 0 )
 //If so, we'll want to update their WP account with their *real* email.
 if( $user_login_id )
 {
+    //Check 1: It was previously denied, but is now allowed
+    $updateEmail = false;
     if( strpos($user_data->user_email, $jfb_default_email) !== FALSE && strpos($fbuser['contact_email'], $jfb_default_email) === FALSE )
     {
-        $jfb_log .= "WP: Previously denied email has now been allowed; updating to (".$fbuser['contact_email'].")\n";
+        $jfb_log .= "WP: Previously DENIED email has now been allowed; updating to (".$fbuser['contact_email'].")\n";
+        $updateEmail = true;
+    }
+    //Check 2: It was previously allowed, but only as an anonymous proxy.  They've now revealed their "true" email.
+    if( strpos($user_data->user_email, "@proxymail.facebook.com") !== FALSE && strpos($fbuser['contact_email'], "@proxymail.facebook.com") === FALSE )
+    {
+        $jfb_log .= "WP: Previously PROXIED email has now been allowed; updating to (".$fbuser['contact_email'].")\n";
+        $updateEmail = true;
+    }
+    if( $updateEmail )
+    {
         $user_upd = array();
         $user_upd['ID']         = $user_login_id;
         $user_upd['user_email'] = $fbuser['contact_email'];
