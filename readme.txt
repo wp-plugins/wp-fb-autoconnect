@@ -61,7 +61,7 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
-* 1.3.3 (2010-08-23) =
+= 1.3.3 (2010-08-23) =
 * Clear previously fetched avatar if Facebook user has removed their profile picture
 * Marked as compatible up to 3.0.1 (Oops! Forgot to do this)
 * Nicer error reporting (thanks Andy Clark)
