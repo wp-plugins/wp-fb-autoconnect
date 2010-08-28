@@ -14,8 +14,12 @@ $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Ver
 //Check the nonce to make sure this was a valid login attempt (not a hack), unless the check has been disabled (not recommended!)
 if( !get_option($opt_jfb_disablenonce) )
 {
-    if( wp_verify_nonce ($_REQUEST ['_wpnonce'], $jfb_nonce_name) != 1 )
+    $jfb_log .= "WP: Verifying nonce (expected '" . wp_create_nonce( $jfb_nonce_name ) . "', received '" . $_REQUEST['_wpnonce'] . "')\n";
+    if( wp_verify_nonce ($_REQUEST['_wpnonce'], $jfb_nonce_name) != 1 )
+    {
+        jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n*****************\n" . $jfb_log);
         j_die("Failed nonce check. Login aborted.");
+    }
     $jfb_log .= "WP: nonce check passed\n";
 }
 else
