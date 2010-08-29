@@ -22,6 +22,8 @@ if( !get_option($opt_jfb_disablenonce) )
     if( wp_verify_nonce ($_REQUEST['_wpnonce'], $jfb_nonce_name) != 1 )
     {
         $jfb_log .= "WP: nonce check failed (expected '" . wp_create_nonce( $jfb_nonce_name ) . "', received '" . $_REQUEST['_wpnonce'] . "')\n";
+        $jfb_log .= "    Original Components) " . get_option($opt_jfb_generated_nonce) . "\n";
+        $jfb_log .= "    Current Components)  " . debug_nonce_components() . "\n";
         jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n*****************\n" . $jfb_log);
         j_die("Failed nonce check. Login aborted.");
     }

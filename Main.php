@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.3.7
+ * Version: 1.3.8
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -154,6 +154,10 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         ?>
     }
     //--></script><?php
+    
+    //DEBUG (to try and figure out the "nonce check failed" problem)
+    global $opt_jfb_generated_nonce;
+    update_option($opt_jfb_generated_nonce, debug_nonce_components());
 }
 
 

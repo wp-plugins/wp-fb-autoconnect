@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "1.3.7";
+$jfb_version    = "1.3.8";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 
@@ -62,4 +62,21 @@ function j_mail($subj, $msg='')
     }
 }
 
+
+//This is TEMPORARY DEBUG code. In order to try and figure out that strange "nonce check failed" bug,
+//I'll log the components used to generate the nonce (see wp_create_nonce()).  Then if the check fails,
+//I can compare what's changed from when the form was submitted until _process_login.php started.
+//Hopefully this'll reveal the cause of the problem...
+global $opt_jfb_generated_nonce;
+$opt_jfb_generated_nonce = "jfb_nonce_debugging";
+function debug_nonce_components()
+{
+    global $opt_jfb_generated_nonce;
+    $user = wp_get_current_user();
+	$uid = (int) $user->id;
+	$i = wp_nonce_tick();
+	$hash = wp_hash($i . $action . $uid, 'nonce');
+    $nonce = substr($hash, -12, 10);
+    return "uid: $uid, i: $i, hash: $hash, nonce: $nonce";
+}
 ?>
