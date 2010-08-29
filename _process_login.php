@@ -5,18 +5,23 @@
   * See the bottom of this file for notes on the Facebook API
   */
 
+//A very simple check to avoid people from accessing this script directly.
+if( !isset($_POST['redirectTo']) || !isset($_POST['_wpnonce']) )
+    die("Sorry, you cannot access this script directly.");
+
+
 //Include our options and the Wordpress core
 require_once("__inc_opts.php");
 require_once("__inc_wp.php");
 $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version)\n";
 
 
-//Check the nonce to make sure this was a valid login attempt (not a hack), unless the check has been disabled (not recommended!)
+//Check the nonce to make sure this was a valid login attempt (unless the check has been disabled - not recommended!)
 if( !get_option($opt_jfb_disablenonce) )
 {
-    $jfb_log .= "WP: Verifying nonce (expected '" . wp_create_nonce( $jfb_nonce_name ) . "', received '" . $_REQUEST['_wpnonce'] . "')\n";
     if( wp_verify_nonce ($_REQUEST['_wpnonce'], $jfb_nonce_name) != 1 )
     {
+        $jfb_log .= "WP: nonce check failed (expected '" . wp_create_nonce( $jfb_nonce_name ) . "', received '" . $_REQUEST['_wpnonce'] . "')\n";
         jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n*****************\n" . $jfb_log);
         j_die("Failed nonce check. Login aborted.");
     }
