@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "1.3.8";
+$jfb_version    = "1.3.9";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 
@@ -74,9 +74,14 @@ function debug_nonce_components()
     global $opt_jfb_generated_nonce;
     $user = wp_get_current_user();
 	$uid = (int) $user->id;
-	$i = wp_nonce_tick();
+	
+	$nonce_life = apply_filters('nonce_life', 86400);
+	$time = time();
+	$nonce_tick = ceil(time() / ( $nonce_life / 2 ));
+	$tick_verify = wp_nonce_tick();
+	
 	$hash = wp_hash($i . $action . $uid, 'nonce');
     $nonce = substr($hash, -12, 10);
-    return "uid: $uid, i: $i, hash: $hash, nonce: $nonce";
+    return "NONCE: $nonce, uid: $uid, life: $nonce_life, time: $time, tick: $nonce_tick, verify: $tick_verify, hash: $hash";
 }
 ?>
