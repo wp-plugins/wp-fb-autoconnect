@@ -16,16 +16,25 @@ require_once("__inc_wp.php");
 $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version)\n";
 
 
-//Check the nonce to make sure this was a valid login attempt (unless the check has been disabled - not recommended!)
+//Check the nonce to make sure this was a valid login attempt (unless the user has disabled nonce checking)
+//Note: Nonce check should never fail - yet some users report spontaneous failures; the following contains some debug code to hopefully figure out why...
+//The most common issue seems to be that when the form was submitted, nobody was logged in, but once we get here, somebody is.  Why...??
 if( !get_option($opt_jfb_disablenonce) )
 {
     if( wp_verify_nonce ($_REQUEST['_wpnonce'], $jfb_nonce_name) != 1 )
-    {
-        $jfb_log .= "WP: nonce check failed (expected '" . wp_create_nonce( $jfb_nonce_name ) . "', received '" . $_REQUEST['_wpnonce'] . "')\n";
-        $jfb_log .= "    Original Components) " . get_option($opt_jfb_generated_nonce) . "\n";
-        $jfb_log .= "    Current Components)  " . debug_nonce_components() . "\n";
+    {  
+        $jfb_log .= "WP: nonce check failed (expected '" . wp_create_nonce( $jfb_nonce_name ) . "', received '" . $_REQUEST['_wpnonce'] . "')\n" .
+                    "    Original Components) " . get_option($opt_jfb_generated_nonce) . "\n" .
+                    "    Current Components)  " . debug_nonce_components() . "\n" .
+                    "    Active Plugins:\n";
+        $plugins = get_plugins();
+        foreach($plugins as $plugin) $jfb_log .= "      " . $plugin['Name'] . ' ' . $plugin['Version'] . '\n';
         jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n*****************\n" . $jfb_log);
-        j_die("Failed nonce check. Login aborted.");
+        
+        //Report the error and stop running the script.
+        $currUser = wp_get_current_user(); 
+        if( $currUser->ID ) j_die("Failed nonce check because user \"" . $currUser->user_login . "\" already seems to be logged in.<br /><br /><a href=\"".$_POST['redirectTo']."\">Continue</a>");
+        else                j_die("Failed nonce check. Login aborted.");
     }
     $jfb_log .= "WP: nonce check passed\n";
 }
