@@ -28,7 +28,7 @@ if( !get_option($opt_jfb_disablenonce) )
                     "    Current Components)  " . debug_nonce_components() . "\n" .
                     "    Active Plugins:\n";
         $plugins = get_plugins();
-        foreach($plugins as $plugin) $jfb_log .= "      " . $plugin['Name'] . ' ' . $plugin['Version'] . '\n';
+        foreach($plugins as $plugin) $jfb_log .= "      " . $plugin['Name'] . ' ' . $plugin['Version'] . "\n";
         jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n*****************\n" . $jfb_log);
         
         //Report the error and stop running the script.
