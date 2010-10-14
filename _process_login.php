@@ -112,10 +112,10 @@ $wp_user_hashes = array();
 $jfb_log .= "WP: Searching for user by meta...\n";
 foreach ($wp_users as $wp_user)
 {
-    $user_data = get_userdata($wp_user->ID);
     $meta_uid  = get_usermeta($wp_user->ID, $jfb_uid_meta_name);
     if( $meta_uid && $meta_uid == $fb_uid )
     {
+        $user_data       = get_userdata($wp_user->ID);
         $user_login_id   = $wp_user->ID;
         $user_login_name = $user_data->user_login;
         $jfb_log .= "WP: Found existing user by meta (" . $user_login_name . ")\n";
@@ -126,7 +126,7 @@ foreach ($wp_users as $wp_user)
     //Precalculate each non-FB-connected user's mail-hash (http://wiki.developers.facebook.com/index.php/Connect.registerUsers)
     if( !$meta_uid )
     {
-        $email= strtolower(trim($user_data->user_email));
+        $email= strtolower(trim($wp_user->user_email));
         $hash = sprintf('%u_%s', crc32($email), md5($email));
         $wp_user_hashes[$wp_user->ID] = array('email_hash' => $hash);
     }
