@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.3.11
+ * Version: 1.3.12
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -10,7 +10,22 @@
 
 /*
  * Copyright 2010 Justin Klein (email: justin@justin-klein.com)
+ * 
+ * If you choose to create and distribute a derived plugin, you MUST satisfy all of the following:
+ * 1) You may not represent it as a fully original plugin, nor attempt to confuse it with the original plugin by means of its name or otherwise.
+ * 2) The derived plugin must clearly give credit to the original, including a link to the original plugin's page on the Wordpress Plugins repository.
+ *    This credit and link must be provided in each of the following locations, and must be plainly visible:
+ *      -The plugin's entry on the "Plugins" page of the user's wordpress install
+ *      -The plugin's admin panel
+ *      -The plugin's readme file
+ *      -The plugin's support page (if relevant) 
+ * 3) You may add your own PayPal Donate link, provided it always appears with my own.
+ *    You may not remove my Donate link.
+ *    It must be clear which link donates to the original author and which donates to the author of the derived work.
+ * 4) You should make it clear precisely what functionality you've added to the plugin and what was original.
  *
+ * ----------------
+ * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)

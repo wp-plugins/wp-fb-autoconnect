@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.0.1
-Stable tag: 1.3.11
+Stable tag: 1.3.12
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -32,10 +32,8 @@ To allow your users to login with their Facebook accounts, you must first setup 
 
 1. Visit [www.facebook.com/developers/createapp.php](http://www.facebook.com/developers/createapp.php)
 2. Type in a name (i.e. the name of your blog). This is what Facebook will show on the login popup.
-3. Note the API Key and Secret; you'll need them in a minute.
-4. Click the "Connect" tab and enter your site's URL under "Connect URL."  Note: http://example.com/ and http://www.example.com/ are *not* the same - be sure this matches Settings -&gt; General -&gt; Wordpress Address.
-5. Click the "Advanced" tab and enter your site's domain under "Email Domain" (i.e. example.com). This is only required if you want to be able to access your users' email addresses (optional).
-6. Click "Save Changes."
+3. Click the "Web Site" tab and fill in your "Site URL" (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are *not* - be sure this matches Settings -&gt; General -&gt; Wordpress Address.
+4. Click "Save Changes," and note the API Key and Application Secret (you'll need them in a minute).
 
 Then you can install the plugin:
 
@@ -61,6 +59,10 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+
+= 1.3.12 (2010-10-14) =
+* Update the instructions (Facebook has changed some of the settings on their Create Application script).
+
 = 1.3.11 (2010-10-14) =
 * Performance optimization when searching for existing users during a login (thanks to Andy Clark)
 

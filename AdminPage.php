@@ -147,10 +147,9 @@ function jfb_admin_page()
     <ol>
       <li>Visit <a href="http://www.facebook.com/developers/createapp.php" target="_lnk">www.facebook.com/developers/createapp.php</a></li>
       <li>Type in a name (i.e. the name of your website).  This is the name your users will see on the Facebook login popup.</li>
+      <li>Click the "Web Site" tab and fill in your "Site URL" (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
+      <li>Click "Save Changes."</li>
       <li>Copy the API Key and Secret to the boxes below.</li>
-      <li>Click the "Connect" tab (back on Facebook) and under "Connect URL" enter the URL to your website (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
-      <li>Click the "Advanced" tab and enter your site's domain under "Email Domain" (i.e. example.com).  This is only required if you want to access your users' email addresses (optional).</li>
-      <li>Click "Save Changes" (on Facebook).</li>
       <li>Click "Save" below.</li>
     </ol>
     <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a>, or if you're using BuddyPress, a Facebook button will be automatically added to its built-in login panel.<br /><br />
