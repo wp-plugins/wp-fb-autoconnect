@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.3.13
+ * Version: 1.3.14
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -126,6 +126,10 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
      //Output an html form that we'll submit via JS once the FB login is complete; it redirects us to the PHP script that logs us into WP.  
   ?><form name="<?php echo $callbackName ?>_form" method="post" action="<?php echo plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php"?>" >
       <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
+<?php 
+      //An action to allow the user to inject additional data in the form, to be transferred to the login script
+      do_action('wpfb_add_to_form');
+?>
       <?php wp_nonce_field ($jfb_nonce_name) ?>   
     </form><?php
 
@@ -138,13 +142,16 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         { alert('Facebook failed to log you in!'); return; }
 
 <?php 
+		//An action to allow the user to inject additional javascript to get executed before the login takes place
+		do_action('wpfb_add_to_js');
+
         //Optionally request permissions to get their real email and to publish to their wall before redirecting to the logon script.
         $ask_for_email_permission = get_option($opt_jfb_ask_perms) || get_option($opt_jfb_req_perms);
         if( $ask_for_email_permission )                                                   		//Ask for email
             echo "        FB.Connect.showPermissionDialog('email', function(reply1)\n        {\n";
         if( get_option($opt_jfb_ask_stream) )                                                   //Ask for publish to wall
             echo "        FB.Connect.showPermissionDialog('publish_stream', function(reply2)\n        {\n";
-        
+
         //If we're not requiring their email, just redirect them (no matter if they approve or not)
         if( !get_option($opt_jfb_req_perms) )
         {

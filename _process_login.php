@@ -327,7 +327,8 @@ if( !isset($delay_redirect) || !$delay_redirect )
         <title>Logging In...</title>
     </head>
     <body>
-        <?php echo "<pre>".$jfb_log."</pre>"?>
+        <?php $jfb_log .= "\n---REQUEST:---\n" . print_r($_REQUEST, true); ?> 
+        <?php echo "<pre>".$jfb_log."</pre>" ?>
         <?php echo '<a href="'.$redirectTo.'">Continue</a>'?>
     </body>
 </html>
