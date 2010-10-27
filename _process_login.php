@@ -17,24 +17,35 @@ $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Ver
 
 
 //Check the nonce to make sure this was a valid login attempt (unless the user has disabled nonce checking)
-//Note: Nonce check should never fail - yet some users report spontaneous failures; the following contains some debug code to hopefully figure out why...
-//The most common issue seems to be that when the form was submitted, nobody was logged in, but once we get here, somebody is.  Why...??
+//Note: Nonce check will fail if the user opens 2 browser windows, logs into one, then logs into the other.
+//This is because the nonce takes the current user into account, so when the 2nd page is logged in, the current user won't match the user used to generate the nonce when the page was first loaded.
 if( !get_option($opt_jfb_disablenonce) )
 {
     if( wp_verify_nonce ($_REQUEST['_wpnonce'], $jfb_nonce_name) != 1 )
-    {  
+    {
+        //If there's already a user logged in, tell the user and give them a link back to where they were.
+        $currUser = wp_get_current_user(); 
+        if( $currUser->ID )
+        {
+            $msg = "User \"$currUser->user_login\" has already logged in via another browser session.\n";
+            $jfb_log .= $msg;
+            j_mail("Facebook Double-Login: " . $currUser->user_login);
+            die($msg . "<br /><br /><a href=\"".$_POST['redirectTo']."\">Continue</a>");
+        }
+          
+        //If the nonce failed for some other reason, report the error.
         $jfb_log .= "WP: nonce check failed (expected '" . wp_create_nonce( $jfb_nonce_name ) . "', received '" . $_REQUEST['_wpnonce'] . "')\n" .
                     "    Original Components) " . get_option($opt_jfb_generated_nonce) . "\n" .
-                    "    Current Components)  " . debug_nonce_components() . "\n" .
-                    "    Active Plugins:\n";
-        $plugins = get_plugins();
-        foreach($plugins as $plugin) $jfb_log .= "      " . $plugin['Name'] . ' ' . $plugin['Version'] . "\n";
-        jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n*****************\n" . $jfb_log);
+                    "    Current Components)  " . debug_nonce_components() . "\n";
+        if( function_exists('get_plugins') )
+        {
+            $plugins = get_plugins();
+            $jfb_log .= "    Active Plugins:\n";
+            foreach($plugins as $plugin) $jfb_log .= "      " . $plugin['Name'] . ' ' . $plugin['Version'] . "\n";
+        }
         
-        //Report the error and stop running the script.
-        $currUser = wp_get_current_user(); 
-        if( $currUser->ID ) j_die("Failed nonce check because user \"" . $currUser->user_login . "\" already seems to be logged in.<br /><br /><a href=\"".$_POST['redirectTo']."\">Continue</a>");
-        else                j_die("Failed nonce check. Login aborted.");
+        jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n*****************\n" . $jfb_log);
+        j_die("Failed nonce check. Login aborted.");
     }
     $jfb_log .= "WP: nonce check passed\n";
 }

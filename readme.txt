@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.0.1
-Stable tag: 1.3.14
+Stable tag: 1.4.0
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -59,12 +59,17 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 1.4.0 (2010-10-27) =
+* Handle users with non-alphanumeric characters in their Facebook names.
+* Use Firstname.Lastname rather than FirstnameLastname for Buddypress logins
+* Revised some debug code, fixed problem with get_plugins()
+
 = 1.3.14 (2010-10-26) =
 * When debug logging is enabled, show REQUEST variables
-* Added 2 new actions: wpfb_add_to_js and wpfb_add_to_form 
+* Added 2 new actions: wpfb_add_to_js and wpfb_add_to_form (Sponsored by [VideoUserManuals](http://9f200kliq7f39zam4ffc7wnk8b.hop.clickbank.net/))
 
 = 1.3.13 (2010-10-26) =
-* The prompts "Ask for permission to get the connecting user's email address" and "Request permission to post to the user's wall" are split into 2 separate permissions dialog, so the user may accept one but deny the other.
+* The prompts "Ask for permission to get the connecting user's email address" and "Request permission to post to the user's wall" are split into 2 separate permissions dialog, so the user may accept one but deny the other. (Sponsored by [VideoUserManuals](http://9f200kliq7f39zam4ffc7wnk8b.hop.clickbank.net/))
 
 = 1.3.12 (2010-10-14) =
 * Update the instructions (Facebook has changed some of the settings on their Create Application script).

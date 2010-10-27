@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.3.14
+ * Version: 1.4.0
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -297,8 +297,15 @@ if( get_option($opt_jfb_buddypress) )
     add_filter( 'wpfb_insert_user', 'jfp_bp_modify_userdata', 10, 2 );
     function jfp_bp_modify_userdata( $wp_userdata, $fb_userdata )
     {
+        //First, create a username by appending Firstname.Lastname
+        $name = str_replace( ' ', '', $fb_userdata['first_name'] . "." . $fb_userdata['last_name'] );
+        
+        //Strip non-alphanumeric characters, and make sure we've got something left.  If not, we'll just leave the FB_xxxxx username as is.
+        $name = preg_replace("/[^a-zA-Z0-9\s]/", "", $name);
+        if( strlen($name) == 0 ) return $wp_userdata;
+        
+        //Make sure the name is unique: if we've already got a user with this name, append a number to it.
         $counter = 1;
-        $name = str_replace( ' ', '', $fb_userdata['first_name'] . $fb_userdata['last_name'] );
         if ( username_exists( $name ) )
         {
             do
@@ -314,6 +321,7 @@ if( get_option($opt_jfb_buddypress) )
         }
         $username = strtolower( sanitize_user($username) );
     
+        //Done!
         $wp_userdata['user_login']   = $username;
         $wp_userdata['user_nicename']= $username;
         return $wp_userdata;
