@@ -59,7 +59,7 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
-= 1.4.1 (2010-xx-xx) =
+= 1.4.1 (2010-10-29) =
 * Remove unneeded debug code
 * Add support for eventual premium functionality 
 
