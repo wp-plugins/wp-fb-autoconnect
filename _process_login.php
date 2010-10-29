@@ -44,7 +44,7 @@ if( !get_option($opt_jfb_disablenonce) )
             foreach($plugins as $plugin) $jfb_log .= "      " . $plugin['Name'] . ' ' . $plugin['Version'] . "\n";
         }
         
-        jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n*****************\n" . $jfb_log);
+        jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n" . $jfb_log);
         j_die("Failed nonce check. Login aborted.");
     }
     $jfb_log .= "WP: nonce check passed\n";

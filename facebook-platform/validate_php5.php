@@ -5,6 +5,8 @@
  * This is in a separate file because FB's php5 library uses exceptions, which I can't include in the main plugin with PHP4
  */
 
+define('WPFBAUTOCONNECT_API', 1);
+
 function jfb_validate_key($key, $secret)
 {
       require_once('php/facebook.php');

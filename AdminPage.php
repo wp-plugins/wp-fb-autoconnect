@@ -39,7 +39,6 @@ function jfb_admin_page()
       //Show a warning if they're using a naughty other plugin
       if( class_exists('Facebook') )
       {
-          jfb_auth($jfb_name, $jfb_version, 3, "API WARNING!! Facebook already detected." );
           ?><div class="error"><p><strong>Warning:</strong> Another plugin has included the Facebook API throughout all of Wordpress.  I suggest you contact that plugin's author and ask them to include it only in pages where it's actually needed.<br /><br />Things may work fine as-is, but *if* the API version included by the other plugin is older than the one required by WP-FB AutoConnect, it's possible that the login process could fail.</p></div><?php
       }
       
@@ -66,12 +65,12 @@ function jfb_admin_page()
                 {   //Why does this happen? Presumably because another plugin includes a different version of the API that uses objects instead of arrays
                     $appID = sprintf("%.0f", $appInfo->app_id);
                     $message = '"' . $appInfo->application_name . '" (ID ' . $appID . ')';
-                    jfb_auth($jfb_name, $jfb_version, 3, "BUG Object instead of array (appInfo = " . print_r($appInfo, true) . ")" );
                 }
                 else
                 {
                     $message = "Key " . $_POST[$opt_jfb_api_key];
-                    jfb_auth($jfb_name, $jfb_version, 3, "BUG Unknown instead of array (getAppProperties returns: " . print_r($appInfo, true) . ")" );
+                    if( defined('WPFBAUTOCONNECT_API'))
+                        jfb_auth($jfb_name, $jfb_version, 3, "Unknown instead of array (getAppProperties returns: " . print_r($appInfo, true) . ")" );
                     $appID = 0;
                     ?><div class="error"><p><strong>Warning:</strong> Facebook failed to retrieve your Application's properties!  The plugin is very unlikely to work until it's fixed.<br /><br />I've thus far not been able to determine the exact cause of this extremely rare problem, but my best guess is that you've made a mistake somewhere in your configuration.  If you see this warning and figure out how to fix it, please let me know <b><a href="<?php echo $jfb_homepage ?>">here</a></b> so I can clarify my setup instructions.</p></div><?php
                 }
@@ -82,7 +81,7 @@ function jfb_admin_page()
           else:
               update_option( $opt_jfb_valid, 0 );
               $message = "ERROR: Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?";
-              jfb_auth($jfb_name, $jfb_version, 3, $message );
+              //jfb_auth($jfb_name, $jfb_version, 3, $message );
               ?><div class="updated"><p><?php echo $message ?></p></div><?php
           endif;
           
