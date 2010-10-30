@@ -177,6 +177,11 @@ function jfb_admin_page()
     <hr />
     
     <h3>Main Options</h3>
+    <?php 
+    //Only show the main options if the Facebook connection is valid!
+    if(get_option($opt_jfb_valid)):
+    ?>
+    
     <form name="formMainOptions" method="post" action="">
         <b>E-Mail:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Request permission to get the connecting user's email address<br />
@@ -204,20 +209,26 @@ function jfb_admin_page()
     </form>
     <hr />
     
-    <h4>Mod Rewrite Rules</h4>
+    <h3>Mod Rewrite Rules</h3>
     <?php
     if (get_option($opt_jfb_mod_done))
         echo "It looks like your htaccess has already been updated.  If you're having trouble with autologin links, make sure the file is writable and click the Update button again.";
     else
         echo "In order to use this plugin's autologin shortcut links (i.e. www.example.com/autologin/5), your .htaccess file needs to be updated.  Click the button below to update it now.<br />Note that this is an advanced feature and won't be needed by most users; see the plugin's homepage for documentation."
     ?>
-    <form name="formMainOptions" method="post" action="">
+    <form name="formRewriteOptions" method="post" action="">
         <input type="hidden" name="mod_rewrite_update" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Update Now" /></div>
     </form>
+    
+    <?php 
+    else:
+        echo "Please enter a Facebook API Key and Secret above. Once these have been successfully stored & validated, the main plugin options will become available.<br /><br />";
+    endif;
+    ?>
     <hr />
     
-    <h4>Delete All Plugin Options</h4>
+    <h3>Delete All Plugin Options</h3>
     <form name="formDebugOptions" method="post" action="">
         <input type="hidden" name="remove_all_settings" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Delete" /></div>
