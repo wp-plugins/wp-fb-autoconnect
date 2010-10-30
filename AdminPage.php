@@ -6,7 +6,8 @@
 add_action('admin_menu', 'jfb_add_admin_page', 99);
 function jfb_add_admin_page()
 { 
-    add_options_page('WP-FB AutoConnect Options', 'WP-FB AutoConn', 'administrator', "wp-fb-autoconnect", 'jfb_admin_page');
+    global $jfb_name;
+    add_options_page("$jfb_name Options", 'WP-FB AutoConn', 'administrator', "wp-fb-autoconnect", 'jfb_admin_page');
 }
 
 
@@ -30,116 +31,115 @@ function jfb_admin_page()
     global $jfb_name, $jfb_version;
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
-    global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce;
+    global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
     ?>
     <div class="wrap">
-     <h2>WP-FB AutoConnect Options</h2>
+     <h2><?php echo $jfb_name; ?> Options</h2>
     <?php
     
-      //Show a warning if they're using a naughty other plugin
-      if( class_exists('Facebook') )
-      {
-          ?><div class="error"><p><strong>Warning:</strong> Another plugin has included the Facebook API throughout all of Wordpress.  I suggest you contact that plugin's author and ask them to include it only in pages where it's actually needed.<br /><br />Things may work fine as-is, but *if* the API version included by the other plugin is older than the one required by WP-FB AutoConnect, it's possible that the login process could fail.</p></div><?php
-      }
+    //Show a warning if they're using a naughty other plugin
+    if( class_exists('Facebook') )
+    {
+        ?><div class="error"><p><strong>Warning:</strong> Another plugin has included the Facebook API throughout all of Wordpress.  I suggest you contact that plugin's author and ask them to include it only in pages where it's actually needed.<br /><br />Things may work fine as-is, but *if* the API version included by the other plugin is older than the one required by WP-FB AutoConnect, it's possible that the login process could fail.</p></div><?php
+    }
       
-      if(version_compare('5', PHP_VERSION, ">"))
-      {
-          ?><div class="error"><p>Sorry, but as of v1.3.0, WP-FB AutoConnect requires PHP5.</p></div><?php
-          die();
-      }
+    if(version_compare('5', PHP_VERSION, ">"))
+    {
+        ?><div class="error"><p>Sorry, but as of v1.3.0, WP-FB AutoConnect requires PHP5.</p></div><?php
+        die();
+    }
       
-      //Update options
-      if( isset($_POST['main_opts_updated']) )
-      {
-          //When saving the main options, make sure the key and secret are valid.
-          if( !class_exists('Facebook') ) require_once('facebook-platform/validate_php5.php');
-          $fbValid = jfb_validate_key($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec]);
-          if( $fbValid && method_exists($fbValid->api_client, 'admin_getAppProperties') ):
-                $appInfo = $fbValid->api_client->admin_getAppProperties(array('app_id', 'application_name'));
-                if( is_array($appInfo) )
-                {
-                    $appID = sprintf("%.0f", $appInfo['app_id']);
-                    $message = '"' . $appInfo['application_name'] . '" (ID ' . $appID . ')'; 
-                }
-                else if( $appInfo->app_id )
-                {   //Why does this happen? Presumably because another plugin includes a different version of the API that uses objects instead of arrays
-                    $appID = sprintf("%.0f", $appInfo->app_id);
-                    $message = '"' . $appInfo->application_name . '" (ID ' . $appID . ')';
-                }
-                else
-                {
-                    $message = "Key " . $_POST[$opt_jfb_api_key];
-                    if( defined('WPFBAUTOCONNECT_API'))
-                        jfb_auth($jfb_name, $jfb_version, 3, "Unknown instead of array (getAppProperties returns: " . print_r($appInfo, true) . ")" );
-                    $appID = 0;
-                    ?><div class="error"><p><strong>Warning:</strong> Facebook failed to retrieve your Application's properties!  The plugin is very unlikely to work until it's fixed.<br /><br />I've thus far not been able to determine the exact cause of this extremely rare problem, but my best guess is that you've made a mistake somewhere in your configuration.  If you see this warning and figure out how to fix it, please let me know <b><a href="<?php echo $jfb_homepage ?>">here</a></b> so I can clarify my setup instructions.</p></div><?php
-                }
-                update_option( $opt_jfb_valid, 1 );
-                if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
-                   jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
-                ?><div class="updated"><p><strong>Main Options saved for <?php echo $message ?></strong></p></div><?php
-          else:
-              update_option( $opt_jfb_valid, 0 );
-              $message = "ERROR: Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?";
-              //jfb_auth($jfb_name, $jfb_version, 3, $message );
-              ?><div class="updated"><p><?php echo $message ?></p></div><?php
-          endif;
-          
-          //We'll update the options either way - but if jfb_valid isn't set, the plugin won't show a Facebook button.
-          update_option( $opt_jfb_app_id, $appID);
-          update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
-          update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
-          update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
-          update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
-          update_option( $opt_jfb_ask_stream, $_POST[$opt_jfb_ask_stream] );
-          update_option( $opt_jfb_wp_avatars, $_POST[$opt_jfb_wp_avatars] );
-          update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );
-          if( $_POST[$opt_jfb_email_to] )   update_option( $opt_jfb_email_to, get_bloginfo('admin_email') );
-          else                              update_option( $opt_jfb_email_to, 0 );
-      }
-      if( isset($_POST['debug_opts_updated']) )
-      {
-          update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
-          update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );
-          update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
-          update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );          
-          ?><div class="updated"><p><strong><?php _e('Debug Options saved.', 'mt_trans_domain' ); ?></strong></p></div><?php
-      }
-      if( isset($_POST['bp_opts_updated']) )
-      {
-          update_option( $opt_jfb_buddypress, $_POST[$opt_jfb_buddypress] );
-          update_option( $opt_jfb_bp_avatars, $_POST[$opt_jfb_bp_avatars] );
-          ?><div class="updated"><p><strong><?php _e('Buddypress Options saved.', 'mt_trans_domain' ); ?></strong></p></div><?php
-      }
-      if( isset($_POST['mod_rewrite_update']) )
-      {
-          add_action('generate_rewrite_rules', 'jfb_add_rewrites');
-          add_filter('mod_rewrite_rules', 'jfb_fix_rewrites');
-          global $wp_rewrite;
-          $wp_rewrite->flush_rules();
-          update_option( $opt_jfb_mod_done, true );
-          ?><div class="updated"><p><strong><?php _e('HTACCESS Updated.', 'mt_trans_domain' ); ?></strong></p></div><?php          
-      }
-      if( isset($_POST['remove_all_settings']) )
-      {
-          delete_option($opt_jfb_api_key);
-          delete_option($opt_jfb_api_sec);
-          delete_option($opt_jfb_email_to);
-          delete_option($opt_jfb_delay_redir);
-          delete_option($opt_jfb_ask_perms);
-          delete_option($opt_jfb_req_perms);
-          delete_option($opt_jfb_ask_stream);
-          delete_option($opt_jfb_stream_content);
-          delete_option($opt_jfb_hide_button);
-          delete_option($opt_jfb_mod_done);
-          delete_option($opt_jfb_valid);
-          delete_option($opt_jfb_buddypress);
-          delete_option($opt_jfb_bp_avatars);
-          delete_option($opt_jfb_wp_avatars);
-          delete_option($opt_jfb_fulllogerr);
-          delete_option($opt_jfb_disablenonce);
-          ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
-      }
+    //Update options
+    if( isset($_POST['fb_opts_updated']) )
+    {
+        //When saving the Facebook options, make sure the key and secret are valid.
+        if( !class_exists('Facebook') ) require_once('facebook-platform/validate_php5.php');
+        $fbValid = jfb_validate_key($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec]);
+        if( $fbValid && method_exists($fbValid->api_client, 'admin_getAppProperties') )
+        {
+            $appInfo = $fbValid->api_client->admin_getAppProperties(array('app_id', 'application_name'));
+            if( is_array($appInfo) )
+            {
+                $appID = sprintf("%.0f", $appInfo['app_id']);
+                $message = '"' . $appInfo['application_name'] . '" (ID ' . $appID . ')'; 
+            }
+            else if( $appInfo->app_id )
+            {   //Why does this happen? Presumably because another plugin includes a different version of the API that uses objects instead of arrays
+                $appID = sprintf("%.0f", $appInfo->app_id);
+                $message = '"' . $appInfo->application_name . '" (ID ' . $appID . ')';
+            }
+            else
+            {
+                $message = "Key " . $_POST[$opt_jfb_api_key];
+                if( defined('WPFBAUTOCONNECT_API'))
+                    jfb_auth($jfb_name, $jfb_version, 3, "Unknown instead of array (getAppProperties returns: " . print_r($appInfo, true) . ")" );
+                $appID = 0;
+                ?><div class="error"><p><strong>Warning:</strong> Facebook failed to retrieve your Application's properties!  The plugin is very unlikely to work until it's fixed.<br /><br />I've thus far not been able to determine the exact cause of this extremely rare problem, but my best guess is that you've made a mistake somewhere in your configuration.  If you see this warning and figure out how to fix it, please let me know <b><a href="<?php echo $jfb_homepage ?>">here</a></b> so I can clarify my setup instructions.</p></div><?php
+            }
+            update_option( $opt_jfb_valid, 1 );
+            if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
+               jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
+            ?><div class="updated"><p><strong>Successfully connected with <?php echo $message ?></strong></p></div><?php
+        }
+        else
+        {
+            update_option( $opt_jfb_valid, 0 );
+            $message = "ERROR: Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?";
+            ?><div class="updated"><p><?php echo $message ?></p></div><?php
+        }
+        //We can save these either way, because if "valid" isn't set, a button won't be shown.
+        update_option( $opt_jfb_app_id, $appID);
+        update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
+        update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
+    }
+    if( isset($_POST['main_opts_updated']) )
+    {
+        update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
+        update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
+        update_option( $opt_jfb_ask_stream, $_POST[$opt_jfb_ask_stream] );
+        update_option( $opt_jfb_wp_avatars, $_POST[$opt_jfb_wp_avatars] );
+        update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );        
+        update_option( $opt_jfb_show_credit, $_POST[$opt_jfb_show_credit] );
+        if( $_POST[$opt_jfb_email_to] )   update_option( $opt_jfb_email_to, get_bloginfo('admin_email') );
+        else                              update_option( $opt_jfb_email_to, 0 );
+        update_option( $opt_jfb_buddypress, $_POST[$opt_jfb_buddypress] );
+        update_option( $opt_jfb_bp_avatars, $_POST[$opt_jfb_bp_avatars] );
+        update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
+        update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );
+        update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
+        update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] ); 
+        ?><div class="updated"><p><strong>Main Options saved.</strong></p></div><?php         
+    }
+    if( isset($_POST['mod_rewrite_update']) )
+    {
+        add_action('generate_rewrite_rules', 'jfb_add_rewrites');
+        add_filter('mod_rewrite_rules', 'jfb_fix_rewrites');
+        global $wp_rewrite;
+        $wp_rewrite->flush_rules();
+        update_option( $opt_jfb_mod_done, true );
+        ?><div class="updated"><p><strong><?php _e('HTACCESS Updated.', 'mt_trans_domain' ); ?></strong></p></div><?php          
+    }
+    if( isset($_POST['remove_all_settings']) )
+    {
+        delete_option($opt_jfb_api_key);
+        delete_option($opt_jfb_api_sec);
+        delete_option($opt_jfb_email_to);
+        delete_option($opt_jfb_delay_redir);
+        delete_option($opt_jfb_ask_perms);
+        delete_option($opt_jfb_req_perms);
+        delete_option($opt_jfb_ask_stream);
+        delete_option($opt_jfb_stream_content);
+        delete_option($opt_jfb_hide_button);
+        delete_option($opt_jfb_mod_done);
+        delete_option($opt_jfb_valid);
+        delete_option($opt_jfb_buddypress);
+        delete_option($opt_jfb_bp_avatars);
+        delete_option($opt_jfb_wp_avatars);
+        delete_option($opt_jfb_fulllogerr);
+        delete_option($opt_jfb_disablenonce);
+        delete_option($opt_jfb_show_credit);
+        ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
+    }
     ?>
       
     To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:<br /><br />
@@ -167,34 +167,41 @@ function jfb_admin_page()
     </form>
     <hr />
     
-    <h3>Main Options</h3>
-    <form name="formMainOptions" method="post" action="">
-        <b>Facebook:</b><br />
+    <h3>Facebook Connect</h3>
+    <form name="formFacebook" method="post" action="">
         <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
-        <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> API Secret<br /><br />
-        <br /><b>E-Mail:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Ask for permission to get the connecting user's email address<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> Ask <u><i>and require</i></u> permission to get the connecting user's email address<br />
-        <br /><b>Announcement:</b><br />
-		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
-		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:</i><br />
-		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
-		<br /><b>Wordpress Avatars:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as Wordpress avatars<br />
-        <br /><b>Logging:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="1" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
-        <input type="hidden" name="main_opts_updated" value="1" />
+        <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> API Secret
+        <input type="hidden" name="fb_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
     <hr />
     
-    <h4>Buddypress Options</h4>
-    <form name="formBPOptions" method="post" action="">
-        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Include BuddyPress Filters<br />
-        &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="<?php echo $opt_jfb_bp_avatars?>" value="1" <?php echo get_option($opt_jfb_bp_avatars)?'checked="checked"':''?> /> Replace BuddyPress avatars with Facebook profile pictures<br />
-        <input type="hidden" name="bp_opts_updated" value="1" />
+    <h3>Main Options</h3>
+    <form name="formMainOptions" method="post" action="">
+        <b>E-Mail:</b><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Request permission to get the connecting user's email address<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> Request <u><i>and require</i></u> permission to get the connecting user's email address<br />
+        <br /><b>Announcement:</b><br />
+		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
+		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:</i><br />
+		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
+        <br /><b>BuddyPress Support:</b><br /> 
+        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Enable BuddyPress Support<br />
+        <small>(Checking this option will add a Facebook button to the Buddypress sidebar login widget, and convert autoregistered usernames to a more BuddyPress-friendly format.)</small><br />
+		<br /><b>Avatars:</b><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars <u><i>on Wordpress</i></u><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_bp_avatars?>" value="1" <?php echo get_option($opt_jfb_bp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars <u><i>on Buddypress</i></u><br />
+        <br /><b>Credit:</b><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))</i><br />
+		<br /><b>Debug:</b><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
+		<input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="1" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
+		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
+        <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />
+        <input type="hidden" name="main_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
-	</form>            
+    </form>
     <hr />
     
     <h4>Mod Rewrite Rules</h4>
@@ -202,22 +209,11 @@ function jfb_admin_page()
     if (get_option($opt_jfb_mod_done))
         echo "It looks like your htaccess has already been updated.  If you're having trouble with autologin links, make sure the file is writable and click the Update button again.";
     else
-        echo "In order to use this plugin's autologin shortcut links (i.e. www.example.com/autologin/5), your .htaccess file needs to be updated.  Click the button below to update it now.<br /><br />Note that this is an advanced feature and won't be needed by most users; see the plugin's homepage for documentation."
+        echo "In order to use this plugin's autologin shortcut links (i.e. www.example.com/autologin/5), your .htaccess file needs to be updated.  Click the button below to update it now.<br />Note that this is an advanced feature and won't be needed by most users; see the plugin's homepage for documentation."
     ?>
     <form name="formMainOptions" method="post" action="">
         <input type="hidden" name="mod_rewrite_update" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Update Now" /></div>
-    </form>
-    <hr />
-    
-    <h4>Debug Options</h4>
-    <form name="formDebugOptions" method="post" action="">
-        <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (Not for production sites!)<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> DISABLE nonce security check<br />        
-        <input type="hidden" name="debug_opts_updated" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
     <hr />
     

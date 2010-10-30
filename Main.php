@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.4.1
+ * Version: 1.4.2
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -43,9 +43,9 @@
 
 
 require_once("__inc_opts.php");
+@include_once("Premium.php");
 require_once("AdminPage.php");
 require_once("Widget.php");
-@include_once("Premium.php");
 
 
 /**********************************************************************/
@@ -199,13 +199,24 @@ function jfb_output_fb_namespace()
 
 
 /**********************************************************************/
+/*******************************CREDIT*********************************/
+/**********************************************************************/
+global $opt_jfb_show_credit;
+if( get_option($opt_jfb_show_credit) ) add_action('wp_footer', 'jfb_show_credit');
+function jfb_show_credit()
+{
+    global $jfb_homepage;
+    echo "Facebook login by <a href=\"$jfb_homepage\">WP-FB-AutoConnect</a>";
+}
+
+
+/**********************************************************************/
 /*******************************AVATARS********************************/
 /**********************************************************************/
 
 
 /**
-  * If enabled, hook into get_avatar() and replace it with a WORDPRESS profile thumbnail.
-  * NOTE: BuddyPress avatars are handled below.
+  * Optionally replace WORDPRESS avatars with FACEBOOK profile pictures
   */
 if( get_option($opt_jfb_wp_avatars) ) add_filter('get_avatar', 'jfb_wp_avatar', 10, 5);
 function jfb_wp_avatar($avatar, $id_or_email, $size, $default, $alt)
@@ -228,13 +239,39 @@ function jfb_wp_avatar($avatar, $id_or_email, $size, $default, $alt)
 }
 
 
+/*
+ * Optionally replace BUDDYPRESS avatars with FACEBOOK profile pictures
+ */
+if( get_option($opt_jfb_bp_avatars) ) add_filter( 'bp_core_fetch_avatar', 'jfb_bp_avatar', 10, 4 );    
+function jfb_bp_avatar($avatar, $params='')
+{
+    //First, get the userid
+	global $comment;
+	if (is_object($comment))	$user_id = $comment->user_id;
+	if (is_object($params)) 	$user_id = $params->user_id;
+	if (is_array($params))
+	{
+		if ($params['object']=='user')
+			$user_id = $params['item_id'];
+	}
+
+	//Then see if we have a Facebook avatar for that user
+	if( $params['type'] == 'full' && get_usermeta($user_id, 'facebook_avatar_full'))
+		return '<img alt="avatar" src="' . get_usermeta($user_id, 'facebook_avatar_full') . '" class="avatar" />';
+    else if( get_usermeta($user_id, 'facebook_avatar_thumb') )
+	    return '<img alt="avatar" src="' . get_usermeta($user_id, 'facebook_avatar_thumb') . '" class="avatar" />';
+	else
+        return $avatar;
+}
+
+
 
 /**********************************************************************/
 /*******************BUDDYPRESS (previously in BuddyPress.php)**********/
 /**********************************************************************/
 
 /*
- * If this is BuddyPress, switch ON the option to include bp filters by default
+ * Default the Buddypress options to ON if BP is detected.
  */
 global $opt_jfb_buddypress;
 add_action( 'bp_init', 'jfb_turn_on_bp' );
@@ -245,97 +282,63 @@ function jfb_turn_on_bp()
 }
 
 
+
+/*
+ * Add a Facebook Login button to the Buddypress sidebar login widget
+ * NOTE: If you use this, you mustn't also use the built-in widget - just one or the other!
+ */
 if( get_option($opt_jfb_buddypress) )
-{
-    /*
-     * If enabled, hook into bp_core_fetch_avatar and replace the BuddyPress avatar with the Facebook profile picture.
-     * For WORDPRESS avatar handling, see above. 
-     */
-    if( get_option($opt_jfb_bp_avatars) ) add_filter( 'bp_core_fetch_avatar', 'jfb_get_facebook_avatar', 10, 4 );    
-    function jfb_get_facebook_avatar($avatar, $params='')
-    {
-        //First, get the userid
-    	global $comment;
-    	if (is_object($comment))	$user_id = $comment->user_id;
-    	if (is_object($params)) 	$user_id = $params->user_id;
-    	if (is_array($params))
-    	{
-    		if ($params['object']=='user')
-    			$user_id = $params['item_id'];
-    	}
-    
-    	//Then see if we have a Facebook avatar for that user
-    	if( $params['type'] == 'full' && get_usermeta($user_id, 'facebook_avatar_full'))
-    		return '<img alt="avatar" src="' . get_usermeta($user_id, 'facebook_avatar_full') . '" class="avatar" />';
-        else if( get_usermeta($user_id, 'facebook_avatar_thumb') )
-    	    return '<img alt="avatar" src="' . get_usermeta($user_id, 'facebook_avatar_thumb') . '" class="avatar" />';
-    	else
-            return $avatar;
-    }
-    
-    
-    /*
-     * Add a Facebook Login button to the Buddypress sidebar login widget
-     * NOTE: If you use this, you mustn't also use the built-in widget - just one or the other!
-     */
     add_action( 'bp_after_sidebar_login_form', 'jfb_bp_add_fb_login_button' );
-    function jfb_bp_add_fb_login_button()
-    {
-      if ( !is_user_logged_in() )
-      {
-          echo "<p></p>";
-          jfb_output_facebook_btn();
-          jfb_output_facebook_init();
-          jfb_output_facebook_callback();
-      }
-    }
+function jfb_bp_add_fb_login_button()
+{
+  if ( !is_user_logged_in() )
+  {
+      echo "<p></p>";
+      jfb_output_facebook_btn();
+      jfb_output_facebook_init();
+      jfb_output_facebook_callback();
+  }
+}
     
     
-    /*
-     * Modify the userdata for BuddyPress by changing login names from the default FB_xxxxxx
-     * to something prettier for BP's social link system
-     */
+/*
+ * Modify the userdata for BuddyPress by changing login names from the default FB_xxxxxx
+ * to something prettier for BP's social link system
+ */
+if( get_option($opt_jfb_buddypress) )
     add_filter( 'wpfb_insert_user', 'jfp_bp_modify_userdata', 10, 2 );
-    function jfp_bp_modify_userdata( $wp_userdata, $fb_userdata )
+function jfp_bp_modify_userdata( $wp_userdata, $fb_userdata )
+{
+    //First, create a username by appending Firstname.Lastname
+    $name = str_replace( ' ', '', $fb_userdata['first_name'] . "." . $fb_userdata['last_name'] );
+    
+    //Strip non-alphanumeric characters, and make sure we've got something left.  If not, we'll just leave the FB_xxxxx username as is.
+    $name = preg_replace("/[^a-zA-Z0-9\s]/", "", $name);
+    if( strlen($name) == 0 ) return $wp_userdata;
+    
+    //Make sure the name is unique: if we've already got a user with this name, append a number to it.
+    $counter = 1;
+    if ( username_exists( $name ) )
     {
-        //First, create a username by appending Firstname.Lastname
-        $name = str_replace( ' ', '', $fb_userdata['first_name'] . "." . $fb_userdata['last_name'] );
-        
-        //Strip non-alphanumeric characters, and make sure we've got something left.  If not, we'll just leave the FB_xxxxx username as is.
-        $name = preg_replace("/[^a-zA-Z0-9\s]/", "", $name);
-        if( strlen($name) == 0 ) return $wp_userdata;
-        
-        //Make sure the name is unique: if we've already got a user with this name, append a number to it.
-        $counter = 1;
-        if ( username_exists( $name ) )
-        {
-            do
-            {
-                $username = $name;
-                $counter++;
-                $username = $username . $counter;
-            } while ( username_exists( $username ) );
-        }
-        else
+        do
         {
             $username = $name;
-        }
-        $username = strtolower( sanitize_user($username) );
-    
-        //Done!
-        $wp_userdata['user_login']   = $username;
-        $wp_userdata['user_nicename']= $username;
-        return $wp_userdata;
+            $counter++;
+            $username = $username . $counter;
+        } while ( username_exists( $username ) );
     }
+    else
+    {
+        $username = $name;
+    }
+    $username = strtolower( sanitize_user($username) );
+
+    //Done!
+    $wp_userdata['user_login']   = $username;
+    $wp_userdata['user_nicename']= $username;
+    return $wp_userdata;
 }
 
-/**
- * Test if this has the "Premium" features
- */
-function jfb_premium()
-{
-    return defined('JFB_PREMIUM');
-}
 
 /**********************************************************************/
 /***************************Error Reporting****************************/

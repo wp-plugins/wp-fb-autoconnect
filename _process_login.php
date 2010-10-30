@@ -13,7 +13,8 @@ if( !isset($_POST['redirectTo']) || !isset($_POST['_wpnonce']) )
 //Include our options and the Wordpress core
 require_once("__inc_opts.php");
 require_once("__inc_wp.php");
-$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version)\n";
+@include_once("Premium.php");
+$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version" . (jfb_premium()?(" + PREMIUM #".JFB_PREMIUM):"") . ")\n";
 
 
 //Check the nonce to make sure this was a valid login attempt (unless the user has disabled nonce checking)
