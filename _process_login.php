@@ -274,7 +274,7 @@ if( !$user_login_id )
     wp_new_user_notification($user_login_name);
     
     //Run an action so i.e. usermeta can be added to a user after registration
-    do_action('wpfb_inserted_user', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook) );
+    do_action('wpfb_inserted_user', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook, 'WP_UserData' => $user_data) );
 
     //If the option was selected and permission exists, publish an announcement about the user's registration to their wall
     if( get_option($opt_jfb_ask_stream) )

@@ -32,6 +32,7 @@ function jfb_admin_page()
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
+    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_cache_avatars;
     ?>
     <div class="wrap">
      <h2><?php echo $jfb_name; ?> Options</h2>
@@ -110,6 +111,17 @@ function jfb_admin_page()
         update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] ); 
         ?><div class="updated"><p><strong>Main Options saved.</strong></p></div><?php         
     }
+    if( isset($_POST['prem_opts_updated']) )
+    {
+        update_option( $opt_jfbp_notifyusers, $_POST[$opt_jfbp_notifyusers] );
+        update_option( $opt_jfbp_notifyusers_subject, stripslashes($_POST[$opt_jfbp_notifyusers_subject]) );
+        update_option( $opt_jfbp_notifyusers_content, stripslashes($_POST[$opt_jfbp_notifyusers_content]) );
+        update_option( $opt_jfbp_commentfrmlogin, $_POST[$opt_jfbp_commentfrmlogin] );
+        update_option( $opt_jfbp_wploginfrmlogin, $_POST[$opt_jfbp_wploginfrmlogin] );
+        update_option( $opt_jfbp_cache_avatars, $_POST[$opt_jfbp_cache_avatars] );
+        jfb_auth($jfb_name, $jfb_version, 5, JFB_PREMIUM);
+        ?><div class="updated"><p><strong>Premium Options saved.</strong></p></div><?php
+    }
     if( isset($_POST['mod_rewrite_update']) )
     {
         add_action('generate_rewrite_rules', 'jfb_add_rewrites');
@@ -138,6 +150,12 @@ function jfb_admin_page()
         delete_option($opt_jfb_fulllogerr);
         delete_option($opt_jfb_disablenonce);
         delete_option($opt_jfb_show_credit);
+        delete_option($opt_jfbp_notifyusers);
+        delete_option($opt_jfbp_notifyusers_subject);
+        delete_option($opt_jfbp_notifyusers_content);
+        delete_option($opt_jfbp_commentfrmlogin);
+        delete_option($opt_jfbp_wploginfrmlogin);
+        delete_option($opt_jfbp_cache_avatars);
         ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
     }
     ?>
@@ -162,6 +180,7 @@ function jfb_admin_page()
     <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
         <input type="hidden" name="cmd" value="_s-xclick" />
         <input type="hidden" name="hosted_button_id" value="T88Y2AZ53836U" />
+        <input type="hidden" name="return" value="http://www.justin-klein.com/thank-you" />
         <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!" />
         <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
     </form>
@@ -208,6 +227,7 @@ function jfb_admin_page()
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
     <hr />
+    
     
     <h3>Mod Rewrite Rules</h3>
     <?php
@@ -259,6 +279,15 @@ function jfb_fix_rewrites($rules)
     $autologin = trim($autologin[1] . "/_autologin.php", "/") . '?p=$1';
     $rules = str_replace($autologin . ' [QSA,L]', $autologin . ' [R,L]', $rules);
     return $rules;
+}
+
+
+/*
+ * Function to output disabled="disabled" attribute for inputs, if premium is not present
+ */
+function jfb_disableattr()
+{
+    echo (jfb_premium()?"":"disabled='disabled'");
 }
 
 
