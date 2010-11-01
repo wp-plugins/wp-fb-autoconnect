@@ -32,7 +32,6 @@ function jfb_admin_page()
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
-    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_cache_avatars;
     ?>
     <div class="wrap">
      <h2><?php echo $jfb_name; ?> Options</h2>
@@ -111,16 +110,9 @@ function jfb_admin_page()
         update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] ); 
         ?><div class="updated"><p><strong>Main Options saved.</strong></p></div><?php         
     }
-    if( isset($_POST['prem_opts_updated']) )
+    if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
     {
-        update_option( $opt_jfbp_notifyusers, $_POST[$opt_jfbp_notifyusers] );
-        update_option( $opt_jfbp_notifyusers_subject, stripslashes($_POST[$opt_jfbp_notifyusers_subject]) );
-        update_option( $opt_jfbp_notifyusers_content, stripslashes($_POST[$opt_jfbp_notifyusers_content]) );
-        update_option( $opt_jfbp_commentfrmlogin, $_POST[$opt_jfbp_commentfrmlogin] );
-        update_option( $opt_jfbp_wploginfrmlogin, $_POST[$opt_jfbp_wploginfrmlogin] );
-        update_option( $opt_jfbp_cache_avatars, $_POST[$opt_jfbp_cache_avatars] );
-        jfb_auth($jfb_name, $jfb_version, 5, JFB_PREMIUM_VALUE);
-        ?><div class="updated"><p><strong>Premium Options saved.</strong></p></div><?php
+        jfb_update_premium_opts();
     }
     if( isset($_POST['mod_rewrite_update']) )
     {
@@ -150,12 +142,7 @@ function jfb_admin_page()
         delete_option($opt_jfb_fulllogerr);
         delete_option($opt_jfb_disablenonce);
         delete_option($opt_jfb_show_credit);
-        delete_option($opt_jfbp_notifyusers);
-        delete_option($opt_jfbp_notifyusers_subject);
-        delete_option($opt_jfbp_notifyusers_content);
-        delete_option($opt_jfbp_commentfrmlogin);
-        delete_option($opt_jfbp_wploginfrmlogin);
-        delete_option($opt_jfbp_cache_avatars);
+        if( function_exists('jfb_delete_premium_opts') ) jfb_delete_premium_opts();
         ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
     }
     ?>
@@ -227,32 +214,8 @@ function jfb_admin_page()
         <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
     <hr />
-    
-    <?php if( jfb_premium() ): ?>
-    <h3>Premium Options</h3>
-    <form name="formPremOptions" method="post" action="">
-        <?php
-        if( !jfb_premium() )
-            echo "The following features require a premium license.  If you purchase one from PayPal, you will be able to download a one-file addon to the plugin which will enable the features immediately.<br /><br />";
-        ?>
-        <?php add_option($opt_jfbp_notifyusers_content, "Thank you for logging into " . get_option('blogname') . " with Facebook.\nIf you would like to login manually, you may do so with the following credentials.\n\nUsername: %username%\nPassword: %password%"); ?>
-        <?php add_option($opt_jfbp_notifyusers_subject, "Welcome to " . get_option('blogname')); ?>
-        <b>Avatars:</b><br />
-        <input <?php jfb_disableattr() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars)?'checked="checked"':''?> /> Cache Facebook avatars locally<br />
-        <small>(This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.)</small><br /><br />
-        
-        <b>Additional Login Buttons:</b><br />
-        <input <?php jfb_disableattr() ?> type="checkbox" name="<?php echo $opt_jfbp_commentfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_commentfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button below the comment form<br />
-        <input <?php jfb_disableattr() ?> type="checkbox" name="<?php echo $opt_jfbp_wploginfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_wploginfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to wp-login.php<br /><br />
-        <b>E-Mail:</b><br />
-        <input <?php jfb_disableattr() ?> type="checkbox" name="<?php echo $opt_jfbp_notifyusers?>" value="1" <?php echo get_option($opt_jfbp_notifyusers)?'checked="checked"':''?> /> Send a custom welcome e-mail to users who register via Facebook:<br />
-        <input <?php jfb_disableattr() ?> type="text" size="100" name="<?php echo $opt_jfbp_notifyusers_subject?>" value="<?php echo get_option($opt_jfbp_notifyusers_subject) ?>" /><br />
-        <textarea <?php jfb_disableattr() ?> cols="100" rows="5" name="<?php echo $opt_jfbp_notifyusers_content?>"><?php echo get_option($opt_jfbp_notifyusers_content) ?></textarea><br />
-        <input type="hidden" name="prem_opts_updated" value="1" />
-        <div class="submit"><input <?php jfb_disableattr() ?> type="submit" name="Submit" value="Save" /></div>
-    </form>
-    <hr />
-    <?php endif; ?>
+
+	<?php if( function_exists('jfb_output_premium_panel')) jfb_output_premium_panel(); ?>    
     
     <h3>Mod Rewrite Rules</h3>
     <?php
@@ -305,16 +268,6 @@ function jfb_fix_rewrites($rules)
     $rules = str_replace($autologin . ' [QSA,L]', $autologin . ' [R,L]', $rules);
     return $rules;
 }
-
-
-/*
- * Function to output disabled="disabled" attribute for inputs, if premium is not present
- */
-function jfb_disableattr()
-{
-    echo (jfb_premium()?"":"disabled='disabled'");
-}
-
 
 
 /*

@@ -3,11 +3,12 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "1.5.0";
+$jfb_version    = "1.5.1";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 
 //Database options
+//Note: Premium options are included by Premium.php, if present.
 global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $opt_jfb_ask_perms, $opt_jfb_ask_stream, $opt_jfb_stream_content;
 global $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_valid;
 global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
@@ -29,17 +30,6 @@ $opt_jfb_disablenonce="jfb_disablenonce";
 $opt_jfb_bp_avatars = "jfb_bp_avatars";
 $opt_jfb_wp_avatars = "jfb_wp_avatars";
 $opt_jfb_show_credit= "jfb_credit";
-
-//Premium Options
-global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_content, $opt_jfbp_notifyusers_subject;
-global $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_cache_avatars;
-$opt_jfbp_notifyusers = "jfb_p_notifyusers";
-$opt_jfbp_notifyusers_subject = "jfb_p_notifyusers_subject";
-$opt_jfbp_notifyusers_content = "jfb_p_notifyusers_content";
-$opt_jfbp_commentfrmlogin = "jfb_p_commentformlogin";
-$opt_jfbp_wploginfrmlogin = "jfb_p_wploginformlogin";
-$opt_jfbp_cache_avatars = "jfb_p_cacheavatars";
-
 
 //Shouldn't ever need to change these
 global $jfb_nonce_name, $jfb_uid_meta_name, $jfb_js_callbackfunc, $jfb_default_email;
