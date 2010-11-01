@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.0.1
-Stable tag: 1.4.4
+Stable tag: 1.5.0
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -13,17 +13,17 @@ A LoginLogout widget with Facebook Connect button, offering hassle-free login fo
 
 The simple concept behind WP-FB AutoConnect is to offer an easy-to-use, no-thrills widget that lets readers login to your blog with either their Facebook account or local blog credentials. Although many "Facebook Connect" plugins do exist, most of them are either overly complex and difficult to customize, or fail to provide a seamless experience for new  visitors. I wrote this plugin to provide what the others didn't:
 
+* Full support for both Wordpress and Buddypress.
 * No user interaction is required - the login process is transparent to new and returning users alike.
-* Existing WP users who connect with FB retain the same local user accounts as before.
-* New visitors will be given new WP user accounts, which can be retained even if you remove the plugin.
-* Custom logging options can notify you whenever someone connects with Facebook.
-* Custom actions allow you to modify connecting users according to their Facebook accounts.
-* No contact with Facebook servers after the login completes - so no slow pageloads.
-* Simple, well-documented source makes it easy to extend and customize.
+* Existing users who connect with FB retain the same local user accounts as before.
+* New visitors will be given new user accounts, which can be retained even if you remove the plugin.
+* Facebook profile pictures can be used as user avatars, even for pre-existing comments.
+* User registration announcements can be pushed to Facebook walls.
+* No contact with the Facebook API after the login completes - so no slow pageloads.
 * Won't bloat your database with duplicate user accounts, extra fields, or unnecessary complications.
-* Built-in BuddyPress support.
-
-This plugin is a great starting point for coders looking to add customized Facebook integration to their blogs.  For complete information, see the [plugin's homepage](http://www.justin-klein.com/projects/wp-fb-autoconnect).
+* Custom logging options can notify you whenever someone connects with Facebook.
+* A powerful set of hooks and filters allow developers to easily tailor the login process to their personal needs: redirect to a custom page, fill xProfile data with information from Facebook, create permissions based on social connections, and more.
+* Fully HTML/CSS valid.
 
 
 == Installation ==
@@ -59,6 +59,10 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 1.5.0 (2010-10-31) =
+* Add full support for the Premium add-on
+* Revise the features list in the Readme
+
 = 1.4.4 (2010-10-30) =
 * The wpfb_inserted_user action now supplies the full userdata of the inserted user
 * Don't initialize the Facebook button until the page has finished loading (can be disabled via param to jfb_output_facebook_init())
