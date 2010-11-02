@@ -14,8 +14,10 @@ if( !isset($_POST['redirectTo']) || !isset($_POST['_wpnonce']) )
 require_once("__inc_opts.php");
 require_once("__inc_wp.php");
 @include_once("Premium.php");
-$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version" . (jfb_premium()?(" + PREMIUM #".JFB_PREMIUM):"") . ")\n";
+$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version" . (jfb_premium()?(" + PREMIUM #".JFB_PREMIUM."v".JFB_PREMIUM_VER):"") . ")\n";
 
+//Run one hook before ANYTHING happens.
+do_action('wpfb_prelogin');
 
 //Check the nonce to make sure this was a valid login attempt (unless the user has disabled nonce checking)
 //Note: Nonce check will fail if the user opens 2 browser windows, logs into one, then logs into the other.

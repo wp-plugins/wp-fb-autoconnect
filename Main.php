@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.5.1
+ * Version: 1.5.2
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -66,9 +66,14 @@ function jfb_output_facebook_btn()
         return;
     }
     ?>
+    <span id="fbLoginButton">
     <script type="text/javascript">//<!--
-    document.write('<span id="fbLoginButton"><fb:login-button v="2" size="small" onlogin="<?php echo $jfb_js_callbackfunc?>();">Login with Facebook</fb:login-button></span>');
+    <?php 
+    $btnTag = "document.write('<fb:login-button v=\"2\" size=\"small\" onlogin=\"$jfb_js_callbackfunc();\">Login with Facebook</fb:login-button>');";  
+    echo apply_filters('wpfb_output_button', $btnTag );
+    ?>
     //--></script>
+    </span>
     <?php
 }
 
@@ -158,7 +163,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         //If we're not requiring their email, just redirect them (no matter if they approve or not)
         if( !get_option($opt_jfb_req_perms) )
         {
-            echo "            document." . $callbackName . "_form.submit();\n";
+            echo apply_filters('wpfb_submit_loginfrm', "document." . $callbackName . "_form.submit();\n" );
         }        
         
         //If we REQUIRE their email address, make sure they accept the extended permissions before redirecting to the logon script            
@@ -166,8 +171,12 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         {
             echo "            FB.Facebook.apiClient.users_hasAppPermission('email', function (emailCheck)\n".
                  "            {\n". 
-		         "                 if(emailCheck) document." . $callbackName . "_form.submit();\n" .
-                 "                 else           alert('Sorry, this site requires an e-mail address to log you in.');\n" .
+		         "                 if(emailCheck)\n".
+		         "                 {\n";
+            echo apply_filters('wpfb_submit_loginfrm', "document." . $callbackName . "_form.submit();\n");
+            echo "                 }\n".
+                 "                 else\n".
+                 "                     alert('Sorry, this site requires an e-mail address to log you in.');\n" .
                  "            });\n";
         }
         

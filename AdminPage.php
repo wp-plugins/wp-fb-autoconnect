@@ -100,8 +100,7 @@ function jfb_admin_page()
         update_option( $opt_jfb_wp_avatars, $_POST[$opt_jfb_wp_avatars] );
         update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );        
         update_option( $opt_jfb_show_credit, $_POST[$opt_jfb_show_credit] );
-        if( $_POST[$opt_jfb_email_to] )   update_option( $opt_jfb_email_to, get_bloginfo('admin_email') );
-        else                              update_option( $opt_jfb_email_to, 0 );
+        update_option( $opt_jfb_email_to, $_POST[$opt_jfb_email_to] );
         update_option( $opt_jfb_buddypress, $_POST[$opt_jfb_buddypress] );
         update_option( $opt_jfb_bp_avatars, $_POST[$opt_jfb_bp_avatars] );
         update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
@@ -206,7 +205,7 @@ function jfb_admin_page()
         <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))</i><br />
 		<br /><b>Debug:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
-		<input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="1" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
+		<input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_bloginfo('admin_email') ?>" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
 		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />
