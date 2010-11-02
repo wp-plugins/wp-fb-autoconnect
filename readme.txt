@@ -4,25 +4,25 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.0.1
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
 
 == Description ==
 
-The simple concept behind WP-FB AutoConnect is to offer an easy-to-use, no-thrills widget that lets readers login to your blog with either their Facebook account or local blog credentials. Although many "Facebook Connect" plugins do exist, most of them are either overly complex and difficult to customize, or fail to provide a seamless experience for new  visitors. I wrote this plugin to provide what the others didn't:
+The simple concept behind WP-FB AutoConnect is to offer an easy-to-use widget that lets readers login to your blog with either their Facebook account or local Wordpress credentials. Although many "Facebook Connect" plugins do exist, most of them are either overly complex and difficult to customize, or fail to provide a seamless experience for new  visitors. I wrote this plugin to provide what the others didn't:
 
 * Full support for both Wordpress and Buddypress.
 * No user interaction is required - the login process is transparent to new and returning users alike.
 * Existing users who connect with FB retain the same local user accounts as before.
 * New visitors will be given new user accounts, which can be retained even if you remove the plugin.
-* Facebook profile pictures can be used as user avatars, even for pre-existing comments.
+* Facebook profile pictures can be used as avatars, even on pre-existing comments.
 * User registration announcements can be pushed to Facebook walls.
 * No contact with the Facebook API after the login completes - so no slow pageloads.
 * Won't bloat your database with duplicate user accounts, extra fields, or unnecessary complications.
 * Custom logging options can notify you whenever someone connects with Facebook.
-* A powerful set of hooks and filters allow developers to easily tailor the login process to their personal needs: redirect to a custom page, fill xProfile data with information from Facebook, create permissions based on social connections, and more.
+* A powerful set of hooks and filters allow developers to easily tailor the login process to their personal needs: redirect to a custom page, fill xProfile data with information from Facebook, setup permissions based on social connections, and more.
 * Fully HTML/CSS valid.
 
 
@@ -59,6 +59,10 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 1.5.3 (2010-11-02) =
+* Slight revisions to readme
+* Remove unneeded debug code
+
 = 1.5.2 (2010-11-01) =
 * Added new wpfb_prelogin action
 * Added new wpfb_submit_loginfrm filter

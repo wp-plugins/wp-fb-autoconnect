@@ -14,7 +14,7 @@ if( !isset($_POST['redirectTo']) || !isset($_POST['_wpnonce']) )
 require_once("__inc_opts.php");
 require_once("__inc_wp.php");
 @include_once("Premium.php");
-$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version" . (jfb_premium()?(" + PREMIUM #".JFB_PREMIUM."v".JFB_PREMIUM_VER):"") . ")\n";
+$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version)\n";
 
 //Run one hook before ANYTHING happens.
 do_action('wpfb_prelogin');
