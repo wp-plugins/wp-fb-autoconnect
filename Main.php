@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.5.3
+ * Version: 1.5.4
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -99,9 +99,11 @@ function jfb_output_facebook_instapopup( $callbackName=0 )
 
 
 /*
- * Output the JS to init the Facebook API, which will also setup a <fb:login-button> if present. 
+ * Output the JS to init the Facebook API, which will also setup a <fb:login-button> if present.
+ * Output this in the footer, so it always comes after the buttons! 
  */
-function jfb_output_facebook_init( $useJQuery=1 )
+add_action('wp_footer', 'jfb_output_facebook_init');
+function jfb_output_facebook_init()
 {
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_valid;
     if( !get_option($opt_jfb_valid) ) return;
@@ -109,9 +111,7 @@ function jfb_output_facebook_init( $useJQuery=1 )
     ?>
     <script type="text/javascript" src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php"></script>
     <script type="text/javascript">//<!--
-    <?php if($useJQuery) echo "jQuery(document).ready(function(){"; ?>
         FB.init("<?php echo get_option($opt_jfb_api_key)?>","<?php echo $xd_receiver?>");
-    <?php if($useJQuery) echo "});"; ?>
     //--></script>
     <?php  
 }
@@ -306,7 +306,7 @@ function jfb_bp_add_fb_login_button()
   {
       echo "<p></p>";
       jfb_output_facebook_btn();
-      jfb_output_facebook_init();
+      //jfb_output_facebook_init(); This is output in wp_footer as of 1.5.4
       jfb_output_facebook_callback();
   }
 }

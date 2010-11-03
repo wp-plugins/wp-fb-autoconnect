@@ -52,7 +52,7 @@ class Widget_LoginLogout extends WP_Widget
             if( !get_option($opt_jfb_hide_button) )
             {
                 jfb_output_facebook_btn();
-                jfb_output_facebook_init();
+                //jfb_output_facebook_init(); This is output in wp_footer as of 1.5.4
                 jfb_output_facebook_callback();
             }
         endif;
