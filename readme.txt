@@ -250,3 +250,8 @@ For more information on exactly how this plugin's login process works and how it
 
 = 1.0.0 (2010-03-16) =
 * First Release
+
+
+== Support ==
+
+Please direct all support requests [here](http://www.justin-klein.com/projects/wp-fb-autoconnect#feedback)
