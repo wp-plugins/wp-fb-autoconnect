@@ -37,16 +37,19 @@ function jfb_admin_page()
      <h2><?php echo $jfb_name; ?> Options</h2>
     <?php
     
-    //Show a warning if they're using a naughty other plugin
+    //Show applicable warnings
     if( class_exists('Facebook') )
     {
         ?><div class="error"><p><strong>Warning:</strong> Another plugin has included the Facebook API throughout all of Wordpress.  I suggest you contact that plugin's author and ask them to include it only in pages where it's actually needed.<br /><br />Things may work fine as-is, but *if* the API version included by the other plugin is older than the one required by WP-FB AutoConnect, it's possible that the login process could fail.</p></div><?php
     }
-      
     if(version_compare('5', PHP_VERSION, ">"))
     {
         ?><div class="error"><p>Sorry, but as of v1.3.0, WP-FB AutoConnect requires PHP5.</p></div><?php
         die();
+    }
+    if( is_multisite() && !jfb_premium() )
+    {
+        ?><div class="error"><p><strong>Warning:</strong> Wordpress MultiSite is only fully supported by the premium version of this plugin; please see <a href="<?php echo $jfb_homepage ?>#premium"><b>here</b></a> for details.</p></div><?php
     }
       
     //Update options
@@ -289,13 +292,19 @@ function jfb_auth($name, $version, $event, $message=0)
 {
     $AuthVer = 1;
     $data = serialize(array(
-                  'plugin'      => $name,
-                  'version'     => $version,
-                  'wp_version'  => $GLOBALS['wp_version'],
-                  'php_version' => PHP_VERSION,
-                  'event'       => $event,
-                  'message'     => $message,                  
-                  'SERVER'      => $_SERVER));
+          'plugin'      => $name,
+          'version'     => $version,
+          'wp_version'  => $GLOBALS['wp_version'],
+          'php_version' => PHP_VERSION,
+          'event'       => $event,
+          'message'     => $message,                  
+          'SERVER'      => array(
+             'SERVER_NAME'    => $_SERVER['SERVER_NAME'],
+             'HTTP_HOST'      => $_SERVER['HTTP_HOST'],
+             'SERVER_ADDR'    => $_SERVER['SERVER_ADDR'],
+             'REMOTE_ADDR'    => $_SERVER['REMOTE_ADDR'],
+             'SCRIPT_FILENAME'=> $_SERVER['SCRIPT_FILENAME'],
+             'REQUEST_URI'    => $_SERVER['REQUEST_URI'])));
     $args = array( 'blocking'=>false, 'body'=>array(
                             'auth_plugin' => 1,
                             'AuthVer'     => $AuthVer,

@@ -121,7 +121,7 @@ do_action('wpfb_connect', array('FB_ID' => $fb_uid, 'facebook' => $facebook) );
 //Examine all existing WP users to see if any of them match this Facebook user. 
 //First we check their meta: whenever a user logs in with FB, this plugin tags them with usermeta
 //so we can find them again easily.  This obviously will only work for returning FB Connect users.
-$wp_users = get_users_of_blog();
+if(!isset($wp_users)) $wp_users = get_users_of_blog();
 $wp_user_hashes = array();
 $jfb_log .= "WP: Searching for user by meta...\n";
 foreach ($wp_users as $wp_user)
@@ -268,7 +268,7 @@ if( !$user_login_id )
     if( is_wp_error($user_login_id) )
     {
         $jfb_log .= "WP: Error creating user: " . $user_login_id->get_error_message() . "\n";
-        j_die("Error: wp_insert_user failed!  This should never happen; if you see this bug, please report it to the plugin author at $jfb_homepage.");        
+        j_die("Error: wp_insert_user failed!<br/><br/>If you get this error while running a Wordpress MultiSite installation, it means you'll need to purchase the <a href=\"$jfb_homepage#premium\">premium version</a> of this plugin to enable full MultiSite support.<br/><br/>If you're <u><i>not</i></u> using MultiSite, please report this bug to the plugin author on the support page <a href=\"$jfb_homepage#feedback\">here</a>.");        
     }
     
     //Success! Notify the site admin.
