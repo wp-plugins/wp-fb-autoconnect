@@ -241,6 +241,9 @@ if( $user_login_id )
         $user_upd['user_email'] = $fbuser['email'];
         wp_update_user($user_upd);
     }
+    
+    //Run a hook when an existing user logs in
+    do_action('wpfb_existing_user', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook, 'WP_UserData' => $user_data) );
 }
 
 
