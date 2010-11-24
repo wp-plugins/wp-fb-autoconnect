@@ -60,8 +60,9 @@ For more information on exactly how this plugin's login process works and how it
 
 == Changelog ==
 = 1.5.5 (2010-11-23) =
-* Support for a new Premium option
+* Add support for a new option in the premium version
 * More descriptive error message
+* Add wpfb_existing_user action
 
 = 1.5.4 (2010-11-03) =
 * jfb_output_facebook_init() is output in footer, once, instead of using jQuery.  Should resolve conflict if multiple buttons are used on the same page.
