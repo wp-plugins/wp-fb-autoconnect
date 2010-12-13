@@ -24,11 +24,13 @@ class Widget_LoginLogout extends WP_Widget
         if( $title ) echo $before_title . $title . $after_title;
         
         //If logged in, show "Welcome, User!"
-        $userdata = wp_get_current_user();
-        if( $userdata->ID ):
+        if( is_user_logged_in() ):
         ?>
             <div style='text-align:center'>
-              <?php echo __('Welcome') . ', ' . $userdata->display_name?>!<br />
+              <?php 
+                $userdata = wp_get_current_user();
+                echo __('Welcome') . ', ' . $userdata->display_name;
+              ?>!<br />
               <small>
                 <a href="<?php echo get_settings('siteurl')?>/wp-admin/profile.php"><?php _e("Edit Profile")?></a> | <a href=" <?php echo wp_logout_url( $_SERVER['REQUEST_URI'] )?>"><?php _e("Logout")?></a>
               </small>

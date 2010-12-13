@@ -51,6 +51,7 @@ function jfb_admin_page()
     {
         ?><div class="error"><p><strong>Warning:</strong> Wordpress MultiSite is only fully supported by the premium version of this plugin; please see <a href="<?php echo $jfb_homepage ?>#premium"><b>here</b></a> for details.</p></div><?php
     }
+    do_action('wpfb_admin_messages');
       
     //Update options
     if( isset($_POST['fb_opts_updated']) )

@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.5.5
+ * Version: 1.5.7
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -55,6 +55,7 @@ require_once("Widget.php");
 /*
  * Output a Facebook Connect Button.  Note that the button will not function until you've called 
  * jfb_output_facebook_init().  I use document.write() because the button isn't XHTML valid.
+ * NOTE: The button tag itself maybe overwritten by the Premium addon (wpfb_output_button filter)
  */
 function jfb_output_facebook_btn()
 {
@@ -100,7 +101,8 @@ function jfb_output_facebook_instapopup( $callbackName=0 )
 
 /*
  * Output the JS to init the Facebook API, which will also setup a <fb:login-button> if present.
- * Output this in the footer, so it always comes after the buttons! 
+ * Output this in the footer, so it always comes after the buttons.
+ * NOTE: This hook maybe removed & replaced by the Premium plugin.
  */
 add_action('wp_footer', 'jfb_output_facebook_init');
 function jfb_output_facebook_init()
@@ -119,7 +121,8 @@ function jfb_output_facebook_init()
 
 
 /*
- * Output the JS callback function that'll handle FB logins
+ * Output the JS callback function that'll handle FB logins.
+ * NOTE: The Premium addon may alter its behavior via the hooks below.
  */
 function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
 {
@@ -145,13 +148,10 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
     ?><script type="text/javascript">//<!--
     function <?php echo $callbackName ?>()
     {
-        //Make sure we have a valid session
-        if (!FB.Facebook.apiClient.get_session())
-        { alert('Facebook failed to log you in!'); return; }
 
 <?php 
 		//An action to allow the user to inject additional javascript to get executed before the login takes place
-		do_action('wpfb_add_to_js');
+		do_action('wpfb_add_to_js', $callbackName);
 
         //Optionally request permissions to get their real email and to publish to their wall before redirecting to the logon script.
         $ask_for_email_permission = get_option($opt_jfb_ask_perms) || get_option($opt_jfb_req_perms);
@@ -306,7 +306,6 @@ function jfb_bp_add_fb_login_button()
   {
       echo "<p></p>";
       jfb_output_facebook_btn();
-      //jfb_output_facebook_init(); This is output in wp_footer as of 1.5.4
       jfb_output_facebook_callback();
   }
 }
