@@ -181,10 +181,19 @@ if( !$user_login_id && !$fbuser['contact_email'] && count($wp_user_hashes) > 0 )
         {
             //First we send Facebook a list of email hashes we want to check against this FB user.
             $jfb_log .= "    Checking Users #" . ($num*$insert_limit) . "-" . ($num*$insert_limit+count($hashes)-1) . "\n";
-            $ret = $facebook->api_client->connect_registerUsers(json_encode($hashes));
+            $ret = 1;
+            try
+            {
+                $ret = $facebook->api_client->connect_registerUsers(json_encode($hashes));
+            }
+            catch(Exception $e)
+            {
+                $jfb_log .= "    WARNING: Could not register hashes with Facebook (connect_registerUsers generated an exception).  Hash lookup will cease here.\n";
+                break;                
+            }
             if( !$ret )
             {
-                $jfb_log .= "    WARNING: Could not register hashes with Facebook (connect_registerUsers).  Hash lookup will cease here.\n";
+                $jfb_log .= "    WARNING: Could not register hashes with Facebook (connect_registerUsers returned false).  Hash lookup will cease here.\n";
                 break;
             }
             
