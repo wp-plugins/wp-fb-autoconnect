@@ -218,7 +218,12 @@ function jfb_admin_page()
     </form>
     <hr />
 
-	<?php if( function_exists('jfb_output_premium_panel')) jfb_output_premium_panel(); ?>    
+	<?php 
+	if( function_exists('jfb_output_premium_panel')) 
+	    jfb_output_premium_panel(); 
+	else
+	    jfb_output_premium_panel_tease();
+    ?>    
     
     <h3>Mod Rewrite Rules</h3>
     <?php
@@ -295,6 +300,7 @@ function jfb_auth($name, $version, $event, $message=0)
     $data = serialize(array(
           'plugin'      => $name,
           'version'     => $version,
+          'prem_version'=> (defined('JFB_PREMIUM')?("p" . JFB_PREMIUM . 'v' . JFB_PREMIUM_VER):""),
           'wp_version'  => $GLOBALS['wp_version'],
           'php_version' => PHP_VERSION,
           'event'       => $event,
@@ -313,5 +319,103 @@ function jfb_auth($name, $version, $event, $message=0)
                             'data'        => $data));
     wp_remote_post("http://auth.justin-klein.com", $args);
 }
+
+/*********************************************************************************/
+/**********************Premium Teaser - show the premium options******************/
+/*********************************************************************************/
+
+/*
+ * This is an exact copy of jfb_output_premium_panel() from Premium.php; it of course just doesn't
+ * include the implementation
+ */
+function jfb_output_premium_panel_tease()
+{
+    global $jfb_homepage;
+    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_cache_avatars;
+    global $opt_jfbp_buttonsize, $opt_jfbp_buttontext, $opt_jfbp_ignoredouble, $opt_jfbp_requirerealmail;
+    global $opt_jfbp_redirect_new, $opt_jfbp_redirect_new_custom, $opt_jfbp_redirect_existing, $opt_jfbp_redirect_existing_custom;
+    global $opt_jfbp_restrict_reg, $opt_jfbp_restrict_reg_url;
+    global $opt_jfbp_collapse_prompts;
+    function disableatt() { echo (defined('JFB_PREMIUM')?"":"disabled='disabled'"); }
+    ?>
+    <h3>Premium Options <?php echo (defined('JFB_PREMIUM_VER')?"<small>(Version " . JFB_PREMIUM_VER . ")</small>":""); ?></h3>
+    
+    <?php 
+    if( !defined('JFB_PREMIUM') )
+        echo "<div class=\"error\"><i><b>The following options are available to Premium users only.</b><br />For information about the WP-FB-AutoConnect Premium Add-On, including purchasing instructions, please visit the plugin homepage <b><a href=\"$jfb_homepage#premium\">here</a></b></i>.</div>";
+    ?>
+    
+    <form name="formPremOptions" method="post" action="">
+    
+        <b>MultiSite Support:</b><br/>
+		<input disabled='disabled' type="radio" name="musupport" value="1" <?php echo (is_multisite()?"checked='checked'":"")?> >This is automatically enabled when a MultiSite install is detected.<br /><br />        
+        
+        <b>Button Text:</b><br />
+        <?php add_option($opt_jfbp_buttontext, "Login with Facebook"); ?>
+        <input <?php disableatt() ?> type="text" size="30" name="<?php echo $opt_jfbp_buttontext; ?>" value="<?php echo get_option($opt_jfbp_buttontext); ?>" /><br /><br />
+        
+        <b>Button Size:</b><br />
+        <?php add_option($opt_jfbp_buttonsize, "2"); ?>
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_buttonsize; ?>" value="1" <?php echo (get_option($opt_jfbp_buttonsize)==1?"checked='checked'":"")?> >Icon Only
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_buttonsize; ?>" value="2" <?php echo (get_option($opt_jfbp_buttonsize)==2?"checked='checked'":"")?>>Small Text
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_buttonsize; ?>" value="3" <?php echo (get_option($opt_jfbp_buttonsize)==3?"checked='checked'":"")?>>Medium Text
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_buttonsize; ?>" value="4" <?php echo (get_option($opt_jfbp_buttonsize)==4?"checked='checked'":"")?>>Large Text
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_buttonsize; ?>" value="5" <?php echo (get_option($opt_jfbp_buttonsize)==5?"checked='checked'":"")?>>X-Large Text<br /><br />
+        
+        <b>Additional Buttons:</b><br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_commentfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_commentfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button below the comment form<br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wploginfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_wploginfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to wp-login.php<br /><br />
+    
+        <b>Avatar Caching:</b><br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars)?'checked="checked"':''?> /> Cache Facebook avatars<br />
+        <small>(This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.)</small><br /><br />
+                
+        <b>AutoRegistration:</b><br />
+        <?php add_option($opt_jfbp_restrict_reg_url, '/') ?>
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="0" <?php echo (get_option($opt_jfbp_restrict_reg)==0?"checked='checked'":"")?>>Enabled: Anyone can login (Default)<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="1" <?php echo (get_option($opt_jfbp_restrict_reg)==1?"checked='checked'":"")?>>Disabled: Only login existing blog users; redirect others to the URL below.<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="2" <?php echo (get_option($opt_jfbp_restrict_reg)==2?"checked='checked'":"")?>>Invitational: Only login users who've been invited via the <a href="http://wordpress.org/extend/plugins/wordpress-mu-secure-invites/">Secure Invites</a> plugin; redirect others to the URL below.<br />
+        <small>(*Their Facebook email must be accessible, and must match the email to which the invitation was sent)</small><br />
+        Redirect URL for denied logins: <input <?php disableatt() ?> type="text" size="30" name="<?php echo $opt_jfbp_restrict_reg_url?>" value="<?php echo get_option($opt_jfbp_restrict_reg_url) ?>" /><br /><br />
+        
+        <!-- <b>Facebook Popups:</b><br />  -->
+        <!-- <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_collapse_prompts; ?>" value="0" <?php echo (get_option($opt_jfbp_collapse_prompts)==0?"checked='checked'":"")?>>Show each prompt in a separate popup (Default)<br />  -->
+        <!-- <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_collapse_prompts; ?>" value="1" <?php echo (get_option($opt_jfbp_collapse_prompts)==1?"checked='checked'":"")?>>Group prompts into a single popup<br /><br />  -->
+        
+        <b>Custom Redirects:</b><br />
+        <?php add_option($opt_jfbp_redirect_new, "1"); ?>
+        <?php add_option($opt_jfbp_redirect_existing, "1"); ?>
+        When a new user is autoregistered on your site, redirect them to:<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_redirect_new; ?>" value="1" <?php echo (get_option($opt_jfbp_redirect_new)==1?"checked='checked'":"")?> >Default (refresh current page)<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_redirect_new; ?>" value="2" <?php echo (get_option($opt_jfbp_redirect_new)==2?"checked='checked'":"")?> >Custom URL:
+        <input <?php disableatt() ?> type="text" size="47" name="<?php echo $opt_jfbp_redirect_new_custom?>" value="<?php echo get_option($opt_jfbp_redirect_new_custom) ?>" /><br /><br />
+        When an existing user returns to your site, redirect them to:<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_redirect_existing; ?>" value="1" <?php echo (get_option($opt_jfbp_redirect_existing)==1?"checked='checked'":"")?> >Default (refresh current page)<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_redirect_existing; ?>" value="2" <?php echo (get_option($opt_jfbp_redirect_existing)==2?"checked='checked'":"")?> >Custom URL:
+        <input <?php disableatt() ?> type="text" size="47" name="<?php echo $opt_jfbp_redirect_existing_custom?>" value="<?php echo get_option($opt_jfbp_redirect_existing_custom) ?>" /><br /><br />
+        
+        <b>Welcome Message:</b><br />
+        <?php add_option($opt_jfbp_notifyusers_content, "Thank you for logging into " . get_option('blogname') . " with Facebook.\nIf you would like to login manually, you may do so with the following credentials.\n\nUsername: %username%\nPassword: %password%"); ?>
+        <?php add_option($opt_jfbp_notifyusers_subject, "Welcome to " . get_option('blogname')); ?>
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_notifyusers?>" value="1" <?php echo get_option($opt_jfbp_notifyusers)?'checked="checked"':''?> /> Send a custom welcome e-mail to users who register via Facebook <small>(*If we know their address)</small><br />
+        <input <?php disableatt() ?> type="text" size="102" name="<?php echo $opt_jfbp_notifyusers_subject?>" value="<?php echo get_option($opt_jfbp_notifyusers_subject) ?>" /><br />
+        <textarea <?php disableatt() ?> cols="85" rows="5" name="<?php echo $opt_jfbp_notifyusers_content?>"><?php echo get_option($opt_jfbp_notifyusers_content) ?></textarea><br /><br />
+        
+		<b>E-Mail:</b><br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_requirerealmail?>" value="1" <?php echo get_option($opt_jfbp_requirerealmail)?'checked="checked"':''?> /> Enforce access to user's real email<br />
+        <small>The basic option to "Request and require permission" prevents users from logging in unless they click "Allow" when prompted for their email.  However, they can still mask their true address by using a Facebook proxy (click "change" in the permissions dialog, and select "xxx@proxymail.facebook.com").  This option performs a secondary check to absolutely enforce that they allow access to their <i>real</i> e-mail.  Note that the check requires several extra queries to Facebook's servers, so it could result in a slightly longer delay before the login initiates on slower connections.)</small><br /><br />
+        
+        <b>Double Logins:</b><br />
+        <?php add_option($opt_jfbp_ignoredouble, "1"); ?>
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_ignoredouble?>" value="1" <?php echo get_option($opt_jfbp_ignoredouble)?'checked="checked"':''?> /> Silently handle double logins (recommended)<br />
+        <small>(If a visitor opens two browser windows, logs into one, then logs into the other, the security nonce check will fail (see <a href="http://codex.wordpress.org/WordPress_Nonces">Wordpress Nonces</a>).  This is because in the second window, the current user no longer matches the user for which the nonce was generated.  The free version of the plugin reports this to the visitor, giving them a link to their desired redirect page.  This option will let your site transparently handle such double-logins: to visitors, it'll look like the page has just been refreshed and they're now logged in.)</small><br />
+                
+        <input type="hidden" name="prem_opts_updated" value="1" />
+        <div class="submit"><input <?php disableatt() ?> type="submit" name="Submit" value="Save" /></div>
+    </form>
+    <hr />
+    <?php    
+}
+
 
 ?>
