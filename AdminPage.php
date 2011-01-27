@@ -106,7 +106,6 @@ function jfb_admin_page()
         update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );        
         update_option( $opt_jfb_show_credit, $_POST[$opt_jfb_show_credit] );
         update_option( $opt_jfb_email_to, $_POST[$opt_jfb_email_to] );
-        update_option( $opt_jfb_bp_avatars, $_POST[$opt_jfb_bp_avatars] );
         update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
         update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );
         update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
@@ -208,8 +207,7 @@ function jfb_admin_page()
 		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
 
 		<br /><b>Avatars:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars <u><i>on Wordpress</i></u><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_bp_avatars?>" value="1" <?php echo get_option($opt_jfb_bp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars <u><i>on Buddypress</i></u><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars<br />
 
         <br /><b>Credit:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))</i><br />

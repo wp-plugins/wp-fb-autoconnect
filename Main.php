@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.6.1
+ * Version: 1.6.2
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -227,6 +227,15 @@ function jfb_show_credit()
 /*******************************AVATARS********************************/
 /**********************************************************************/
 
+/**
+ * Legacy Support: there used to be two separate options for WP and BP; it's now just one option
+ */
+if( get_option($opt_jfb_bp_avatars) )
+{
+    delete_option($opt_jfb_bp_avatars);
+    update_option($opt_jfb_wp_avatars, 1);    
+}
+
 
 /**
   * Optionally replace WORDPRESS avatars with FACEBOOK profile pictures
@@ -255,7 +264,7 @@ function jfb_wp_avatar($avatar, $id_or_email, $size, $default, $alt)
 /*
  * Optionally replace BUDDYPRESS avatars with FACEBOOK profile pictures
  */
-if( get_option($opt_jfb_bp_avatars) ) add_filter( 'bp_core_fetch_avatar', 'jfb_bp_avatar', 10, 4 );    
+if( get_option($opt_jfb_wp_avatars) ) add_filter( 'bp_core_fetch_avatar', 'jfb_bp_avatar', 10, 4 );    
 function jfb_bp_avatar($avatar, $params='')
 {
     //First, get the userid
@@ -286,8 +295,7 @@ function jfb_bp_avatar($avatar, $params='')
  * Optionally modify the FB_xxxxxx to something "prettier", based on the user's real name on Facebook
  */
 global $opt_jfb_username_style;
-if( get_option($opt_jfb_username_style) == 1 || get_option($opt_jfb_username_style) == 2 )
-    add_filter( 'wpfb_insert_user', 'jfb_pretty_username', 10, 2 );
+if( get_option($opt_jfb_username_style) == 1 || get_option($opt_jfb_username_style) == 2 ) add_filter( 'wpfb_insert_user', 'jfb_pretty_username', 10, 2 );
 function jfb_pretty_username( $wp_userdata, $fb_userdata )
 {
     global $jfb_log, $opt_jfb_username_style;
