@@ -31,7 +31,8 @@ function jfb_admin_page()
     global $jfb_name, $jfb_version;
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
-    global $opt_jfb_buddypress, $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
+    global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
+    global $opt_jfb_username_style;
     ?>
     <div class="wrap">
      <h2><?php echo $jfb_name; ?> Options</h2>
@@ -105,12 +106,12 @@ function jfb_admin_page()
         update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );        
         update_option( $opt_jfb_show_credit, $_POST[$opt_jfb_show_credit] );
         update_option( $opt_jfb_email_to, $_POST[$opt_jfb_email_to] );
-        update_option( $opt_jfb_buddypress, $_POST[$opt_jfb_buddypress] );
         update_option( $opt_jfb_bp_avatars, $_POST[$opt_jfb_bp_avatars] );
         update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
         update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );
         update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
-        update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] ); 
+        update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );
+        update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] ); 
         ?><div class="updated"><p><strong>Main Options saved.</strong></p></div><?php         
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
@@ -139,12 +140,12 @@ function jfb_admin_page()
         delete_option($opt_jfb_hide_button);
         delete_option($opt_jfb_mod_done);
         delete_option($opt_jfb_valid);
-        delete_option($opt_jfb_buddypress);
         delete_option($opt_jfb_bp_avatars);
         delete_option($opt_jfb_wp_avatars);
         delete_option($opt_jfb_fulllogerr);
         delete_option($opt_jfb_disablenonce);
         delete_option($opt_jfb_show_credit);
+        delete_option($opt_jfb_username_style);
         if( function_exists('jfb_delete_premium_opts') ) jfb_delete_premium_opts();
         ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
     }
@@ -192,21 +193,27 @@ function jfb_admin_page()
     ?>
     
     <form name="formMainOptions" method="post" action="">
+        <b>Autoregistered Usernames:</b><br />
+        <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="0" <?php echo (get_option($opt_jfb_username_style)==0?"checked='checked'":"")?> >Based on Facebook ID (i.e. FB_123456)<br />
+        <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="1" <?php echo (get_option($opt_jfb_username_style)==1?"checked='checked'":"")?> >Based on real name with prefix (i.e. FB_John_Smith)<br />
+        <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="2" <?php echo (get_option($opt_jfb_username_style)==2?"checked='checked'":"")?> >Based on real name without prefix (i.e. John.Smith) <i><b>(Recommended for BuddyPress)</b></i><br /><br />
+    
         <b>E-Mail:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Request permission to get the connecting user's email address<br />
         <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> Request <u><i>and require</i></u> permission to get the connecting user's email address<br />
+
         <br /><b>Announcement:</b><br />
 		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
 		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:</i><br />
 		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
-        <br /><b>BuddyPress Support:</b><br /> 
-        <input type="checkbox" name="<?php echo $opt_jfb_buddypress?>" value="1" <?php echo get_option($opt_jfb_buddypress)?'checked="checked"':''?> /> Enable BuddyPress Support<br />
-        <small>(Checking this option will add a Facebook button to the Buddypress sidebar login widget, and convert autoregistered usernames to a more BuddyPress-friendly format.)</small><br />
+
 		<br /><b>Avatars:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars <u><i>on Wordpress</i></u><br />
         <input type="checkbox" name="<?php echo $opt_jfb_bp_avatars?>" value="1" <?php echo get_option($opt_jfb_bp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars <u><i>on Buddypress</i></u><br />
+
         <br /><b>Credit:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))</i><br />
+
 		<br /><b>Debug:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
 		<input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_bloginfo('admin_email') ?>" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />

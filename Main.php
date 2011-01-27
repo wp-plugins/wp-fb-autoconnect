@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.6.0
+ * Version: 1.6.1
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -278,55 +278,34 @@ function jfb_bp_avatar($avatar, $params='')
 }
 
 
-
 /**********************************************************************/
-/*******************BUDDYPRESS (previously in BuddyPress.php)**********/
+/******************************USERNAMES*******************************/
 /**********************************************************************/
-
-/*
- * Default the Buddypress options to ON if BP is detected.
- */
-global $opt_jfb_buddypress;
-add_action( 'bp_init', 'jfb_turn_on_bp' );
-function jfb_turn_on_bp()
-{
-    add_option($opt_jfb_buddypress, 1);
-    add_option($opt_jfb_bp_avatars, 1);
-}
-
-
-
-/*
- * Add a Facebook Login button to the Buddypress sidebar login widget
- * NOTE: If you use this, you mustn't also use the built-in widget - just one or the other!
- */
-if( get_option($opt_jfb_buddypress) )
-    add_action( 'bp_after_sidebar_login_form', 'jfb_bp_add_fb_login_button' );
-function jfb_bp_add_fb_login_button()
-{
-  if ( !is_user_logged_in() )
-  {
-      echo "<p></p>";
-      jfb_output_facebook_btn();
-      jfb_output_facebook_callback();
-  }
-}
-    
     
 /*
- * Modify the userdata for BuddyPress by changing login names from the default FB_xxxxxx
- * to something prettier for BP's social link system
+ * Optionally modify the FB_xxxxxx to something "prettier", based on the user's real name on Facebook
  */
-if( get_option($opt_jfb_buddypress) )
-    add_filter( 'wpfb_insert_user', 'jfp_bp_modify_userdata', 10, 2 );
-function jfp_bp_modify_userdata( $wp_userdata, $fb_userdata )
+global $opt_jfb_username_style;
+if( get_option($opt_jfb_username_style) == 1 || get_option($opt_jfb_username_style) == 2 )
+    add_filter( 'wpfb_insert_user', 'jfb_pretty_username', 10, 2 );
+function jfb_pretty_username( $wp_userdata, $fb_userdata )
 {
-    //First, create a username by appending Firstname.Lastname
-    $name = str_replace( ' ', '', $fb_userdata['first_name'] . "." . $fb_userdata['last_name'] );
+    global $jfb_log, $opt_jfb_username_style;
+    $jfb_log .= "WP: Converting username to \"pretty\" username...\n";
     
-    //Strip non-alphanumeric characters, and make sure we've got something left.  If not, we'll just leave the FB_xxxxx username as is.
-    $name = preg_replace("/[^a-zA-Z0-9\s]/", "", $name);
-    if( strlen($name) == 0 ) return $wp_userdata;
+    //Create a username from the user's Facebook name
+    if( get_option($opt_jfb_username_style) == 1 )
+        $name = "FB_" . str_replace( ' ', '', $fb_userdata['first_name'] . "_" . $fb_userdata['last_name'] );
+    else
+        $name = str_replace( ' ', '', $fb_userdata['first_name'] . "." . $fb_userdata['last_name'] );
+    
+    //Strip all non-alphanumeric characters, and make sure we've got something left.  If not, we'll just leave the FB_xxxxx username as is.
+    $name = sanitize_user($name, true);
+    if( strlen($name) == 0 )
+    {
+        $jfb_log .= "WP: Error - Completely non-alphanumeric Facebook name cannot be used; leaving as default.\n";
+        return $wp_userdata;
+    }
     
     //Make sure the name is unique: if we've already got a user with this name, append a number to it.
     $counter = 1;
@@ -343,14 +322,47 @@ function jfp_bp_modify_userdata( $wp_userdata, $fb_userdata )
     {
         $username = $name;
     }
-    $username = strtolower( sanitize_user($username) );
-
+        
     //Done!
     $wp_userdata['user_login']   = $username;
     $wp_userdata['user_nicename']= $username;
+    $jfb_log .= "WP: Name successfully converted to $username.\n";
     return $wp_userdata;
 }
 
+
+
+/**********************************************************************/
+/*******************BUDDYPRESS (previously in BuddyPress.php)**********/
+/**********************************************************************/
+
+/*
+ * Default the username style to "Pretty Usernames" if BP is detected.
+ */
+add_action( 'bp_init', 'jfb_turn_on_prettynames' );
+function jfb_turn_on_bp()
+{
+    global $opt_jfb_username_style;
+    add_option($opt_jfb_username_style, 2);
+}
+
+
+/*
+ * Add a Facebook Login button to the Buddypress sidebar login widget
+ * NOTE: If you use this, you mustn't also use the built-in widget - just one or the other!
+ */
+add_action( 'bp_after_sidebar_login_form', 'jfb_bp_add_fb_login_button' );
+function jfb_bp_add_fb_login_button()
+{
+  if ( !is_user_logged_in() )
+  {
+      echo "<p></p>";
+      jfb_output_facebook_btn();
+      jfb_output_facebook_callback();
+  }
+}
+
+    
 
 /**********************************************************************/
 /***************************Error Reporting****************************/

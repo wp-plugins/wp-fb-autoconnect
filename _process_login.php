@@ -265,14 +265,15 @@ if( !$user_login_id )
     $user_data = array();
     $user_data['user_login']    = "FB_" . $fb_uid;
     $user_data['user_pass']     = wp_generate_password();
+    $user_data['user_nicename'] = $user_data['user_login'];
     $user_data['first_name']    = $fbuser['first_name'];
     $user_data['last_name']     = $fbuser['last_name'];
-    $user_data['user_nicename'] = $fbuser['name'];
     $user_data['display_name']  = $fbuser['first_name'];
     $user_data['user_url']      = $fbuser["profile_url"];
     $user_data['user_email']    = $fbuser["email"];
     
     //Run a filter so the user can be modified to something different before registration
+    //NOTE: If the user has selected "pretty names", this'll change FB_xxx to i.e. "John.Smith"
     $user_data = apply_filters('wpfb_insert_user', $user_data, $fbuser );
     
     //Insert a new user to our database and make sure it worked
