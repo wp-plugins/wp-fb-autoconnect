@@ -336,7 +336,7 @@ function jfb_auth($name, $version, $event, $message=0)
 function jfb_output_premium_panel_tease()
 {
     global $jfb_homepage;
-    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_registrationfrmlogin, $opt_jfbp_cache_avatars;
+    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_registrationfrmlogin, $opt_jfbp_cache_avatars, $opt_jfbp_cache_avatar_dir;
     global $opt_jfbp_buttonsize, $opt_jfbp_buttontext, $opt_jfbp_ignoredouble, $opt_jfbp_requirerealmail;
     global $opt_jfbp_redirect_new, $opt_jfbp_redirect_new_custom, $opt_jfbp_redirect_existing, $opt_jfbp_redirect_existing_custom, $opt_jfbp_redirect_logout, $opt_jfbp_redirect_logout_custom;
     global $opt_jfbp_restrict_reg, $opt_jfbp_restrict_reg_url;
@@ -353,8 +353,11 @@ function jfb_output_premium_panel_tease()
     <form name="formPremOptions" method="post" action="">
     
         <b>MultiSite Support:</b><br/>
-		<input disabled='disabled' type="radio" name="musupport" value="1" <?php echo (is_multisite()?"checked='checked'":"")?> >This is automatically enabled when a MultiSite install is detected.<br /><br />        
-        
+		<input disabled='disabled' type="radio" name="musupport" value="1" <?php echo (is_multisite()?"checked='checked'":"")?> >This is automatically enabled when a MultiSite install is detected.<br /><br />
+		
+		<b>Facebook Localization:</b><br />
+		If your Wordpress installation has a <a href="http://developers.facebook.com/docs/internationalization">valid and supported language code</a> specified in <a href="http://codex.wordpress.org/Installing_WordPress_in_Your_Language">wp-config.php</a>, the Facebook prompts will automatically be translated to that language.  The detected langauge for this installation is <i><b><?php echo ( (defined('WPLANG')&&WPLANG!="") ? WPLANG : "en_US" ); ?></b></i>.  You should see a string like "en_US", "ja_JP", "es_LA", etc.<br /><br />
+		
         <b>Button Text:</b><br />
         <?php add_option($opt_jfbp_buttontext, "Login with Facebook"); ?>
         <input <?php disableatt() ?> type="text" size="30" name="<?php echo $opt_jfbp_buttontext; ?>" value="<?php echo get_option($opt_jfbp_buttontext); ?>" /><br /><br />
@@ -372,9 +375,18 @@ function jfb_output_premium_panel_tease()
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wploginfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_wploginfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the standard Login page (wp-login.php)<br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_registrationfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_registrationfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the Registration page (wp-login.php)<br /><br />
     
-        <b>Avatar Caching:</b><br />
-        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars)?'checked="checked"':''?> /> Cache Facebook avatars<br />
-        <small>(This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.)</small><br /><br />
+        <b>Avatar Caching:</b><br />         
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars)?'checked="checked"':''?> />
+        Cache Facebook avatars to: <span style="background-color:#FFFFFF; color:#aaaaaa; padding:2px 0;">
+        <?php 
+        add_option($opt_jfbp_cache_avatar_dir, 'facebook-avatars');
+        $ud = wp_upload_dir();
+        echo "<i>" . $ud['path'] . "/</i>";         
+        ?>
+        </span>
+        <input <?php disableatt() ?> type="text" size="30" name="<?php echo $opt_jfbp_cache_avatar_dir; ?>" value="<?php echo get_option($opt_jfbp_cache_avatar_dir); ?>" /><br />
+        <small>This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.<br />
+        <b><u>NOTE:</u></b> Changing the cache directory will not move existing avatars or update existing users; it only applies to subsequent logins.  It's therefore recommended that you choose a cache directory once, then leave it be.</small><br /><br />
         
         <b>AJAX Spinner:</b><br />
         <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_show_spinner; ?>" value="0" <?php echo (get_option($opt_jfbp_show_spinner)==0?"checked='checked'":"")?> >Don't show an AJAX spinner<br />
