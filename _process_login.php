@@ -305,20 +305,20 @@ if( !$user_login_id )
 }
 
 //Tag the user with our meta so we can recognize them next time, without resorting to email hashes
-update_usermeta($user_login_id, $jfb_uid_meta_name, $fb_uid);
+update_user_meta($user_login_id, $jfb_uid_meta_name, $fb_uid);
 $jfb_log .= "WP: Updated usermeta ($jfb_uid_meta_name)\n";
 
 //Also store the user's facebook avatar(s), in case the user wants to use them later
 if( $fbuser['pic_square'] )
 {
-    update_usermeta($user_login_id, 'facebook_avatar_thumb', $fbuser['pic_square']);
-    update_usermeta($user_login_id, 'facebook_avatar_full', $fbuser['pic_big']);
+    update_user_meta($user_login_id, 'facebook_avatar_thumb', $fbuser['pic_square']);
+    update_user_meta($user_login_id, 'facebook_avatar_full', $fbuser['pic_big']);
     $jfb_log .= "WP: Updated avatars (" . $fbuser['pic_square'] . ")\n";
 }
 else
 {
-    update_usermeta($user_login_id, 'facebook_avatar_thumb', '');
-    update_usermeta($user_login_id, 'facebook_avatar_full', '');
+    update_user_meta($user_login_id, 'facebook_avatar_thumb', '');
+    update_user_meta($user_login_id, 'facebook_avatar_full', '');
     $jfb_log .= "FB: User does not have a profile picture; clearing cached avatar (if present).\n";
 }
 
