@@ -29,8 +29,8 @@ function jfb_add_plugin_links($links, $file)
 function jfb_admin_page()
 {
     global $jfb_name, $jfb_version;
-    global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_delay_redir, $jfb_homepage;
-    global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_hide_button, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
+    global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_delay_redir, $jfb_homepage;
+    global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
     global $opt_jfb_username_style;
     ?>
@@ -106,8 +106,8 @@ function jfb_admin_page()
         update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );        
         update_option( $opt_jfb_show_credit, $_POST[$opt_jfb_show_credit] );
         update_option( $opt_jfb_email_to, $_POST[$opt_jfb_email_to] );
+        update_option( $opt_jfb_email_logs, $_POST[$opt_jfb_email_logs] );
         update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
-        update_option( $opt_jfb_hide_button, $_POST[$opt_jfb_hide_button] );
         update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
         update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );
         update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] ); 
@@ -131,12 +131,12 @@ function jfb_admin_page()
         delete_option($opt_jfb_api_key);
         delete_option($opt_jfb_api_sec);
         delete_option($opt_jfb_email_to);
+        delete_option($opt_jfb_email_logs);
         delete_option($opt_jfb_delay_redir);
         delete_option($opt_jfb_ask_perms);
         delete_option($opt_jfb_req_perms);
         delete_option($opt_jfb_ask_stream);
         delete_option($opt_jfb_stream_content);
-        delete_option($opt_jfb_hide_button);
         delete_option($opt_jfb_mod_done);
         delete_option($opt_jfb_valid);
         delete_option($opt_jfb_bp_avatars);
@@ -213,8 +213,8 @@ function jfb_admin_page()
         <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))</i><br />
 
 		<br /><b>Debug:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_hide_button?>" value="1" <?php echo get_option($opt_jfb_hide_button)?'checked="checked"':''?> /> Hide Facebook Button<br />
-		<input type="checkbox" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_bloginfo('admin_email') ?>" <?php echo get_option($opt_jfb_email_to)?'checked="checked"':''?> /> Send all event logs to <i><?php echo get_bloginfo('admin_email')?></i><br />
+		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
+		<input type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send all event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /><br />
 		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />
