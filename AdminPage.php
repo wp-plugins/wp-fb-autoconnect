@@ -181,7 +181,7 @@ function jfb_admin_page()
         <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
         <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> API Secret
         <input type="hidden" name="fb_opts_updated" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
+        <div class="submit"><input type="submit" name="Submit" value="Connect" /></div>
     </form>
     <hr />
     
@@ -219,7 +219,7 @@ function jfb_admin_page()
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />
         <input type="hidden" name="main_opts_updated" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
+        <div class="submit"><input type="submit" name="Submit" value="Save Main" /></div>
     </form>
     <hr />
 
@@ -239,7 +239,7 @@ function jfb_admin_page()
     ?>
     <form name="formRewriteOptions" method="post" action="">
         <input type="hidden" name="mod_rewrite_update" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Update Now" /></div>
+        <div class="submit"><input type="submit" name="Submit" value="Update Rules" /></div>
     </form>
     
     <?php 
@@ -440,7 +440,7 @@ function jfb_output_premium_panel_tease()
         <small>(The <a href="http://wordpress.org/extend/plugins/wordbooker/">Wordbooker</a> plugin allows you to push blog posts to your Facebook wall, and also to import comments on these posts back to your blog.  This option will display real Facebook avatars for imported comments, provided the commentor logs into your site with Facebook at least once.)</small><br />
                         
         <input type="hidden" name="prem_opts_updated" value="1" />
-        <div class="submit"><input <?php disableatt() ?> type="submit" name="Submit" value="Save" /></div>
+        <div class="submit"><input <?php disableatt() ?> type="submit" name="Submit" value="Save Premium" /></div>
     </form>
     <hr />
     <?php    

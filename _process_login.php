@@ -35,7 +35,7 @@ if( !get_option($opt_jfb_disablenonce) )
         {
             $msg = "User \"$currUser->user_login\" has already logged in via another browser session.\n";
             $jfb_log .= $msg;
-            j_mail("Facebook Double-Login: " . $currUser->user_login);
+            j_mail("FB Double-Login: " . $currUser->user_login . " -> " . get_bloginfo('name'));
             die($msg . "<br /><br /><a href=\"".$_POST['redirectTo']."\">Continue</a>");
         }
           
@@ -357,7 +357,7 @@ $jfb_log .= "Login complete!\n";
 $jfb_log .= "   WP User : $user_login_name (" . admin_url("user-edit.php?user_id=$user_login_id") . ")\n";
 $jfb_log .= "   FB User : " . $fbuser['name'] . " (" . $fbuser["profile_url"] . ")\n";
 $jfb_log .= "   Redirect: " . $redirectTo . "\n";
-j_mail("Facebook Login: " . $user_login_name);
+j_mail("FB Login: " . $user_login_name . " -> " . get_bloginfo('name'));
 
 
 //Redirect the user back to where they were

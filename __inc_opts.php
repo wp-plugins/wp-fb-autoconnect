@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "1.8.1";
+$jfb_version    = "1.8.2";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 
 
@@ -43,7 +43,7 @@ $jfb_default_email  = '@unknown.com';
 //Error reporting function
 function j_die($msg)
 {
-    j_mail("Facebook Login Error", $msg);
+    j_mail("FB Login Error on " . get_bloginfo('name'), $msg);
     global $jfb_log, $opt_jfb_fulllogerr;
     if( isset($jfb_log) && get_option($opt_jfb_fulllogerr) )
         $msg .= "<pre>---LOG:---\n" . $jfb_log . "</pre>";
