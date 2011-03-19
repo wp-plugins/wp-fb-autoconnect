@@ -307,14 +307,21 @@ if( !$user_login_id )
     {
         if( $useNewAPI ) $stream_perm = $facebook->api( array('method'=>'users.hasAppPermission', 'ext_perm'=>'publish_stream') );
         else             $stream_perm = $facebook->api_client->users_hasAppPermission('publish_stream');
-        if( $stream_perm )
+        try
         {
-            if( $useNewAPI ) $facebook->api( array('method'=>'stream.publish', 'message'=>get_option($opt_jfb_stream_content)));
-            else             $facebook->api_client->stream_publish(get_option($opt_jfb_stream_content));
-            $jfb_log .= "FB: Publishing registration news to user's wall.\n";
+            if( $stream_perm )
+            {
+                if( $useNewAPI ) $facebook->api( array('method'=>'stream.publish', 'message'=>get_option($opt_jfb_stream_content)));
+                else             $facebook->api_client->stream_publish(get_option($opt_jfb_stream_content));
+                $jfb_log .= "FB: Publishing registration news to user's wall.\n";
+            }
+            else
+                $jfb_log .= "FB: User has DENIED permission to publish to their wall.\n";
         }
-        else
-            $jfb_log .= "FB: User has DENIED permission to publish to their wall.\n";
+        catch (FacebookApiException $e)
+        {
+            $jfb_log .= "WARNING: Failed to publish to the user's wall (is your message too long?) (" . $e . ")\n";
+        }
     }
 }
 
