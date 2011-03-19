@@ -67,6 +67,8 @@ $jfb_log .= "WP: Found redirect URL ($redirectTo)\n";
 
 
 //Include Facebook, making sure another plugin didn't already do so
+//NOTE:  I'VE MODIFIED facebook-platform/php-sdk-2.1.2/facebook.php!! See the comment in function getSession() for an explanation!
+$useNewAPI = get_option($opt_jfbp_use_new_api);
 if( class_exists('Facebook') )
 {
     $jfb_log .= "WP: WARNING - Another plugin has already included the Facebook API. "
@@ -75,19 +77,34 @@ if( class_exists('Facebook') )
 }
 else
 {
-    require_once('facebook-platform/php/facebook.php');    
+    if( $useNewAPI ) require_once('facebook-platform/php-sdk-2.1.2/facebook.php');
+    else             require_once('facebook-platform/php/facebook.php');
 }
 
 
 //Connect to FB and make sure we've got a valid session (we should already from the cookie set by JS)  
-$facebook = new Facebook(get_option($opt_jfb_api_key), get_option($opt_jfb_api_sec), null, true);    
-$fb_uid = $facebook->get_loggedin_user();
-if(!$fb_uid) j_die("Error: Failed to get the Facebook session. Please verify your API Key and Secret.");
+if( $useNewAPI )
+{
+    $jfb_log .= "FB: Initiating Facebook connection via the new API...\nWARNING: The new API is still experimental; use at your own risk!\n";
+    $facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
+    if (!$facebook->getSession()) j_die("Error: Failed to get the Facebook session. Please verify your API Key and Secret.");
+    try
+    { $fb_uid = $facebook->getUser(); }
+    catch (FacebookApiException $e) 
+    { j_die("Error: Failed to get the Facebook userid. Please verify your API Key and Secret."); }
+}
+else
+{
+    $jfb_log .= "FB: Initiating Facebook connection via the old API...\n";
+    $facebook = new Facebook(get_option($opt_jfb_api_key), get_option($opt_jfb_api_sec), null, true);    
+    $fb_uid = $facebook->get_loggedin_user();
+    if(!$fb_uid) j_die("Error: Failed to get the Facebook session. Please verify your API Key and Secret.");
+}
 $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
-
 //Get the user info from FB
-$fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email', 'email', 'email_hashes', 'pic_square', 'pic_big'));
+if( $useNewAPI ) $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big') );    
+else             $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email','email','email_hashes','pic_square','pic_big'));
 $fbuser = $fbuserarray[0];
 if( !$fbuser ) j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)): " . print_r($fbuserarray, true) ); 
 $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
@@ -178,7 +195,8 @@ if( !$user_login_id && !$fbuser['contact_email'] && count($wp_user_hashes) > 0 )
         $ret = 1;
         try
         {
-            $ret = $facebook->api_client->connect_registerUsers(json_encode($hashes));
+            if( $useNewAPI ) $ret = $facebook->api( array('method'=>'connect.registerUsers', 'accounts'=>$hashes) );
+            else             $ret = $facebook->api_client->connect_registerUsers(json_encode($hashes));
         }
         catch(Exception $e)
         {
@@ -287,9 +305,12 @@ if( !$user_login_id )
     //If the option was selected and permission exists, publish an announcement about the user's registration to their wall
     if( get_option($opt_jfb_ask_stream) )
     {
-        if( $facebook->api_client->users_hasAppPermission('publish_stream') )
+        if( $useNewAPI ) $stream_perm = $facebook->api( array('method'=>'users.hasAppPermission', 'ext_perm'=>'publish_stream') );
+        else             $stream_perm = $facebook->api_client->users_hasAppPermission('publish_stream');
+        if( $stream_perm )
         {
-            $facebook->api_client->stream_publish(get_option($opt_jfb_stream_content));
+            if( $useNewAPI ) $facebook->api( array('method'=>'stream.publish', 'message'=>get_option($opt_jfb_stream_content)));
+            else             $facebook->api_client->stream_publish(get_option($opt_jfb_stream_content));
             $jfb_log .= "FB: Publishing registration news to user's wall.\n";
         }
         else
@@ -357,6 +378,7 @@ if( !isset($delay_redirect) || !$delay_redirect )
 
 /*
 NOTES:
+->Tutorial on how to use the NEW API (which I used when upgrading): http://thinkdiff.net/facebook/php-sdk-graph-api-base-facebook-connect-tutorial/
 ->Basic FB Connect Tutorial: http://wiki.developers.facebook.com/index.php/Facebook_Connect_Tutorial1
 ->Facebook Javascript API: http://developers.facebook.com/docs/?u=facebook.jslib.FB
 ->How authentication works: http://wiki.developers.facebook.com/index.php/How_Connect_Authentication_Works
