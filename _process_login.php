@@ -18,7 +18,8 @@ require_once("__inc_wp.php");
 require_once("__inc_opts.php");
 @include_once(realpath(dirname(__FILE__))."/../WP-FB-AutoConnect-Premium.php");
 if( !defined('JFB_PREMIUM') ) @include_once("Premium.php");
-$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version)\n";
+$browser = getBrowser();
+$jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version, Browser: " . $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . ")\n";
 
 //Run one hook before ANYTHING happens.
 do_action('wpfb_prelogin');
