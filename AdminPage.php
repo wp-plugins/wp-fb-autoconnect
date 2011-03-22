@@ -330,8 +330,7 @@ function jfb_auth($name, $version, $event, $message=0)
 /*********************************************************************************/
 
 /*
- * This is an exact copy of jfb_output_premium_panel() from Premium.php; it of course just doesn't
- * include the implementation
+ * This is an exact copy of jfb_output_premium_panel() from the premium addon; it of course just doesn't include implementation...
  */
 function jfb_output_premium_panel_tease()
 {

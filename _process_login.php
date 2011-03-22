@@ -14,9 +14,10 @@ if(version_compare('5', PHP_VERSION, ">"))
     die("Error: This plugin requires PHP5 or better.");
 
 //Include our options and the Wordpress core
-require_once("__inc_opts.php");
 require_once("__inc_wp.php");
-@include_once("Premium.php");
+require_once("__inc_opts.php");
+@include_once(realpath(dirname(__FILE__))."/../WP-FB-AutoConnect-Premium.php");
+if( !defined('JFB_PREMIUM') ) @include_once("Premium.php");
 $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version)\n";
 
 //Run one hook before ANYTHING happens.
