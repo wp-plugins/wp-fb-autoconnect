@@ -165,17 +165,6 @@ function jfb_admin_page()
     <br />
     <hr />
     
-    <h3>Development</h3>
-    Many hours have gone into making this plugin as versatile and easy to use as possible, far beyond my own personal needs. Although I offer it to you freely, please keep in mind that each hour spent extending and supporting it was an hour that could've also gone towards income-generating work. If you find it useful, a small donation would be greatly appreciated :)
-    <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-        <input type="hidden" name="cmd" value="_s-xclick" />
-        <input type="hidden" name="hosted_button_id" value="T88Y2AZ53836U" />
-        <input type="hidden" name="return" value="http://www.justin-klein.com/thank-you" />
-        <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!" />
-        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
-    </form>
-    <hr />
-    
     <h3>Facebook Connect</h3>
     <form name="formFacebook" method="post" action="">
         <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
@@ -203,14 +192,14 @@ function jfb_admin_page()
 
         <br /><b>Announcement:</b><br />
 		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
-		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:</i><br />
+		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:<br />
 		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
 
 		<br /><b>Avatars:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars<br />
 
         <br /><b>Credit:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))</i><br />
+        <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))<br />
 
 		<br /><b>Debug:</b><br />
 		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
@@ -230,6 +219,8 @@ function jfb_admin_page()
 	    jfb_output_premium_panel_tease();
     ?>    
     
+    <!--
+    FOR ADVANCED USERS: See _autologin.php for what this does.
     <h3>Mod Rewrite Rules</h3>
     <?php
     if (get_option($opt_jfb_mod_done))
@@ -240,14 +231,14 @@ function jfb_admin_page()
     <form name="formRewriteOptions" method="post" action="">
         <input type="hidden" name="mod_rewrite_update" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Update Rules" /></div>
-    </form>
+    </form><hr />
+    -->
     
     <?php 
     else:
-        echo "Please enter a Facebook API Key and Secret above. Once these have been successfully stored & validated, the main plugin options will become available.<br /><br />";
+        echo "Please enter a Facebook API Key and Secret above. Once these have been successfully stored & validated, the main plugin options will become available.<br /><br /><hr />";
     endif;
     ?>
-    <hr />
     
     <h3>Delete All Plugin Options</h3>
     <form name="formDebugOptions" method="post" action="">

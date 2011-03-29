@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "1.8.5";
+$jfb_version    = "1.8.6";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 $jfb_data_url   = plugins_url(dirname(plugin_basename(__FILE__)));
 
@@ -95,7 +95,7 @@ function getBrowser()
     elseif(preg_match('/Netscape/i',$u_agent))                             {$bname = 'Netscape'; $ub = "Netscape"; }
     $known = array('Version', $ub, 'other');
     $pattern = '#(?<browser>' . join('|', $known) . ')[/ ]+(?<version>[0-9.|a-zA-Z.]*)#';
-    if (!preg_match_all($pattern, $u_agent, $matches)) {}
+    if (!@preg_match_all($pattern, $u_agent, $matches)) {}
     $i = count($matches['browser']);
     if ($i != 1 && strripos($u_agent,"Version") < strripos($u_agent,$ub))  $version= $matches['version'][0]; 
     else if($i != 1)                                                       $version= $matches['version'][1];
