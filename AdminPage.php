@@ -120,7 +120,7 @@ function jfb_admin_page()
         update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
         update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );
         update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] ); 
-        ?><div class="updated"><p><strong>Main Options saved.</strong></p></div><?php         
+        ?><div class="updated"><p><strong>Options saved.</strong></p></div><?php         
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
     {
@@ -183,9 +183,9 @@ function jfb_admin_page()
     </form>
     <hr />
     
-    <h3>Main Options</h3>
+    <h3>Basic Options</h3>
     <?php 
-    //Only show the main options if the Facebook connection is valid!
+    //Only show the options if the Facebook connection is valid!
     if(get_option($opt_jfb_valid)):
     ?>
     
@@ -217,7 +217,7 @@ function jfb_admin_page()
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />
         <input type="hidden" name="main_opts_updated" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Save Main" /></div>
+        <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
     </form>
     <hr />
 
@@ -338,9 +338,9 @@ function jfb_output_premium_panel_tease()
     global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_registrationfrmlogin, $opt_jfbp_cache_avatars, $opt_jfbp_cache_avatar_dir;
     global $opt_jfbp_buttonsize, $opt_jfbp_buttontext, $opt_jfbp_requirerealmail;
     global $opt_jfbp_redirect_new, $opt_jfbp_redirect_new_custom, $opt_jfbp_redirect_existing, $opt_jfbp_redirect_existing_custom, $opt_jfbp_redirect_logout, $opt_jfbp_redirect_logout_custom;
-    global $opt_jfbp_restrict_reg, $opt_jfbp_restrict_reg_url;
-    global $opt_jfbp_use_new_api, $opt_jfbp_show_spinner;
-    global $opt_jfbp_wordbooker_integrate, $opt_jfbp_signupfrmlogin;
+    global $opt_jfbp_restrict_reg, $opt_jfbp_restrict_reg_url, $opt_jfbp_restrict_reg_uid, $opt_jfbp_restrict_reg_pid, $opt_jfbp_restrict_reg_gid;
+    global $opt_jfbp_use_new_api, $opt_jfbp_show_spinner, $jfb_data_url;
+    global $opt_jfbp_wordbooker_integrate, $opt_jfbp_signupfrmlogin, $opt_jfbp_localize_facebook;
     function disableatt() { echo (defined('JFB_PREMIUM')?"":"disabled='disabled'"); }
     ?>
     <h3>Premium Options <?php echo (defined('JFB_PREMIUM_VER')?"<small>(Version " . JFB_PREMIUM_VER . ")</small>":""); ?></h3>
@@ -352,18 +352,29 @@ function jfb_output_premium_panel_tease()
     
     <form name="formPremOptions" method="post" action="">
     
+        <b>Facebook API Version:</b><br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="0" <?php echo (get_option($opt_jfbp_use_new_api)==0?"checked='checked'":"")?>>Use the old REST API (Default)<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="1" <?php echo (get_option($opt_jfbp_use_new_api)==1?"checked='checked'":"")?>>Use the new Graph API <b style="color:#ff0000">(Beta)</b> <dfn title="Using the new API will ensure compatibility with IE9, will allow this plugin to coexist with other FBML Social Plugins (i.e. Like boxes &amp; comment forms), and will combine all of the permission prompts into one single popup.  However, it's a fairly major new feature that for now should be considered 'experimental - use at your own risk.'">(Mouseover for more info)</dfn><br /><br />
+        
         <b>MultiSite Support:</b><br/>
 		<input disabled='disabled' type="checkbox" name="musupport" value="1" <?php echo (is_multisite()?"checked='checked'":"")?> >
-		This is automatically enabled when a MultiSite install is detected.<br /><br />
+		Automatically enabled when a MultiSite install is detected
+		<dfn title="The free plugin is not aware of users registered on other sites in your WPMU installation, which can result in problems i.e. if someone tries to register on more than one site.  The Premium version will actively detect and handle existing users across all your sites.">(Mouseover for more info)</dfn><br /><br />
+		
+		<b>Double Logins:</b><br />
+        <input disabled='disabled' type="checkbox" name="doublelogin" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> /> Automatically handle double logins 
+        <dfn title="If a visitor opens two browser windows, logs into one, then logs into the other, the security nonce check will fail.  This is because in the second window, the current user no longer matches the user for which the nonce was generated.  The free version of the plugin reports this to the visitor, giving them a link to their desired redirect page.  The premium version will transparently handle such double-logins: to visitors, it'll look like the page has just been refreshed and they're now logged in.  For more information on nonces, please visit http://codex.wordpress.org/WordPress_Nonces.">(Mouseover for more info)</dfn><br /><br />
 		
 		<b>Facebook Localization:</b><br />
-		<input disabled='disabled' type="checkbox" name="localization" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> >
-		If your Wordpress installation has a <a href="http://developers.facebook.com/docs/internationalization">valid and supported language code</a> specified in <a href="http://codex.wordpress.org/Installing_WordPress_in_Your_Language">wp-config.php</a>, the Facebook prompts will automatically be translated to that language.  The detected langauge for this installation is <i><b><?php echo ( (defined('WPLANG')&&WPLANG!="") ? WPLANG : "en_US" ); ?></b></i>.  You should see a string like "en_US", "ja_JP", "es_LA", etc.<br /><br />
-		
-        <b>Double Logins:</b><br />
-        <input disabled='disabled' type="checkbox" name="doublelogin" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> /> Automatically handle double logins<br />
-        <small>(If a visitor opens two browser windows, logs into one, then logs into the other, the security nonce check will fail (see <a href="http://codex.wordpress.org/WordPress_Nonces">Wordpress Nonces</a>).  This is because in the second window, the current user no longer matches the user for which the nonce was generated.  The free version of the plugin reports this to the visitor, giving them a link to their desired redirect page.  The premium version will transparently handle such double-logins: to visitors, it'll look like the page has just been refreshed and they're now logged in.)</small><br /><br />
-		
+		<?php add_option($opt_jfbp_localize_facebook, 1); ?>
+		<input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_localize_facebook?>" value="1" <?php echo get_option($opt_jfbp_localize_facebook)?"checked='checked'":""?> >
+		Translate Facebook prompts to the same locale as your Wordpress blog (Detected locale: <i><?php echo ( (defined('WPLANG')&&WPLANG!="") ? WPLANG : "en_US" ); ?></i>)
+		<dfn title="The Wordpress locale is specified in wp-config.php, where valid language codes are of the form 'en_US', 'ja_JP', 'es_LA', etc.  Please see http://codex.wordpress.org/Installing_WordPress_in_Your_Language for more information on localizing Wordpress, and http://developers.facebook.com/docs/internationalization/ for a list of locales supported by Facebook.">(Mouseover for more info)</dfn><br /><br />
+						
+   		<b>E-Mail Permissions:</b><br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_requirerealmail?>" value="1" <?php echo get_option($opt_jfbp_requirerealmail)?'checked="checked"':''?> /> Enforce access to user's real (unproxied) email
+        <dfn title="The basic option to 'Request and require permission' prevents users from logging in unless they click 'Allow' when prompted for their email.  However, they can still mask their true address by using a Facebook proxy (click 'change' in the permissions dialog, and select 'xxx@proxymail.facebook.com').  This option performs a secondary check to absolutely enforce that they allow access to their REAL e-mail.  Note that the check requires several extra queries to Facebook's servers, so it could result in a slightly longer delay before the login initiates.">(Mouseover for more info)</dfn><br /><br />
+
         <b>Avatar Caching:</b><br />         
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars)?'checked="checked"':''?> />
         Cache Facebook avatars to: <span style="background-color:#FFFFFF; color:#aaaaaa; padding:2px 0;">
@@ -373,20 +384,12 @@ function jfb_output_premium_panel_tease()
         echo "<i>" . $ud['basedir'] . "/</i>";         
         ?>
         </span>
-        <input <?php disableatt() ?> type="text" size="30" name="<?php echo $opt_jfbp_cache_avatar_dir; ?>" value="<?php echo get_option($opt_jfbp_cache_avatar_dir); ?>" /><br />
-        <small>This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.<br />
-        <b><u>NOTE:</u></b> Changing the cache directory will not move existing avatars or update existing users; it only applies to subsequent logins.  It's therefore recommended that you choose a cache directory once, then leave it be.</small><br /><br />
+        <input <?php disableatt() ?> type="text" size="20" name="<?php echo $opt_jfbp_cache_avatar_dir; ?>" value="<?php echo get_option($opt_jfbp_cache_avatar_dir); ?>" />
+        <dfn title="This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.  NOTE: Changing the cache directory will not move existing avatars or update existing users; it only applies to subsequent logins.  It's therefore recommended that you choose a cache directory once, then leave it be.">(Mouseover for more info)</dfn><br /><br />        
 
-   		<b>E-Mail Permissions:</b><br />
-        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_requirerealmail?>" value="1" <?php echo get_option($opt_jfbp_requirerealmail)?'checked="checked"':''?> /> Enforce access to user's real (unproxied) email<br />
-        <small>The basic option to "Request and require permission" prevents users from logging in unless they click "Allow" when prompted for their email.  However, they can still mask their true address by using a Facebook proxy (click "change" in the permissions dialog, and select "xxx@proxymail.facebook.com").  This option performs a secondary check to absolutely enforce that they allow access to their <i>real</i> e-mail.  Note that the check requires several extra queries to Facebook's servers, so it could result in a slightly longer delay before the login initiates on slower connections.)</small><br /><br />
-        
-        <b>Welcome Message:</b><br />
-        <?php add_option($opt_jfbp_notifyusers_content, "Thank you for logging into " . get_option('blogname') . " with Facebook.\nIf you would like to login manually, you may do so with the following credentials.\n\nUsername: %username%\nPassword: %password%"); ?>
-        <?php add_option($opt_jfbp_notifyusers_subject, "Welcome to " . get_option('blogname')); ?>
-        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_notifyusers?>" value="1" <?php echo get_option($opt_jfbp_notifyusers)?'checked="checked"':''?> /> Send a custom welcome e-mail to users who register via Facebook <small>(*If we know their address)</small><br />
-        <input <?php disableatt() ?> type="text" size="102" name="<?php echo $opt_jfbp_notifyusers_subject?>" value="<?php echo get_option($opt_jfbp_notifyusers_subject) ?>" /><br />
-        <textarea <?php disableatt() ?> cols="85" rows="5" name="<?php echo $opt_jfbp_notifyusers_content?>"><?php echo get_option($opt_jfbp_notifyusers_content) ?></textarea><br /><br />
+        <b>Wordbooker Avatar Integration:</b><br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wordbooker_integrate?>" value="1" <?php echo get_option($opt_jfbp_wordbooker_integrate)?'checked="checked"':''?> /> Use Facebook avatars for <a href="http://wordpress.org/extend/plugins/wordbooker/">Wordbooker</a>-imported comments
+        <dfn title="The Wordbooker plugin allows you to push blog posts to your Facebook wall, and also to import comments on these posts back to your blog.  This option will display real Facebook avatars for imported comments, provided the commentor logs into your site at least once.">(Mouseover for more info)</dfn><br /><br />
         
         <b>Button Appearance:</b><br />
         <?php add_option($opt_jfbp_buttontext, "Login with Facebook"); ?>
@@ -400,21 +403,23 @@ function jfb_output_premium_panel_tease()
         
         <b>Additional Buttons:</b><br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_commentfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_commentfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button below the comment form<br />
-        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wploginfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_wploginfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the Login page (wp-login.php)<br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wploginfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_wploginfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the standard Login page (wp-login.php)<br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_registrationfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_registrationfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the Registration page (wp-login.php)<br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_signupfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_signupfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the Signup page (wp-signup.php) (WPMU Only)<br /><br />
             
         <b>AJAX Spinner:</b><br />
         <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_show_spinner; ?>" value="0" <?php echo (get_option($opt_jfbp_show_spinner)==0?"checked='checked'":"")?> >Don't show an AJAX spinner<br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_show_spinner; ?>" value="1" <?php echo (get_option($opt_jfbp_show_spinner)==1?"checked='checked'":"")?> >Show a white AJAX spinner to indicate the login process has started (<img src=" <?php echo plugins_url(dirname(plugin_basename(__FILE__))) ?>/spinner/spinner_white.gif" alt="spinner" />)<br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_show_spinner; ?>" value="2" <?php echo (get_option($opt_jfbp_show_spinner)==2?"checked='checked'":"")?> >Show a black AJAX spinner to indicate the login process has started (<img src=" <?php echo plugins_url(dirname(plugin_basename(__FILE__))) ?>/spinner/spinner_black.gif" alt="spinner" />)<br /><br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_show_spinner; ?>" value="1" <?php echo (get_option($opt_jfbp_show_spinner)==1?"checked='checked'":"")?> >Show a white AJAX spinner to indicate the login process has started (<img src=" <?php echo $jfb_data_url ?>/spinner/spinner_white.gif" alt="spinner" />)<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_show_spinner; ?>" value="2" <?php echo (get_option($opt_jfbp_show_spinner)==2?"checked='checked'":"")?> >Show a black AJAX spinner to indicate the login process has started (<img src=" <?php echo $jfb_data_url ?>/spinner/spinner_black.gif" alt="spinner" />)<br /><br />
                 
-        <b>Restrict AutoRegistrations:</b><br />
+        <b>AutoRegistration Restrictions:</b><br />
         <?php add_option($opt_jfbp_restrict_reg_url, '/') ?>
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="0" <?php echo (get_option($opt_jfbp_restrict_reg)==0?"checked='checked'":"")?>>Enabled: Anyone can login (Default)<br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="1" <?php echo (get_option($opt_jfbp_restrict_reg)==1?"checked='checked'":"")?>>Disabled: Only login existing blog users; redirect others to the URL below.<br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="2" <?php echo (get_option($opt_jfbp_restrict_reg)==2?"checked='checked'":"")?>>Invitational: Only login users who've been invited via the <a href="http://wordpress.org/extend/plugins/wordpress-mu-secure-invites/">Secure Invites</a> plugin; redirect others to the URL below.<br />
-        <small>(*Their Facebook email must be accessible, and must match the email to which the invitation was sent)</small><br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="0" <?php echo (get_option($opt_jfbp_restrict_reg)==0?"checked='checked'":"")?>>Open: Anyone can login (Default)<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="1" <?php echo (get_option($opt_jfbp_restrict_reg)==1?"checked='checked'":"")?>>Closed: Only login existing blog users<br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="2" <?php echo (get_option($opt_jfbp_restrict_reg)==2?"checked='checked'":"")?>>Invitational: Only login users who've been invited via the <a href="http://wordpress.org/extend/plugins/wordpress-mu-secure-invites/">Secure Invites</a> plugin <dfn title="For invites to work, the connecting user's Facebook email must be accessible, and it must match the email to which the invitation was sent.">(Mouseover for more info)</dfn><br />
+		<input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="3" <?php echo (get_option($opt_jfbp_restrict_reg)==3?"checked='checked'":"")?>>Friendship: Only login users who are friends with uid <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_uid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_uid) ?>" /> on Facebook <dfn title="To find your Facebook uid, login and view your Profile Pictures album.  The URL will be something like 'http://www.facebook.com/album.php?id=12345678&aid=9101112'.  In this example, your uid would be 12345678.">(Mouseover for more info)</dfn><br />
+		<input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="4" <?php echo (get_option($opt_jfbp_restrict_reg)==4?"checked='checked'":"")?>>Membership: Only login users who are members of group id <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_gid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_gid); ?>" /> on Facebook <dfn title="To find a groups's id, view its URL.  It will be something like 'http://www.facebook.com/group.php?gid=12345678'.  In this example, the group id would be 12345678.">(Mouseover for more info)</dfn><br />
+		<input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="5" <?php echo (get_option($opt_jfbp_restrict_reg)==5?"checked='checked'":"")?>>Fanpage: Only login users who are fans of page id <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_pid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_pid); ?>" /> on Facebook <dfn title="To find a page's id, view one of its photo albums.  The URL will be something like 'http://www.facebook.com/album.php?id=12345678&aid=9101112'.  In this example, the page id would be 12345678.">(Mouseover for more info)</dfn><br />
         Redirect URL for denied logins: <input <?php disableatt() ?> type="text" size="30" name="<?php echo $opt_jfbp_restrict_reg_url?>" value="<?php echo get_option($opt_jfbp_restrict_reg_url) ?>" /><br /><br />
                 
         <b>Custom Redirects:</b><br />
@@ -433,11 +438,14 @@ function jfb_output_premium_panel_tease()
         <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_redirect_logout; ?>" value="1" <?php echo (get_option($opt_jfbp_redirect_logout)==1?"checked='checked'":"")?> >Default (refresh current page)<br />
         <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_redirect_logout; ?>" value="2" <?php echo (get_option($opt_jfbp_redirect_logout)==2?"checked='checked'":"")?> >Custom URL:
         <input <?php disableatt() ?> type="text" size="47" name="<?php echo $opt_jfbp_redirect_logout_custom?>" value="<?php echo get_option($opt_jfbp_redirect_logout_custom) ?>" /><br /><br />
-                
-        <b>Wordbooker Avatar Integration:</b><br />
-        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wordbooker_integrate?>" value="1" <?php echo get_option($opt_jfbp_wordbooker_integrate)?'checked="checked"':''?> /> Use Facebook avatars for Wordbooker-imported comments<br />
-        <small>(The <a href="http://wordpress.org/extend/plugins/wordbooker/">Wordbooker</a> plugin allows you to push blog posts to your Facebook wall, and also to import comments on these posts back to your blog.  This option will display real Facebook avatars for imported comments, provided the commentor logs into your site with Facebook at least once.)</small><br />
-                        
+
+        <b>Welcome Message:</b><br />
+        <?php add_option($opt_jfbp_notifyusers_content, "Thank you for logging into " . get_option('blogname') . " with Facebook.\nIf you would like to login manually, you may do so with the following credentials.\n\nUsername: %username%\nPassword: %password%"); ?>
+        <?php add_option($opt_jfbp_notifyusers_subject, "Welcome to " . get_option('blogname')); ?>
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_notifyusers?>" value="1" <?php echo get_option($opt_jfbp_notifyusers)?'checked="checked"':''?> /> Send a custom welcome e-mail to users who register via Facebook <small>(*If we know their address)</small><br />
+        <input <?php disableatt() ?> type="text" size="102" name="<?php echo $opt_jfbp_notifyusers_subject?>" value="<?php echo get_option($opt_jfbp_notifyusers_subject) ?>" /><br />
+        <textarea <?php disableatt() ?> cols="85" rows="5" name="<?php echo $opt_jfbp_notifyusers_content?>"><?php echo get_option($opt_jfbp_notifyusers_content) ?></textarea><br />
+                                        
         <input type="hidden" name="prem_opts_updated" value="1" />
         <div class="submit"><input <?php disableatt() ?> type="submit" name="Submit" value="Save Premium" /></div>
     </form>

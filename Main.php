@@ -1,8 +1,8 @@
 <?php
 /* Plugin Name: WP-FB-AutoConnect
- * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
+ * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 1.8.7
+ * Version: 1.8.8
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -25,15 +25,15 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * ----------------
+ * -------------------------------------------
  *
  * --------Adding to WP-FB-AutoConnect--------
  * If you're interested in creating a derived plugin, please contact me (Justin Klein) first;
  * although duplicating and supplementing the existing code is one approach, doing so 
- * also means that any future updates will not benefit your "copied" version.  Instead, with 
- * a bit of coordination I'm sure we could arrange for your addon to tie into the existing
- * hooks & filters (which I can supplement if needed), allowing users to benefit both from your 
- * improvements as well as any future fixes I may provide.
+ * also means that your duplicate will not benefit from any future updates or bug fixes.
+ * Instead, with a bit of coordination I'm sure we could arrange for your addon to tie into the
+ * existing hooks & filters (which I can supplement if needed), allowing users to benefit 
+ * both from your improvements as well as any future fixes I may provide.
  * 
  * If you do choose to create and release a derived plugin anyway, please just be sure not to represent it
  * as a fully original work, nor attempt to confuse it with the original WP-FB-AutoConnect by means of 
