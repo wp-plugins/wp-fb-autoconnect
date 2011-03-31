@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "1.8.8";
+$jfb_version    = "1.8.9";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 $jfb_data_url   = plugins_url(dirname(plugin_basename(__FILE__)));
 
@@ -40,6 +40,8 @@ $jfb_uid_meta_name  = "facebook_uid";
 $jfb_js_callbackfunc= "jfb_js_login_callback";
 $jfb_default_email  = '@unknown.com';
 
+//List to remember how many times we've called jfb_output_facebook_callback(), preventing duplicates
+$jfb_callback_list = array(); 
 
 //Error reporting function
 function j_die($msg)
@@ -77,7 +79,7 @@ function jfb_premium()
 /**
  * Simple browser detection, for logging (from http://php.net/manual/en/function.get-browser.php)
  */
-function getBrowser()
+function jfb_get_browser()
 {
     $u_agent = $_SERVER['HTTP_USER_AGENT'];
     $bname = 'Unknown';
@@ -111,7 +113,7 @@ function getBrowser()
 //Hopefully this'll reveal the cause of the problem...
 global $opt_jfb_generated_nonce;
 $opt_jfb_generated_nonce = "jfb_nonce_debugging";
-function debug_nonce_components()
+function jfb_debug_nonce_components()
 {
     global $opt_jfb_generated_nonce;
     $user = wp_get_current_user();

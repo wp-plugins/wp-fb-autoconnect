@@ -18,7 +18,7 @@ require_once("__inc_wp.php");
 require_once("__inc_opts.php");
 @include_once(realpath(dirname(__FILE__))."/../WP-FB-AutoConnect-Premium.php");
 if( !defined('JFB_PREMIUM') ) @include_once("Premium.php");
-$browser = getBrowser();
+$browser = jfb_get_browser();
 $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version, Browser: " . $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . ")\n";
 
 //Run one hook before ANYTHING happens.
@@ -44,7 +44,7 @@ if( !get_option($opt_jfb_disablenonce) )
         //If the nonce failed for some other reason, report the error.
         $jfb_log .= "WP: nonce check failed (expected '" . wp_create_nonce( $jfb_nonce_name ) . "', received '" . $_REQUEST['_wpnonce'] . "')\n" .
                     "    Original Components) " . get_option($opt_jfb_generated_nonce) . "\n" .
-                    "    Current Components)  " . debug_nonce_components() . "\n";
+                    "    Current Components)  " . jfb_debug_nonce_components() . "\n";
         if( function_exists('get_plugins') )
         {
             $plugins = get_plugins();

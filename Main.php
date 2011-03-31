@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 1.8.8
+ * Version: 1.8.9
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -140,15 +140,27 @@ function jfb_output_facebook_init()
 function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
 {
      //Make sure the plugin is setup properly before doing anything
-     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_valid, $jfb_nonce_name, $jfb_js_callbackfunc, $opt_jfb_ask_stream;
+     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_valid, $jfb_nonce_name;
+     global $jfb_js_callbackfunc, $opt_jfb_ask_stream, $jfb_callback_list;
      if( !get_option($opt_jfb_valid) ) return;
      
      //Get out our params
      if( !$redirectTo )  $redirectTo = htmlspecialchars($_SERVER['REQUEST_URI']);
      if( !$callbackName )$callbackName = $jfb_js_callbackfunc;
      
+     //Make sure we haven't already output a callback with this name
+     if( in_array($callbackName, $jfb_callback_list) )
+     {
+         echo "\n<!--jfb_output_facebook_callback has already generated a callback named $callbackName!  Skipping.-->\n";
+         return;
+     }
+     else
+        array_push($jfb_callback_list, $callbackName);
+     
      //Output an html form that we'll submit via JS once the FB login is complete; it redirects us to the PHP script that logs us into WP.  
-  ?><form id="wp-fb-ac-fm" name="<?php echo $callbackName ?>_form" method="post" action="<?php echo plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php"?>" >
+?>
+  
+  <form id="wp-fb-ac-fm" name="<?php echo $callbackName ?>_form" method="post" action="<?php echo plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php"?>" >
       <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
 <?php 
       //An action to allow the user to inject additional data in the form, to be transferred to the login script
@@ -207,7 +219,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
     
     //DEBUG (to try and figure out the "nonce check failed" problem)
     global $opt_jfb_generated_nonce;
-    update_option($opt_jfb_generated_nonce, debug_nonce_components());
+    update_option($opt_jfb_generated_nonce, jfb_debug_nonce_components());
 }
 
 
