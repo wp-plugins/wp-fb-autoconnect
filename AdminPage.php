@@ -22,6 +22,15 @@ function jfb_add_plugin_links($links, $file)
     return $links;
 }
 
+/**
+ * Styles
+ */
+add_action('admin_head', 'jfb_admin_styles');
+function jfb_admin_styles()
+{
+    echo '<style type="text/css">.wp-fb-autoconnect-admin dfn{border-bottom:1px dotted #0000FF; cursor:help; font-style:italic; font-size:80%;}</style>';
+}
+
 
 /*
  * Output the Admin page
@@ -34,7 +43,7 @@ function jfb_admin_page()
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
     global $opt_jfb_username_style;
     ?>
-    <div class="wrap">
+    <div class="wrap wp-fb-autoconnect-admin">
      <h2><?php echo $jfb_name; ?> Options</h2>
     <?php
     

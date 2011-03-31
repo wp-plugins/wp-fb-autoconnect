@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers.  Also provides a good starting point for coders looking to add more customized Facebook integration to their blogs.
  * Author: Justin Klein
- * Version: 1.8.6
+ * Version: 1.8.7
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -27,17 +27,26 @@
  *
  * ----------------
  *
- * If you choose to create and distribute a derived plugin, please do not represent it as a fully original work, 
- * nor attempt to confuse it with the original by means of its name or otherwise.  You should give credit to the 
- * original in a plainly visible location, such as the admin panel and/or readme file.
+ * --------Adding to WP-FB-AutoConnect--------
+ * If you're interested in creating a derived plugin, please contact me (Justin Klein) first;
+ * although duplicating and supplementing the existing code is one approach, doing so 
+ * also means that any future updates will not benefit your "copied" version.  Instead, with 
+ * a bit of coordination I'm sure we could arrange for your addon to tie into the existing
+ * hooks & filters (which I can supplement if needed), allowing users to benefit both from your 
+ * improvements as well as any future fixes I may provide.
  * 
- * Also, while you're free to add as much or as little functionality as you like, please make it clear precisely what 
- * functionality you've added and what was original.
+ * If you do choose to create and release a derived plugin anyway, please just be sure not to represent it
+ * as a fully original work, nor attempt to confuse it with the original WP-FB-AutoConnect by means of 
+ * its name or otherwise.  You should give credit to the original plugin in a plainly visible location,
+ * such as the admin panel and readme file.  Also, please do not remove my links to Paypal or the 
+ * Premium Addon as these are the only means through which I fund the considerable time I've devoted to 
+ * creating and maintaining this otherwise free plugin.  If you'd like to add your own link that's of course
+ * fine, but just make sure it's no more prominent than the original.
  * 
- * Put simply, be fair.  I've put hundreds of (unpaid) hours into this work, and I *have* experienced someone else 
- * trying to claim credit for it.  Please don't be that person.  I'm happy if you feel it's worthy of additional 
- * development, but would appreciate it if you'd work with me and not against me.  Expanding upon my work
- * in the spirit of free software is welcome.  Stealing my credit and donations is not.
+ * Put simply, be fair.  I've put hundreds of hours into this work, and I *have* experienced someone else 
+ * trying to claim credit for it.  Please don't be that person.  I'm happy if you feel it's worthy of 
+ * additional development, but would appreciate it if you'd work with me and not against me.  Expanding upon 
+ * my work in the spirit of free software is welcome.  Stealing my credit and donations is not.
  * 
  * Thanks! :)
  *

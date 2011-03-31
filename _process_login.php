@@ -105,10 +105,14 @@ else
 $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 //Get the user info from FB
-if( $useNewAPI ) $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big') );    
-else             $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email','email','email_hashes','pic_square','pic_big'));
-$fbuser = $fbuserarray[0];
-if( !$fbuser ) j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)): " . print_r($fbuserarray, true) ); 
+try
+{
+    if( $useNewAPI ) $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big') );    
+    else             $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email','email','email_hashes','pic_square','pic_big'));
+    $fbuser = $fbuserarray[0];
+}
+catch( Exception $e ) {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) . "; " . $e );}
+if( !$fbuser )        {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) ); }
 $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 
 
@@ -288,6 +292,7 @@ if( !$user_login_id )
     //Run a filter so the user can be modified to something different before registration
     //NOTE: If the user has selected "pretty names", this'll change FB_xxx to i.e. "John.Smith"
     $user_data = apply_filters('wpfb_insert_user', $user_data, $fbuser );
+    $user_data = apply_filters('wpfb_inserting_user', $user_data, array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook, 'FB_UserData' => $fbuser) );
     
     //Insert a new user to our database and make sure it worked
     $user_login_id   = wp_insert_user($user_data);
