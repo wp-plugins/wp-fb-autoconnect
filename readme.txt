@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.1
-Stable tag: 1.8.9
+Stable tag: 1.9.0
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -59,6 +59,11 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 1.9.0 (2011-04-01) =
+* jfb_output_facebook_callback() is now automatically called by wp_footer; If you're manually outputting your own Facebook buttons, you should now ONLY call jfb_output_facebook_btn() (explicitly calling jfb_output_facebook_callback() is no longer needed!)
+* Premium comment-form buttons now not dependent on Widget buttons
+* Output some html comments
+
 = 1.8.9 (2011-04-01) =
 * Rename some functions that weren't following convention
 * jfb_output_facebook_callback() prevents itself from outputting duplicate forms on the same page

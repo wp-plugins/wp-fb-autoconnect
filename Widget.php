@@ -55,7 +55,7 @@ class Widget_LoginLogout extends WP_Widget
             {
                 jfb_output_facebook_btn();
                 //jfb_output_facebook_init(); This is output in wp_footer as of 1.5.4
-                jfb_output_facebook_callback();
+                //jfb_output_facebook_callback(); This is output in wp_footer as of 1.9.0
             }
         endif;
         echo $after_widget;

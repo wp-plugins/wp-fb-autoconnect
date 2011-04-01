@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 1.8.9
+ * Version: 1.9.0
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -72,7 +72,7 @@ require_once("Widget.php");
 function jfb_output_facebook_btn()
 {
     global $jfb_name, $jfb_version, $jfb_js_callbackfunc, $opt_jfb_valid;
-    echo "<!-- $jfb_name v$jfb_version -->\n";
+    echo "<!-- $jfb_name Button v$jfb_version -->\n";
     if( !get_option($opt_jfb_valid) )
     {
         echo "<!--WARNING: Invalid or Unset Facebook API Key-->";
@@ -87,6 +87,7 @@ function jfb_output_facebook_btn()
     ?>
     //--></script>
     </span>
+    
     <?php
     do_action('wpfb_after_button');
 }
@@ -120,9 +121,10 @@ function jfb_output_facebook_instapopup( $callbackName=0 )
 add_action('wp_footer', 'jfb_output_facebook_init');
 function jfb_output_facebook_init()
 {
-    global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_valid;
+    global $jfb_name, $jfb_version, $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_valid;
     if( !get_option($opt_jfb_valid) ) return;
     $xd_receiver = plugins_url(dirname(plugin_basename(__FILE__))) . "/facebook-platform/xd_receiver.htm";
+    echo "\n<!-- $jfb_name Init v$jfb_version -->\n";
     ?>
     <script type="text/javascript" src="https://ssl.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php/<?php do_action('wpfb_output_facebook_locale') ?>"></script>
     <script type="text/javascript">//<!--
@@ -137,9 +139,11 @@ function jfb_output_facebook_init()
  * Output the JS callback function that'll handle FB logins.
  * NOTE: The Premium addon may alter its behavior via the hooks below.
  */
+add_action('wp_footer', 'jfb_output_facebook_callback');
 function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
 {
      //Make sure the plugin is setup properly before doing anything
+     global $jfb_name, $jfb_version;
      global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_valid, $jfb_nonce_name;
      global $jfb_js_callbackfunc, $opt_jfb_ask_stream, $jfb_callback_list;
      if( !get_option($opt_jfb_valid) ) return;
@@ -147,6 +151,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
      //Get out our params
      if( !$redirectTo )  $redirectTo = htmlspecialchars($_SERVER['REQUEST_URI']);
      if( !$callbackName )$callbackName = $jfb_js_callbackfunc;
+     echo "\n<!-- $jfb_name Callback v$jfb_version -->\n";
      
      //Make sure we haven't already output a callback with this name
      if( in_array($callbackName, $jfb_callback_list) )
@@ -395,7 +400,6 @@ function jfb_bp_add_fb_login_button()
   {
       echo "<p></p>";
       jfb_output_facebook_btn();
-      jfb_output_facebook_callback();
   }
 }
 
