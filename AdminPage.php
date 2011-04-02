@@ -41,7 +41,7 @@ function jfb_admin_page()
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
-    global $opt_jfb_username_style;
+    global $opt_jfb_username_style, $opt_jfb_disable_ie9_hack;
     ?>
     <div class="wrap wp-fb-autoconnect-admin">
      <h2><?php echo $jfb_name; ?> Options</h2>
@@ -120,6 +120,7 @@ function jfb_admin_page()
         update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
         update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );
         update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] ); 
+        update_option( $opt_jfb_disable_ie9_hack, $_POST[$opt_jfb_disable_ie9_hack] );
         ?><div class="updated"><p><strong>Options saved.</strong></p></div><?php         
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
@@ -154,6 +155,7 @@ function jfb_admin_page()
         delete_option($opt_jfb_disablenonce);
         delete_option($opt_jfb_show_credit);
         delete_option($opt_jfb_username_style);
+        delete_option($opt_jfb_disable_ie9_hack);
         if( function_exists('jfb_delete_premium_opts') ) jfb_delete_premium_opts();
         ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
     }
@@ -212,6 +214,8 @@ function jfb_admin_page()
 
 		<br /><b>Debug:</b><br />
 		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
+		<input type="checkbox" name="<?php echo $opt_jfb_disable_ie9_hack?>" value="1" <?php echo get_option($opt_jfb_disable_ie9_hack)?'checked="checked"':''?> /> Disable IE9 compatability mode
+		<dfn title="IE9 has a compatability issue with the original Facebook API.  To remedy this, the plugin will insert a metatag that instructs it to behave like IE8, thus restoring Facebook functionality.  You should only disable this if you've got the premium addon and are using the new API, or really know what you're doing :)">(Mouseover for more info)</dfn><br /> 
 		<input type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send all event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /><br />
 		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
@@ -354,7 +358,7 @@ function jfb_output_premium_panel_tease()
     
         <b>Facebook API Version:</b><br />
         <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="0" <?php echo (get_option($opt_jfbp_use_new_api)==0?"checked='checked'":"")?>>Use the old REST API (Default)<br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="1" <?php echo (get_option($opt_jfbp_use_new_api)==1?"checked='checked'":"")?>>Use the new Graph API <b style="color:#ff0000">(Beta)</b> <dfn title="Using the new API will ensure compatibility with IE9, will allow this plugin to coexist with other FBML Social Plugins (i.e. Like boxes &amp; comment forms), and will combine all of the permission prompts into one single popup.  However, it's a fairly major new feature that for now should be considered 'experimental - use at your own risk.'">(Mouseover for more info)</dfn><br /><br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="1" <?php echo (get_option($opt_jfbp_use_new_api)==1?"checked='checked'":"")?>>Use the new Graph API <b style="color:#ff0000">(Beta)</b> <dfn title="Using the new API will ensure 'native' compatibility with IE9, will allow this plugin to coexist with other FBML Social Plugins (i.e. Like boxes &amp; comment forms), and will combine all of the permission prompts into one single popup.  However, it's a fairly major new feature that for now should be considered 'experimental - use at your own risk.'">(Mouseover for more info)</dfn><br /><br />
         
         <b>MultiSite Support:</b><br/>
 		<input disabled='disabled' type="checkbox" name="musupport" value="1" <?php echo (is_multisite()?"checked='checked'":"")?> >

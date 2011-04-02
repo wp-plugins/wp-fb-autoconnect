@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 1.9.1
+ * Version: 1.9.2
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -229,19 +229,6 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
 
 
 
-/**
-  * Include the FB class in the <html> tag (only when not already logged in)
-  * So stupid IE will render the button correctly
-  */
-add_filter('language_attributes', 'jfb_output_fb_namespace');
-function jfb_output_fb_namespace()
-{
-    global $current_user;
-    if( isset($current_user) && $current_user->ID != 0 ) return;
-    if( has_filter( "language_attributes", "wordbooker_schema" ) ) return;
-    echo 'xmlns:fb="http://www.facebook.com/2008/fbml"';
-}
-
 
 /**********************************************************************/
 /*******************************CREDIT*********************************/
@@ -404,6 +391,70 @@ function jfb_bp_add_fb_login_button()
 }
 
     
+/**********************************************************************/
+/****************************IE compatibility**************************/
+/**********************************************************************/
+
+/**
+ * The old Facebook API isn't compatible with IE9
+ * (see http://stackoverflow.com/questions/5323474/ie9-error-sec7111-https-security-is-compromised-when-using-the-facebook-rest)
+ * We can solve this by forcing it to behave like IE8 via a metatag: <meta http-equiv="X-UA-Compatible" content="IE=8" />
+ * However, because this metatag must come immediately after <head>, and we have no guarantee when a given
+ * theme will will actually call wp_head, we need to do a little "hack" to make sure it comes first:
+ * 1) Starting with get_header, capture all the output until wp_head (which we know is *somewhere* between <head> and </head>)
+ * 2) Parse the captured content and insert the metatag immediately after <head>.
+ * 3) Output the captured (& modified) header fragment
+ * 4) Stop the buffer capture so the output will continue as normal
+ */
+if( !get_option($opt_jfb_disable_ie9_hack) )
+{
+    add_action('get_header', 'jfb_ie9_fix_start');
+    add_action('wp_head',    'jfb_ie9_fix_finish', 1);
+}
+function jfb_ie9_fix_start()
+{  //Start buffer capturing before we load the header template
+   ob_start(); 
+}
+function jfb_ie9_fix_finish()
+{
+    //Stop capturing - we've now got the "header" template in our buffer, up to where it calls wp_head
+    $header = ob_get_contents();
+    ob_end_clean();
+    
+    //Get the part of the header up to the "<head>" tag (i.e. DOCTYPE & <html> tags)
+    $p1_to_head_pos = stripos($header, "<head");
+    $p1_to_head = substr($header, 0, $p1_to_head_pos);
+    $header = substr($header, $p1_to_head_pos);
+    
+    //Get the part of the header within the <head> tag (if present), and close it up
+    $p2_head_contents_pos = stripos($header, ">");
+    $p2_head_contents = substr($header, 0, $p2_head_contents_pos) . ">";
+    $header = substr($header, $p2_head_contents_pos+1);
+    
+    //And the rest is the remainder of our captured output
+    $p3_after_head = $header;
+    
+    //Now piece it back together, inserting our new metatag right after <head>
+    echo $p1_to_head;
+    echo $p2_head_contents;
+    echo "\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
+    echo $p3_after_head;
+}
+
+
+/**
+  * Include the FB class in the <html> tag (only when not already logged in)
+  * So stupid IE will render the button correctly
+  */
+add_filter('language_attributes', 'jfb_output_fb_namespace');
+function jfb_output_fb_namespace()
+{
+    global $current_user;
+    if( isset($current_user) && $current_user->ID != 0 ) return;
+    if( has_filter( "language_attributes", "wordbooker_schema" ) ) return;
+    echo 'xmlns:fb="http://www.facebook.com/2008/fbml"';
+}
+
 
 /**********************************************************************/
 /***************************Error Reporting****************************/
