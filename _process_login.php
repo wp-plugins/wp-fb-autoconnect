@@ -87,7 +87,7 @@ else
 //Connect to FB and make sure we've got a valid session (we should already from the cookie set by JS)  
 if( $useNewAPI )
 {
-    $jfb_log .= "FB: Initiating Facebook connection via the new API (BETA)...\n";
+    $jfb_log .= "FB: Initiating Facebook connection via the new API...\n";
     $facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
     if (!$facebook->getSession()) j_die("Error: Failed to get the Facebook session. Please verify your API Key and Secret.");
     try

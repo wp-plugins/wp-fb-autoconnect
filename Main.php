@@ -2,14 +2,14 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 1.9.2
+ * Version: 2.0.0
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
 
 
 /*
- * Copyright 2010 Justin Klein (email: justin@justin-klein.com)
+ * Copyright 2010-2011 Justin Klein (email: justin@justin-klein.com)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -60,6 +60,10 @@ require_once("AdminPage.php");
 require_once("Widget.php");
 
 
+//Using the new Facebook API is now *required*
+update_option($opt_jfbp_use_new_api, 1);
+
+
 /**********************************************************************/
 /*******************************GENERAL********************************/
 /**********************************************************************/
@@ -72,6 +76,8 @@ require_once("Widget.php");
 function jfb_output_facebook_btn()
 {
     global $jfb_name, $jfb_version, $jfb_js_callbackfunc, $opt_jfb_valid;
+    global $opt_jfb_ask_perms, $opt_jfb_ask_stream, $opt_jfbp_requirerealmail;
+    global $opt_jfbp_use_new_api;
     echo "<!-- $jfb_name Button v$jfb_version -->\n";
     if( !get_option($opt_jfb_valid) )
     {
@@ -83,7 +89,24 @@ function jfb_output_facebook_btn()
     <script type="text/javascript">//<!--
     <?php 
     $btnTag = "document.write('<fb:login-button v=\"2\" size=\"small\" onlogin=\"$jfb_js_callbackfunc();\">Login with Facebook</fb:login-button>');";  
-    echo apply_filters('wpfb_output_button', $btnTag );
+
+    //Let the premium addon overwrite the size/text
+    $btnTag = apply_filters('wpfb_output_button', $btnTag );
+        
+    //If this is the NEW API, we need to tell the button about the extended permissions it'll prompt for
+    if( get_option($opt_jfbp_use_new_api) )
+    {
+        $email_perms = get_option($opt_jfb_ask_perms) || get_option($opt_jfbp_requirerealmail);
+        $stream_perms = get_option($opt_jfb_ask_stream);
+        if( $email_perms && $stream_perms )    $attr = 'perms="'.apply_filters('wpfb_extended_permissions','email,publish_stream').'"';
+        else if( $email_perms )                $attr = 'perms="'.apply_filters('wpfb_extended_permissions','email').'"';
+        else if( $stream_perms )               $attr = 'perms="'.apply_filters('wpfb_extended_permissions','publish_stream').'"';
+        else                                   $attr = '';
+        $btnTag = str_replace( "login-button ", "login-button " . $attr . " ", $btnTag);
+    }
+        
+    //Output!
+    echo $btnTag;
     ?>
     //--></script>
     </span>
@@ -116,21 +139,47 @@ function jfb_output_facebook_instapopup( $callbackName=0 )
 /*
  * Output the JS to init the Facebook API, which will also setup a <fb:login-button> if present.
  * Output this in the footer, so it always comes after the buttons.
- * NOTE: This hook maybe removed & replaced by the Premium plugin.
  */
 add_action('wp_footer', 'jfb_output_facebook_init');
 function jfb_output_facebook_init()
 {
-    global $jfb_name, $jfb_version, $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_valid;
+    global $jfb_name, $jfb_version, $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_valid, $opt_jfbp_use_new_api;
     if( !get_option($opt_jfb_valid) ) return;
-    $xd_receiver = plugins_url(dirname(plugin_basename(__FILE__))) . "/facebook-platform/xd_receiver.htm";
-    echo "\n<!-- $jfb_name Init v$jfb_version -->\n";
-    ?>
-    <script type="text/javascript" src="https://ssl.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php/<?php do_action('wpfb_output_facebook_locale') ?>"></script>
-    <script type="text/javascript">//<!--
-        FB.init("<?php echo get_option($opt_jfb_api_key)?>","<?php echo $xd_receiver?>");
-    //--></script>
-    <?php  
+    
+    //OLD API
+    if( !get_option($opt_jfbp_use_new_api) )
+    {
+        $xd_receiver = plugins_url(dirname(plugin_basename(__FILE__))) . "/facebook-platform/xd_receiver.htm";
+        echo "\n<!-- $jfb_name Init v$jfb_version (OLD API) -->\n";
+        ?>
+    	<script type="text/javascript" src="https://ssl.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php/<?php echo apply_filters('wpfb_output_facebook_locale', 'en_US'); ?>"></script>
+    	<script type="text/javascript">//<!--
+        	FB.init("<?php echo get_option($opt_jfb_api_key)?>","<?php echo $xd_receiver?>");
+	    //--></script>
+        <?php
+    }  
+    
+    //NEW API
+    else
+    {
+        echo "\n<!-- $jfb_name Init v$jfb_version (NEW API) -->\n";
+        ?>
+        <div id="fb-root"></div>
+        <script type="text/javascript">//<!--
+          window.fbAsyncInit = function()
+          {
+            FB.init({ appId: '<?php echo get_option($opt_jfb_app_id); ?>', status: true, cookie: true, xfbml: true });
+          };
+    
+          (function() {
+            var e = document.createElement('script');
+            e.src = document.location.protocol + '//connect.facebook.net/<?php echo apply_filters('wpfb_output_facebook_locale', 'en_US'); ?>/all.js';
+            e.async = true;
+            document.getElementById('fb-root').appendChild(e);
+          }());
+        //--></script>
+        <?php
+    }
 }
 
 
@@ -144,8 +193,8 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
 {
      //Make sure the plugin is setup properly before doing anything
      global $jfb_name, $jfb_version;
-     global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_valid, $jfb_nonce_name;
-     global $jfb_js_callbackfunc, $opt_jfb_ask_stream, $jfb_callback_list;
+     global $opt_jfb_ask_perms, $opt_jfb_valid, $jfb_nonce_name;
+     global $jfb_js_callbackfunc, $opt_jfb_ask_stream, $jfb_callback_list, $opt_jfbp_use_new_api;
      if( !get_option($opt_jfb_valid) ) return;
      
      //Get out our params
@@ -172,61 +221,59 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
       do_action('wpfb_add_to_form');
 ?>
       <?php wp_nonce_field ($jfb_nonce_name) ?>   
-    </form><?php
+    </form>
+<?php
 
     //Output the JS callback function, which Facebook will automatically call once it's been logged in.
     ?><script type="text/javascript">//<!--
     function <?php echo $callbackName ?>()
     {
-
 <?php 
 		//An action to allow the user to inject additional javascript to get executed before the login takes place
 		do_action('wpfb_add_to_js', $callbackName);
 
-        //Optionally request permissions to get their real email and to publish to their wall before redirecting to the logon script.
-        $ask_for_email_permission = get_option($opt_jfb_ask_perms) || get_option($opt_jfb_req_perms);
-        if( $ask_for_email_permission )                                                   		//Ask for email
-            echo "        FB.Connect.showPermissionDialog('".apply_filters('wpfb_extended_permissions','email')."', function(reply1)\n        {\n";
-        if( get_option($opt_jfb_ask_stream) )                                                   //Ask for publish to wall
-            echo "        FB.Connect.showPermissionDialog('".apply_filters('wpfb_extended_permissions','publish_stream')."', function(reply2)\n        {\n";
-
-        //If we're not requiring their email, just redirect them (no matter if they approve or not)
-        if( !get_option($opt_jfb_req_perms) )
+        //NEW API VERSION
+        if( get_option($opt_jfbp_use_new_api) )
         {
-            echo apply_filters('wpfb_submit_loginfrm', "document." . $callbackName . "_form.submit();\n" );
-        }        
-        
-        //If we REQUIRE their email address, make sure they accept the extended permissions before redirecting to the logon script            
-        else
-        {
-            echo "            FB.Facebook.apiClient.users_hasAppPermission('email', function (emailCheck)\n".
-                 "            {\n". 
-		         "                 if(emailCheck)\n".
-		         "                 {\n";
-            echo apply_filters('wpfb_submit_loginfrm', "document." . $callbackName . "_form.submit();\n");
-            echo "                 }\n".
-                 "                 else\n".
-                 "                 {\n";
-            echo apply_filters('wpfb_login_rejected', '');
-            echo "                     alert('Sorry, this site requires an e-mail address to log you in.');\n".
-                 "                 }\n".
-                 "            });\n";
+            //First, make sure the user logged into Facebook (didn't click "cancel" in the login prompt)
+            echo    "    //Make sure the user logged in\n".
+                	"    FB.getLoginStatus(function(response)\n".
+                    "    {\n".
+                    "      if (!response.session)\n".
+                    "      {\n".
+                    apply_filters('wpfb_login_rejected', '').
+                    "      return;\n".
+                    "      }\n\n";
+                    
+            //Submit the login and close the FB.getLoginStatus call
+            echo apply_filters('wpfb_submit_loginfrm', "      document." . $callbackName . "_form.submit();\n" );
+            echo "    });\n";
         }
         
-        //Close up the functions
-        if( $ask_for_email_permission )
-        	echo "        });\n";
-        if( get_option($opt_jfb_ask_stream) )
-        	echo "        });\n";
+        //OLD API VERSION
+        else
+        {
+            //Optionally request permissions to get their real email and to publish to their wall before redirecting to the logon script.
+            $ask_for_email_permission = get_option($opt_jfb_ask_perms);
+            if( $ask_for_email_permission )                                                   		//Ask for email
+                echo "        FB.Connect.showPermissionDialog('".apply_filters('wpfb_extended_permissions','email')."', function(reply1)\n        {\n";
+            if( get_option($opt_jfb_ask_stream) )                                                   //Ask for publish to wall
+                echo "        FB.Connect.showPermissionDialog('".apply_filters('wpfb_extended_permissions','publish_stream')."', function(reply2)\n        {\n";
+    
+            //Redirect!
+            echo apply_filters('wpfb_submit_loginfrm', "document." . $callbackName . "_form.submit();\n" );        
+                        
+            //Close up the functions
+            if( $ask_for_email_permission )
+            	echo "        });\n";
+            if( get_option($opt_jfb_ask_stream) )
+            	echo "        });\n";
+        }        
         ?>
     }
-    //--></script><?php
-    
-    //DEBUG (to try and figure out the "nonce check failed" problem)
-    global $opt_jfb_generated_nonce;
-    update_option($opt_jfb_generated_nonce, jfb_debug_nonce_components());
+    //--></script>
+    <?php
 }
-
 
 
 
@@ -394,52 +441,6 @@ function jfb_bp_add_fb_login_button()
 /**********************************************************************/
 /****************************IE compatibility**************************/
 /**********************************************************************/
-
-/**
- * The old Facebook API isn't compatible with IE9
- * (see http://stackoverflow.com/questions/5323474/ie9-error-sec7111-https-security-is-compromised-when-using-the-facebook-rest)
- * We can solve this by forcing it to behave like IE8 via a metatag: <meta http-equiv="X-UA-Compatible" content="IE=8" />
- * However, because this metatag must come immediately after <head>, and we have no guarantee when a given
- * theme will will actually call wp_head, we need to do a little "hack" to make sure it comes first:
- * 1) Starting with get_header, capture all the output until wp_head (which we know is *somewhere* between <head> and </head>)
- * 2) Parse the captured content and insert the metatag immediately after <head>.
- * 3) Output the captured (& modified) header fragment
- * 4) Stop the buffer capture so the output will continue as normal
- */
-if( !get_option($opt_jfb_disable_ie9_hack) )
-{
-    add_action('get_header', 'jfb_ie9_fix_start');
-    add_action('wp_head',    'jfb_ie9_fix_finish', 1);
-}
-function jfb_ie9_fix_start()
-{  //Start buffer capturing before we load the header template
-   ob_start(); 
-}
-function jfb_ie9_fix_finish()
-{
-    //Stop capturing - we've now got the "header" template in our buffer, up to where it calls wp_head
-    $header = ob_get_contents();
-    ob_end_clean();
-    
-    //Get the part of the header up to the "<head>" tag (i.e. DOCTYPE & <html> tags)
-    $p1_to_head_pos = stripos($header, "<head");
-    $p1_to_head = substr($header, 0, $p1_to_head_pos);
-    $header = substr($header, $p1_to_head_pos);
-    
-    //Get the part of the header within the <head> tag (if present), and close it up
-    $p2_head_contents_pos = stripos($header, ">");
-    $p2_head_contents = substr($header, 0, $p2_head_contents_pos) . ">";
-    $header = substr($header, $p2_head_contents_pos+1);
-    
-    //And the rest is the remainder of our captured output
-    $p3_after_head = $header;
-    
-    //Now piece it back together, inserting our new metatag right after <head>
-    echo $p1_to_head;
-    echo $p2_head_contents;
-    echo "\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
-    echo $p3_after_head;
-}
 
 
 /**

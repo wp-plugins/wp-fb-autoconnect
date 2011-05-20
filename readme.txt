@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.1
-Stable tag: 1.9.2
+Stable tag: 2.0.0
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -59,6 +59,12 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 2.0.0 (2011-05-19) =
+* As Facebook has decided to shut off the old REST API on Sept 1, 2011, I've rewritten the core plugin to use the new Graph API.  All Premium users must also update their addons to be compatible with this new core plugin.
+* Removed "IE9 compatability mode" as it's no longer relevant.
+* Removed "Request and require email permissions" as it's no longer relevant (all permissions are requested in a single popup, so one cannot be denied while approving the others).
+* Show a warning to Premium users with an outdated version of the addon. 
+
 = 1.9.2 (2011-04-02) =
 * Add an "IE compatability mode", so the old API will work on IE9.  Can be disabled via debug options, but is enabled by default.
 

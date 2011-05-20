@@ -32,6 +32,19 @@ function jfb_admin_styles()
 }
 
 
+/**
+ * Version 2.0.0 moved the New API from the premium addon to the free one; this would break functionality for premium
+ * customers, so warn them in the admin backend, if relevant
+ */
+if( defined('JFB_PREMIUM') && version_compare(JFB_PREMIUM_VER, 21) == -1 ) add_action('admin_notices', 'jfb_warn_premium_version');
+function jfb_warn_premium_version()
+{
+    ?>
+    <div class="error"><p><strong>Warning:</strong> This version of WP-FB-AutoConnect requires Premium addon version 21 or better (you're currently using version <?php echo JFB_PREMIUM_VER; ?>).  Please login to your account on <a target="store" href="http://store.justin-klein.com/index.php?route=account/download">store.justin-klein.com</a> to obtain the latest version.  I apologize for the inconvenience, but it was unavoidable due to a sudden change in Facebook's security policies.</p></div>
+    <?php 
+}
+
+
 /*
  * Output the Admin page
  */
@@ -39,9 +52,9 @@ function jfb_admin_page()
 {
     global $jfb_name, $jfb_version;
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_delay_redir, $jfb_homepage;
-    global $opt_jfb_ask_perms, $opt_jfb_req_perms, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
+    global $opt_jfb_ask_perms, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
-    global $opt_jfb_username_style, $opt_jfb_disable_ie9_hack;
+    global $opt_jfb_username_style, $opt_jfbp_use_new_api;
     ?>
     <div class="wrap wp-fb-autoconnect-admin">
      <h2><?php echo $jfb_name; ?> Options</h2>
@@ -109,7 +122,6 @@ function jfb_admin_page()
     if( isset($_POST['main_opts_updated']) )
     {
         update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
-        update_option( $opt_jfb_req_perms, $_POST[$opt_jfb_req_perms] );
         update_option( $opt_jfb_ask_stream, $_POST[$opt_jfb_ask_stream] );
         update_option( $opt_jfb_wp_avatars, $_POST[$opt_jfb_wp_avatars] );
         update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );        
@@ -120,7 +132,7 @@ function jfb_admin_page()
         update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
         update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );
         update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] ); 
-        update_option( $opt_jfb_disable_ie9_hack, $_POST[$opt_jfb_disable_ie9_hack] );
+        update_option( $opt_jfbp_use_new_api, $_POST[$opt_jfbp_use_new_api] );
         ?><div class="updated"><p><strong>Options saved.</strong></p></div><?php         
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
@@ -144,7 +156,6 @@ function jfb_admin_page()
         delete_option($opt_jfb_email_logs);
         delete_option($opt_jfb_delay_redir);
         delete_option($opt_jfb_ask_perms);
-        delete_option($opt_jfb_req_perms);
         delete_option($opt_jfb_ask_stream);
         delete_option($opt_jfb_stream_content);
         delete_option($opt_jfb_mod_done);
@@ -155,7 +166,7 @@ function jfb_admin_page()
         delete_option($opt_jfb_disablenonce);
         delete_option($opt_jfb_show_credit);
         delete_option($opt_jfb_username_style);
-        delete_option($opt_jfb_disable_ie9_hack);
+        delete_option($opt_jfbp_use_new_api);
         if( function_exists('jfb_delete_premium_opts') ) jfb_delete_premium_opts();
         ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
     }
@@ -192,6 +203,11 @@ function jfb_admin_page()
     ?>
     
     <form name="formMainOptions" method="post" action="">
+    
+    	<!-- <b>Facebook API Version:</b><br />  -->
+        <!-- <input type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="1" <?php echo (get_option($opt_jfbp_use_new_api)==1?"checked='checked'":"")?>>Use the new Graph API (Default)<br />  -->
+        <!-- <input type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="0" <?php echo (get_option($opt_jfbp_use_new_api)==0?"checked='checked'":"")?>>Use the old REST API <dfn title="On September 1 2011, Facebook will be disabling their old API completely.  I provide this option only to smooth the transition, allowing temporary compatibility with other plugins whose authors have not yet updated their code.  As using the old API may prompt Facebook to contact you with a security warning, I strongly advise against it.">(Mouseover for more info)</dfn><br /><br /> -->
+    
         <b>Autoregistered Usernames:</b><br />
         <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="0" <?php echo (get_option($opt_jfb_username_style)==0?"checked='checked'":"")?> >Based on Facebook ID (i.e. FB_123456)<br />
         <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="1" <?php echo (get_option($opt_jfb_username_style)==1?"checked='checked'":"")?> >Based on real name with prefix (i.e. FB_John_Smith)<br />
@@ -199,7 +215,6 @@ function jfb_admin_page()
     
         <b>E-Mail:</b><br />
         <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Request permission to get the connecting user's email address<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_req_perms?>" value="1" <?php echo get_option($opt_jfb_req_perms)?'checked="checked"':''?> /> Request <u><i>and require</i></u> permission to get the connecting user's email address<br />
 
         <br /><b>Announcement:</b><br />
 		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
@@ -214,8 +229,6 @@ function jfb_admin_page()
 
 		<br /><b>Debug:</b><br />
 		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
-		<input type="checkbox" name="<?php echo $opt_jfb_disable_ie9_hack?>" value="1" <?php echo get_option($opt_jfb_disable_ie9_hack)?'checked="checked"':''?> /> Disable IE9 compatability mode
-		<dfn title="IE9 has a compatability issue with the original Facebook API.  To remedy this, the plugin will insert a metatag that instructs it to behave like IE8, thus restoring Facebook functionality.  You should only disable this if you've got the premium addon and are using the new API, or really know what you're doing :)">(Mouseover for more info)</dfn><br /> 
 		<input type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send all event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /><br />
 		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
         <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
@@ -343,7 +356,7 @@ function jfb_output_premium_panel_tease()
     global $opt_jfbp_buttonsize, $opt_jfbp_buttontext, $opt_jfbp_requirerealmail;
     global $opt_jfbp_redirect_new, $opt_jfbp_redirect_new_custom, $opt_jfbp_redirect_existing, $opt_jfbp_redirect_existing_custom, $opt_jfbp_redirect_logout, $opt_jfbp_redirect_logout_custom;
     global $opt_jfbp_restrict_reg, $opt_jfbp_restrict_reg_url, $opt_jfbp_restrict_reg_uid, $opt_jfbp_restrict_reg_pid, $opt_jfbp_restrict_reg_gid;
-    global $opt_jfbp_use_new_api, $opt_jfbp_show_spinner, $jfb_data_url;
+    global $opt_jfbp_show_spinner, $jfb_data_url;
     global $opt_jfbp_wordbooker_integrate, $opt_jfbp_signupfrmlogin, $opt_jfbp_localize_facebook;
     function disableatt() { echo (defined('JFB_PREMIUM')?"":"disabled='disabled'"); }
     ?>
@@ -356,12 +369,8 @@ function jfb_output_premium_panel_tease()
     
     <form name="formPremOptions" method="post" action="">
     
-        <b>Facebook API Version:</b><br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="0" <?php echo (get_option($opt_jfbp_use_new_api)==0?"checked='checked'":"")?>>Use the old REST API (Default)<br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="1" <?php echo (get_option($opt_jfbp_use_new_api)==1?"checked='checked'":"")?>>Use the new Graph API <b style="color:#ff0000">(Beta)</b> <dfn title="Using the new API will ensure 'native' compatibility with IE9, will allow this plugin to coexist with other FBML Social Plugins (i.e. Like boxes &amp; comment forms), and will combine all of the permission prompts into one single popup.  However, it's a fairly major new feature that for now should be considered 'experimental - use at your own risk.'">(Mouseover for more info)</dfn><br /><br />
-        
         <b>MultiSite Support:</b><br/>
-		<input disabled='disabled' type="checkbox" name="musupport" value="1" <?php echo (is_multisite()?"checked='checked'":"")?> >
+		<input disabled='disabled' type="checkbox" name="musupport" value="1" <?php echo ((defined('JFB_PREMIUM')&&is_multisite())?"checked='checked'":"")?> >
 		Automatically enabled when a MultiSite install is detected
 		<dfn title="The free plugin is not aware of users registered on other sites in your WPMU installation, which can result in problems i.e. if someone tries to register on more than one site.  The Premium version will actively detect and handle existing users across all your sites.">(Mouseover for more info)</dfn><br /><br />
 		
@@ -377,7 +386,7 @@ function jfb_output_premium_panel_tease()
 						
    		<b>E-Mail Permissions:</b><br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_requirerealmail?>" value="1" <?php echo get_option($opt_jfbp_requirerealmail)?'checked="checked"':''?> /> Enforce access to user's real (unproxied) email
-        <dfn title="The basic option to 'Request and require permission' prevents users from logging in unless they click 'Allow' when prompted for their email.  However, they can still mask their true address by using a Facebook proxy (click 'change' in the permissions dialog, and select 'xxx@proxymail.facebook.com').  This option performs a secondary check to absolutely enforce that they allow access to their REAL e-mail.  Note that the check requires several extra queries to Facebook's servers, so it could result in a slightly longer delay before the login initiates.">(Mouseover for more info)</dfn><br /><br />
+        <dfn title="The basic option to request user emails will prompt your visitors, but they can still hide their true addresses by using a Facebook proxy (click 'change' in the permissions dialog, and select 'xxx@proxymail.facebook.com').  This option performs a secondary check to enforce that they allow access to their REAL e-mail.  Note that the check requires several extra queries to Facebook's servers, so it could result in a slightly longer delay before the login initiates.">(Mouseover for more info)</dfn><br /><br />
 
         <b>Avatar Caching:</b><br />         
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars)?'checked="checked"':''?> />
