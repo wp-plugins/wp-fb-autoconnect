@@ -70,7 +70,7 @@ function jfb_admin_page()
         ?><div class="error"><p>Sorry, but as of v1.3.0, WP-FB AutoConnect requires PHP5.</p></div><?php
         die();
     }
-    if( is_multisite() && !jfb_premium() )
+    if( function_exists('is_multisite') && is_multisite() && !jfb_premium() )
     {
         ?><div class="error"><p><strong>Warning:</strong> Wordpress MultiSite is only fully supported by the premium version of this plugin; please see <a href="<?php echo $jfb_homepage ?>#premium"><b>here</b></a> for details.</p></div><?php
     }
@@ -370,7 +370,7 @@ function jfb_output_premium_panel_tease()
     <form name="formPremOptions" method="post" action="">
     
         <b>MultiSite Support:</b><br/>
-		<input disabled='disabled' type="checkbox" name="musupport" value="1" <?php echo ((defined('JFB_PREMIUM')&&is_multisite())?"checked='checked'":"")?> >
+		<input disabled='disabled' type="checkbox" name="musupport" value="1" <?php echo ((defined('JFB_PREMIUM')&&function_exists('is_multisite')&&is_multisite())?"checked='checked'":"")?> >
 		Automatically enabled when a MultiSite install is detected
 		<dfn title="The free plugin is not aware of users registered on other sites in your WPMU installation, which can result in problems i.e. if someone tries to register on more than one site.  The Premium version will actively detect and handle existing users across all your sites.">(Mouseover for more info)</dfn><br /><br />
 		

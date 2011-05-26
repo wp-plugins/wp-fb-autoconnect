@@ -52,8 +52,7 @@ if( !get_option($opt_jfb_disablenonce) )
             foreach($plugins as $plugin) $jfb_log .= "      " . $plugin['Name'] . ' ' . $plugin['Version'] . "\n";
         }
         
-        jfb_auth($jfb_name, $jfb_version, 4, "~NONCE CHECK BUG~\n" . $jfb_log);
-        j_die("Failed nonce check. Login aborted.");
+        j_die("Nonce check failed, login aborted.\nThis usually due to your browser's privacy settings or a server-side caching plugin.  If you get this error on multiple browsers, please contact the site administrator.\n");
     }
     $jfb_log .= "WP: nonce check passed\n";
 }
@@ -89,7 +88,7 @@ if( $useNewAPI )
 {
     $jfb_log .= "FB: Initiating Facebook connection via the new API...\n";
     $facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
-    if (!$facebook->getSession()) j_die("Error: Failed to get the Facebook session. Please verify your API Key and Secret.");
+    if (!$facebook->getSession()) j_die("Error: Failed to get the Facebook session. This is usually due to a temporary problem with Facebook's servers; please try again later.");
     try
     { $fb_uid = $facebook->getUser(); }
     catch (FacebookApiException $e) 
@@ -107,8 +106,8 @@ $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 //Get the user info from FB
 try
 {
-    if( $useNewAPI ) $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big') );    
-    else             $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email','email','email_hashes','pic_square','pic_big'));
+    if( $useNewAPI ) $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>apply_filters('wpfb_userinfo_permissions', 'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big')) );    
+    else             $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, apply_filters('wpfb_userinfo_permissions',array('name','first_name','last_name','profile_url','contact_email','email','email_hashes','pic_square','pic_big')));
     $fbuser = $fbuserarray[0];
 }
 catch( Exception $e ) {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) . "; " . $e );}
@@ -149,7 +148,7 @@ $wp_user_hashes = array();
 $jfb_log .= "WP: Searching for user by meta...\n";
 foreach ($wp_users as $wp_user)
 {
-    $meta_uid  = get_usermeta($wp_user->ID, $jfb_uid_meta_name);
+    $meta_uid  = get_user_meta($wp_user->ID, $jfb_uid_meta_name, true);
     if( $meta_uid && $meta_uid == $fb_uid )
     {
         $user_data       = get_userdata($wp_user->ID);

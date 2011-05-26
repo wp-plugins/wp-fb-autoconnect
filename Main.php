@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -169,6 +169,7 @@ function jfb_output_facebook_init()
           window.fbAsyncInit = function()
           {
             FB.init({ appId: '<?php echo get_option($opt_jfb_app_id); ?>', status: true, cookie: true, xfbml: true });
+            <?php do_action('wpfb_add_to_asyncinit'); ?>            
           };
     
           (function() {
@@ -320,12 +321,20 @@ function jfb_wp_avatar($avatar, $id_or_email, $size, $default, $alt)
 	//If we couldn't get the userID, just return default behavior (email-based gravatar, etc)
 	if(!isset($user_id) || !$user_id) return $avatar;
 
-	//Now that we have a userID, let's see if we have their facebook profile pic stored in usermeta
-	$fb_img = get_usermeta($user_id, 'facebook_avatar_thumb');
+	//Now that we have a userID, let's see if we have their facebook profile pic stored in usermeta.  If not, fallback on the default.
+	$fb_img = get_user_meta($user_id, 'facebook_avatar_thumb', true);
+	if( !$fb_img ) return $avatar;
 	
-	//If so, replace the avatar! Otherwise, fallback on what WP core already gave us.
-	if($fb_img) $avatar = "<img alt='fb_avatar' src='$fb_img' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' />";
-    return $avatar;
+	//If the usermeta doesn't contain an absolute path, prefix it with the path to the uploads dir
+	if( strpos($fb_img, "http") === FALSE )
+	{
+	    $uploads_url = wp_upload_dir();
+	    $uploads_url = $uploads_url['baseurl'];
+	    $fb_img = trailingslashit($uploads_url) . $fb_img;
+	}
+	
+	//And return the Facebook avatar (rather than the default WP one)
+	return "<img alt='fb_avatar' src='$fb_img' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' />";
 }
 
 
@@ -346,10 +355,10 @@ function jfb_bp_avatar($avatar, $params='')
 	}
 
 	//Then see if we have a Facebook avatar for that user
-	if( $params['type'] == 'full' && get_usermeta($user_id, 'facebook_avatar_full'))
-		return '<img alt="avatar" src="' . get_usermeta($user_id, 'facebook_avatar_full') . '" class="avatar" />';
-    else if( get_usermeta($user_id, 'facebook_avatar_thumb') )
-	    return '<img alt="avatar" src="' . get_usermeta($user_id, 'facebook_avatar_thumb') . '" class="avatar" />';
+	if( $params['type'] == 'full' && get_user_meta($user_id, 'facebook_avatar_full', true))
+		return '<img alt="avatar" src="' . get_user_meta($user_id, 'facebook_avatar_full', true) . '" class="avatar" />';
+    else if( get_user_meta($user_id, 'facebook_avatar_thumb', true) )
+	    return '<img alt="avatar" src="' . get_user_meta($user_id, 'facebook_avatar_thumb', true) . '" class="avatar" />';
 	else
         return $avatar;
 }
