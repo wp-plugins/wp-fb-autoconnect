@@ -106,8 +106,8 @@ $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 //Get the user info from FB
 try
 {
-    if( $useNewAPI ) $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>apply_filters('wpfb_userinfo_permissions', 'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big')) );    
-    else             $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, apply_filters('wpfb_userinfo_permissions',array('name','first_name','last_name','profile_url','contact_email','email','email_hashes','pic_square','pic_big')));
+    if( $useNewAPI ) $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big') );    
+    else             $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email','email','email_hashes','pic_square','pic_big'));
     $fbuser = $fbuserarray[0];
 }
 catch( Exception $e ) {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) . "; " . $e );}
