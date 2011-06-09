@@ -60,7 +60,7 @@ For more information on exactly how this plugin's login process works and how it
 
 == Changelog ==
 = 2.0.4 (2011-06-09) =
-* Add a channelUrl to FB.init to resolve [known bugs](https://developers.facebook.com/docs/reference/javascript/FB.init/) with the FP api
+* Add a channelUrl to FB.init to resolve [known bugs](https://developers.facebook.com/docs/reference/javascript/FB.init/) with the FB api
 
 = 2.0.3 (2011-06-09) =
 * _process_login will now look for "rememberme" POST variable
