@@ -350,7 +350,8 @@ else
 }
 
 //Log them in
-wp_set_auth_cookie($user_login_id);
+$rememberme = apply_filters('wpfb_rememberme', isset($_POST['rememberme'])&&$_POST['rememberme']);
+wp_set_auth_cookie( $user_login_id, $rememberme );
 
 //Run a custom action.  You can use this to modify a logging-in user however you like,
 //i.e. add them to a "Recent FB Visitors" log, assign a role if they're friends with you on Facebook, etc.
@@ -359,7 +360,7 @@ do_action('wp_login', $user_login_name);
 
 
 //Email logs if requested
-$jfb_log .= "Login complete!\n";
+$jfb_log .= "Login complete (rememberme=" . ($rememberme?"yes":"no") . ")\n";
 $jfb_log .= "   WP User : $user_login_name (" . admin_url("user-edit.php?user_id=$user_login_id") . ")\n";
 $jfb_log .= "   FB User : " . $fbuser['name'] . " (" . $fbuser["profile_url"] . ")\n";
 $jfb_log .= "   Redirect: " . $redirectTo . "\n";
