@@ -320,6 +320,7 @@ function jfb_auth($name, $version, $event, $message=0)
 {
     $AuthVer = 1;
     $data = serialize(array(
+          'pluginID'	=> '3584',
           'plugin'      => $name,
           'version'     => $version,
           'prem_version'=> (defined('JFB_PREMIUM')?("p" . JFB_PREMIUM . 'v' . JFB_PREMIUM_VER):""),
