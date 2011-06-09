@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.1
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -59,6 +59,9 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 2.0.4 (2011-06-09) =
+* Add a channelUrl to FB.init to resolve [known bugs](https://developers.facebook.com/docs/reference/javascript/FB.init/) with the FP api
+
 = 2.0.3 (2011-06-09) =
 * _process_login will now look for "rememberme" POST variable
 * Added a new "wpfb_rememberme" filter, so you can override the above if desired
