@@ -54,7 +54,7 @@ function jfb_admin_page()
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
-    global $opt_jfb_username_style, $opt_jfbp_use_new_api;
+    global $opt_jfb_username_style, $opt_jfb_hidesponsor;
     ?>
     <div class="wrap wp-fb-autoconnect-admin">
      <h2><?php echo $jfb_name; ?> Options</h2>
@@ -132,7 +132,6 @@ function jfb_admin_page()
         update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
         update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );
         update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] ); 
-        update_option( $opt_jfbp_use_new_api, $_POST[$opt_jfbp_use_new_api] );
         ?><div class="updated"><p><strong>Options saved.</strong></p></div><?php         
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
@@ -166,11 +165,24 @@ function jfb_admin_page()
         delete_option($opt_jfb_disablenonce);
         delete_option($opt_jfb_show_credit);
         delete_option($opt_jfb_username_style);
-        delete_option($opt_jfbp_use_new_api);
+        delete_option($opt_jfb_hidesponsor);
         if( function_exists('jfb_delete_premium_opts') ) jfb_delete_premium_opts();
         ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
     }
     ?>
+    
+    <?php 
+     if( isset($_REQUEST[$opt_jfb_hidesponsor]) )
+          update_option($opt_jfb_hidesponsor, $_REQUEST[$opt_jfb_hidesponsor]);
+     if(!get_option($opt_jfb_hidesponsor) && !defined('JFB_PREMIUM')): ?>
+      	<script type="text/javascript">
+        var psHost = (("https:" == document.location.protocol) ? "https://" : "http://");
+        document.write(unescape("%3Cscript src='" + psHost + "pluginsponsors.com/direct/spsn/display.php?client=wp-fb-autoconnect&spot=' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <div style="float: right; font-size: 75%; margin-top:-0.75em;"><a href="http://pluginsponsors.com/privacy.html">Privacy policy</a> |
+        <a href="?page=wp-fb-autoconnect&<?php echo $opt_jfb_hidesponsor ?>=1">Hide these messages</a></div><br clear="all" />
+        <hr />
+     <?php endif; ?>
       
     To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:<br /><br />
     <ol>
@@ -203,10 +215,6 @@ function jfb_admin_page()
     ?>
     
     <form name="formMainOptions" method="post" action="">
-    
-    	<!-- <b>Facebook API Version:</b><br />  -->
-        <!-- <input type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="1" <?php echo (get_option($opt_jfbp_use_new_api)==1?"checked='checked'":"")?>>Use the new Graph API (Default)<br />  -->
-        <!-- <input type="radio" name="<?php echo $opt_jfbp_use_new_api; ?>" value="0" <?php echo (get_option($opt_jfbp_use_new_api)==0?"checked='checked'":"")?>>Use the old REST API <dfn title="On September 1 2011, Facebook will be disabling their old API completely.  I provide this option only to smooth the transition, allowing temporary compatibility with other plugins whose authors have not yet updated their code.  As using the old API may prompt Facebook to contact you with a security warning, I strongly advise against it.">(Mouseover for more info)</dfn><br /><br /> -->
     
         <b>Autoregistered Usernames:</b><br />
         <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="0" <?php echo (get_option($opt_jfb_username_style)==0?"checked='checked'":"")?> >Based on Facebook ID (i.e. FB_123456)<br />

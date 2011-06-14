@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.0.4
+ * Version: 2.0.5
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -60,10 +60,6 @@ require_once("AdminPage.php");
 require_once("Widget.php");
 
 
-//Using the new Facebook API is now *required*
-update_option($opt_jfbp_use_new_api, 1);
-
-
 /**********************************************************************/
 /*******************************GENERAL********************************/
 /**********************************************************************/
@@ -77,7 +73,6 @@ function jfb_output_facebook_btn()
 {
     global $jfb_name, $jfb_version, $jfb_js_callbackfunc, $opt_jfb_valid;
     global $opt_jfb_ask_perms, $opt_jfb_ask_stream, $opt_jfbp_requirerealmail;
-    global $opt_jfbp_use_new_api;
     echo "<!-- $jfb_name Button v$jfb_version -->\n";
     if( !get_option($opt_jfb_valid) )
     {
@@ -93,17 +88,14 @@ function jfb_output_facebook_btn()
     //Let the premium addon overwrite the size/text
     $btnTag = apply_filters('wpfb_output_button', $btnTag );
         
-    //If this is the NEW API, we need to tell the button about the extended permissions it'll prompt for
-    if( get_option($opt_jfbp_use_new_api) )
-    {
-        $email_perms = get_option($opt_jfb_ask_perms) || get_option($opt_jfbp_requirerealmail);
-        $stream_perms = get_option($opt_jfb_ask_stream);
-        if( $email_perms && $stream_perms )    $attr = 'perms="'.apply_filters('wpfb_extended_permissions','email,publish_stream').'"';
-        else if( $email_perms )                $attr = 'perms="'.apply_filters('wpfb_extended_permissions','email').'"';
-        else if( $stream_perms )               $attr = 'perms="'.apply_filters('wpfb_extended_permissions','publish_stream').'"';
-        else                                   $attr = '';
-        $btnTag = str_replace( "login-button ", "login-button " . $attr . " ", $btnTag);
-    }
+    //Tell the button about the extended permissions it'll prompt for
+    $email_perms = get_option($opt_jfb_ask_perms) || get_option($opt_jfbp_requirerealmail);
+    $stream_perms = get_option($opt_jfb_ask_stream);
+    if( $email_perms && $stream_perms )    $attr = 'perms="'.apply_filters('wpfb_extended_permissions','email,publish_stream').'"';
+    else if( $email_perms )                $attr = 'perms="'.apply_filters('wpfb_extended_permissions','email').'"';
+    else if( $stream_perms )               $attr = 'perms="'.apply_filters('wpfb_extended_permissions','publish_stream').'"';
+    else                                   $attr = '';
+    $btnTag = str_replace( "login-button ", "login-button " . $attr . " ", $btnTag);
         
     //Output!
     echo $btnTag;
@@ -124,16 +116,28 @@ function jfb_output_facebook_instapopup( $callbackName=0 )
 {
     global $jfb_js_callbackfunc;
     if( !$callbackName ) $callbackName = $jfb_js_callbackfunc;
+    
+    add_action('wpfb_add_to_asyncinit', 'jfb_invoke_instapopup');
     ?>
     <script type="text/javascript">//<!--
-    function showPopup()
+    function showInstaPopup()
     {
-        FB.ensureInit( function(){FB.Connect.requireSession(<?php echo $callbackName?>);}); 
+    	FB.login(function(response)
+		{
+    		  if (response.session)
+    			<?php echo $callbackName?>();
+    		  else
+				alert("Sorry, you must be logged in to access this content.");
+    	}); 
     }
-    window.onload = showPopup;
     //--></script>
     <?php
 }
+function jfb_invoke_instapopup()
+{
+    echo "showInstaPopup();";
+}
+
 
 
 /*
@@ -143,47 +147,30 @@ function jfb_output_facebook_instapopup( $callbackName=0 )
 add_action('wp_footer', 'jfb_output_facebook_init');
 function jfb_output_facebook_init()
 {
-    global $jfb_name, $jfb_version, $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_valid, $opt_jfbp_use_new_api;
+    global $jfb_name, $jfb_version, $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_valid;
     if( !get_option($opt_jfb_valid) ) return;
     
-    //OLD API
-    if( !get_option($opt_jfbp_use_new_api) )
-    {
-        $xd_receiver = plugins_url(dirname(plugin_basename(__FILE__))) . "/facebook-platform/xd_receiver.htm";
-        echo "\n<!-- $jfb_name Init v$jfb_version (OLD API) -->\n";
-        ?>
-    	<script type="text/javascript" src="https://ssl.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php/<?php echo apply_filters('wpfb_output_facebook_locale', 'en_US'); ?>"></script>
-    	<script type="text/javascript">//<!--
-        	FB.init("<?php echo get_option($opt_jfb_api_key)?>","<?php echo $xd_receiver?>");
-	    //--></script>
-        <?php
-    }  
-    
-    //NEW API
-    else
-    {
-        $channelURL = plugins_url(dirname(plugin_basename(__FILE__))) . "/facebook-platform/channel.html";
-        echo "\n<!-- $jfb_name Init v$jfb_version (NEW API) -->\n";
-        ?>
-        <div id="fb-root"></div>
-        <script type="text/javascript">//<!--
-          window.fbAsyncInit = function()
-          {
-            FB.init({
-                appId: '<?php echo get_option($opt_jfb_app_id); ?>', status: true, cookie: true, xfbml: true, channelUrl: '<?php echo $channelURL; ?>' 
-            });
-            <?php do_action('wpfb_add_to_asyncinit'); ?>            
-          };
-    
-          (function() {
-            var e = document.createElement('script');
-            e.src = document.location.protocol + '//connect.facebook.net/<?php echo apply_filters('wpfb_output_facebook_locale', 'en_US'); ?>/all.js';
-            e.async = true;
-            document.getElementById('fb-root').appendChild(e);
-          }());
-        //--></script>
-        <?php
-    }
+    $channelURL = plugins_url(dirname(plugin_basename(__FILE__))) . "/facebook-platform/channel.html";
+    echo "\n<!-- $jfb_name Init v$jfb_version (NEW API) -->\n";
+    ?>
+    <div id="fb-root"></div>
+    <script type="text/javascript">//<!--
+      window.fbAsyncInit = function()
+      {
+        FB.init({
+            appId: '<?php echo get_option($opt_jfb_app_id); ?>', status: true, cookie: true, xfbml: true, channelUrl: '<?php echo $channelURL; ?>' 
+        });
+        <?php do_action('wpfb_add_to_asyncinit'); ?>            
+      };
+
+      (function() {
+        var e = document.createElement('script');
+        e.src = document.location.protocol + '//connect.facebook.net/<?php echo apply_filters('wpfb_output_facebook_locale', 'en_US'); ?>/all.js';
+        e.async = true;
+        document.getElementById('fb-root').appendChild(e);
+      }());
+    //--></script>
+    <?php
 }
 
 
@@ -198,7 +185,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
      //Make sure the plugin is setup properly before doing anything
      global $jfb_name, $jfb_version;
      global $opt_jfb_ask_perms, $opt_jfb_valid, $jfb_nonce_name;
-     global $jfb_js_callbackfunc, $opt_jfb_ask_stream, $jfb_callback_list, $opt_jfbp_use_new_api;
+     global $jfb_js_callbackfunc, $opt_jfb_ask_stream, $jfb_callback_list;
      if( !get_option($opt_jfb_valid) ) return;
      
      //Get out our params
@@ -236,43 +223,19 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
 		//An action to allow the user to inject additional javascript to get executed before the login takes place
 		do_action('wpfb_add_to_js', $callbackName);
 
-        //NEW API VERSION
-        if( get_option($opt_jfbp_use_new_api) )
-        {
-            //First, make sure the user logged into Facebook (didn't click "cancel" in the login prompt)
-            echo    "    //Make sure the user logged in\n".
-                	"    FB.getLoginStatus(function(response)\n".
-                    "    {\n".
-                    "      if (!response.session)\n".
-                    "      {\n".
-                    apply_filters('wpfb_login_rejected', '').
-                    "      return;\n".
-                    "      }\n\n";
-                    
-            //Submit the login and close the FB.getLoginStatus call
-            echo apply_filters('wpfb_submit_loginfrm', "      document." . $callbackName . "_form.submit();\n" );
-            echo "    });\n";
-        }
-        
-        //OLD API VERSION
-        else
-        {
-            //Optionally request permissions to get their real email and to publish to their wall before redirecting to the logon script.
-            $ask_for_email_permission = get_option($opt_jfb_ask_perms);
-            if( $ask_for_email_permission )                                                   		//Ask for email
-                echo "        FB.Connect.showPermissionDialog('".apply_filters('wpfb_extended_permissions','email')."', function(reply1)\n        {\n";
-            if( get_option($opt_jfb_ask_stream) )                                                   //Ask for publish to wall
-                echo "        FB.Connect.showPermissionDialog('".apply_filters('wpfb_extended_permissions','publish_stream')."', function(reply2)\n        {\n";
-    
-            //Redirect!
-            echo apply_filters('wpfb_submit_loginfrm', "document." . $callbackName . "_form.submit();\n" );        
-                        
-            //Close up the functions
-            if( $ask_for_email_permission )
-            	echo "        });\n";
-            if( get_option($opt_jfb_ask_stream) )
-            	echo "        });\n";
-        }        
+        //First, make sure the user logged into Facebook (didn't click "cancel" in the login prompt)
+        echo    "    //Make sure the user logged in\n".
+            	"    FB.getLoginStatus(function(response)\n".
+                "    {\n".
+                "      if (!response.session)\n".
+                "      {\n".
+                apply_filters('wpfb_login_rejected', '').
+                "      return;\n".
+                "      }\n\n";
+                
+        //Submit the login and close the FB.getLoginStatus call
+        echo apply_filters('wpfb_submit_loginfrm', "      document." . $callbackName . "_form.submit();\n" );
+        echo "    });\n";
         ?>
     }
     //--></script>
@@ -318,8 +281,8 @@ function jfb_wp_avatar($avatar, $id_or_email, $size, $default, $alt)
 	    $user_id = $id_or_email;
 	else if(is_object($id_or_email) && !empty($id_or_email->user_id))
 	   $user_id = $id_or_email->user_id;
-	else if(is_string($id_or_email))
-	   $user_id = get_user_by('email', $id_or_email ); 
+	else
+	   return $avatar; 
 
 	//If we couldn't get the userID, just return default behavior (email-based gravatar, etc)
 	if(!isset($user_id) || !$user_id) return $avatar;
@@ -413,7 +376,7 @@ function jfb_pretty_username( $wp_userdata, $fb_userdata )
         
     //Done!
     $wp_userdata['user_login']   = $username;
-    $wp_userdata['user_nicename']= $username;
+    $wp_userdata['user_nicename']= sanitize_title($username);
     $jfb_log .= "WP: Name successfully converted to $username.\n";
     return $wp_userdata;
 }

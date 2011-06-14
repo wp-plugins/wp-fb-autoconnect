@@ -26,7 +26,7 @@
  * 
  * Note that in order to provide a "pretty" url like www.example.com/autologin/4781, we need to modify
  * our .htaccess file to add a rule like this:
- * RewriteRule ^autologin[/]?([0-9]*)$ /wordpress/wp-content/plugins/WP-FB-AutoConnect/_autologin.php?p=$1 [R,L] 
+ * RewriteRule ^autologin[/]?([0-9]*)$ /wordpress/wp-content/plugins/wp-fb-autoconnect/_autologin.php?p=$1 [R,L] 
  * It will rewrite links like www.example.com/autologin/4781 to www.example.com/.../_autologin.php?p=4781 
  *
  * For convenience, I've included a button in the plugin's admin panel to automatically do so - however,
@@ -37,8 +37,8 @@
  */
 
 //Include our options and the Wordpress core
-require_once("__inc_opts.php");
 require_once("__inc_wp.php");
+require_once("__inc_opts.php");
 
 
 //Show a 404 if no post ID was specified
@@ -89,7 +89,7 @@ j_mail("Facebook Autologin", "Post " . $_REQUEST['p'] . " requires login: Showin
     
 /******************Template for "AutoLogin" Page******************/
     get_header();
-    get_sidebar();    
+    //get_sidebar();    
     echo '<div id="main-col"><div id="content" class="post">';
     
     //Output Facebook Javascript to immediately show a login prompt to the user

@@ -7,7 +7,7 @@
 
 //A very simple check to avoid people from accessing this script directly.
 if( !isset($_POST['redirectTo']) || !isset($_POST['_wpnonce']) )
-    die("Sorry, you cannot access this script directly.");
+    die("Please do not access this script directly.");
 
 //Make sure we're using PHP5
 if(version_compare('5', PHP_VERSION, ">"))
@@ -16,8 +16,12 @@ if(version_compare('5', PHP_VERSION, ">"))
 //Include our options and the Wordpress core
 require_once("__inc_wp.php");
 require_once("__inc_opts.php");
+
+//If present, include the Premium addon
 @include_once(realpath(dirname(__FILE__))."/../WP-FB-AutoConnect-Premium.php");
 if( !defined('JFB_PREMIUM') ) @include_once("Premium.php");
+
+//Start logging
 $browser = jfb_get_browser();
 $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version, Browser: " . $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . ")\n";
 
@@ -25,8 +29,6 @@ $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Ver
 do_action('wpfb_prelogin');
 
 //Check the nonce to make sure this was a valid login attempt (unless the user has disabled nonce checking)
-//Note: Nonce check will fail if the user opens 2 browser windows, logs into one, then logs into the other.
-//This is because the nonce takes the current user into account, so when the 2nd page is logged in, the current user won't match the user used to generate the nonce when the page was first loaded.
 if( !get_option($opt_jfb_disablenonce) )
 {
     if( wp_verify_nonce ($_REQUEST['_wpnonce'], $jfb_nonce_name) != 1 )
@@ -69,7 +71,6 @@ $jfb_log .= "WP: Found redirect URL ($redirectTo)\n";
 
 //Include Facebook, making sure another plugin didn't already do so
 //NOTE:  I'VE MODIFIED facebook-platform/php-sdk-2.1.2/facebook.php!! See the comment in function getSession() for an explanation!
-$useNewAPI = get_option($opt_jfbp_use_new_api);
 if( class_exists('Facebook') )
 {
     $jfb_log .= "WP: WARNING - Another plugin has already included the Facebook API. "
@@ -78,36 +79,22 @@ if( class_exists('Facebook') )
 }
 else
 {
-    if( $useNewAPI ) require_once('facebook-platform/php-sdk-2.1.2/facebook.php');
-    else             require_once('facebook-platform/php/facebook.php');
+    require_once('facebook-platform/php-sdk-2.1.2/facebook.php');
 }
 
 
 //Connect to FB and make sure we've got a valid session (we should already from the cookie set by JS)  
-if( $useNewAPI )
-{
-    $jfb_log .= "FB: Initiating Facebook connection via the new API...\n";
-    $facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
-    if (!$facebook->getSession()) j_die("Error: Failed to get the Facebook session. This is usually due to a temporary problem with Facebook's servers; please try again later.");
-    try
-    { $fb_uid = $facebook->getUser(); }
-    catch (FacebookApiException $e) 
-    { j_die("Error: Failed to get the Facebook userid. Please verify your API Key and Secret."); }
-}
-else
-{
-    $jfb_log .= "FB: Initiating Facebook connection via the old API...\n";
-    $facebook = new Facebook(get_option($opt_jfb_api_key), get_option($opt_jfb_api_sec), null, true);    
-    $fb_uid = $facebook->get_loggedin_user();
-    if(!$fb_uid) j_die("Error: Failed to get the Facebook session. Please verify your API Key and Secret.");
-}
+$jfb_log .= "FB: Initiating Facebook connection via the new API...\n";
+$facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
+if (!$facebook->getSession())    { j_die("Error: Failed to get the Facebook session. This is usually due to a temporary problem with Facebook's servers; please try again later."); }
+try                              { $fb_uid = $facebook->getUser(); }
+catch (FacebookApiException $e)  { j_die("Error: Failed to get the Facebook userid. Please verify your API Key and Secret."); } 
 $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 //Get the user info from FB
 try
 {
-    if( $useNewAPI ) $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big') );    
-    else             $fbuserarray = $facebook->api_client->users_getInfo($fb_uid, array('name','first_name','last_name','profile_url','contact_email','email','email_hashes','pic_square','pic_big'));
+    $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big') );    
     $fbuser = $fbuserarray[0];
 }
 catch( Exception $e ) {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) . "; " . $e );}
@@ -144,7 +131,6 @@ do_action('wpfb_connect', array('FB_ID' => $fb_uid, 'facebook' => $facebook) );
 //First we check their meta: whenever a user logs in with FB, this plugin tags them with usermeta
 //so we can find them again easily.  This obviously will only work for returning FB Connect users.
 if(!isset($wp_users)) $wp_users = get_users_of_blog();
-$wp_user_hashes = array();
 $jfb_log .= "WP: Searching for user by meta...\n";
 foreach ($wp_users as $wp_user)
 {
@@ -157,20 +143,11 @@ foreach ($wp_users as $wp_user)
         $jfb_log .= "WP: Found existing user by meta (" . $user_login_name . ")\n";
         break;
     }
-
-    //In case we don't find them by meta, we'll need to search for them by email below.
-    //Precalculate each non-FB-connected user's mail-hash (http://wiki.developers.facebook.com/index.php/Connect.registerUsers)
-    if( !$meta_uid )
-    {
-        $email= strtolower(trim($wp_user->user_email));
-        $hash = sprintf('%u_%s', crc32($email), md5($email));
-        $wp_user_hashes[$wp_user->ID] = array('email_hash' => $hash);
-    }
 }
 
 
 //Next, try to lookup their email directly (via Wordpress).  Obviously this will only work if they've revealed
-//their "real" address - otherwise we'll use Hashes (which'll work even if they denied access to their FB email).
+//their "real" address (vs denying access, or changing it to a "proxy" in the popup)
 if ( !$user_login_id && $fbuser['contact_email'] )
 {
     $jfb_log .= "WP: Searching for user by email address...\n";
@@ -181,64 +158,6 @@ if ( !$user_login_id && $fbuser['contact_email'] )
         $user_login_name = $user_data->user_login;
         $jfb_log .= "WP: Found existing user (" . $user_login_name . ") by email (" . $fbuser['email'] . ")\n";
     }
-}
-
-
-//If we still haven't found the user, and if they've denied direct access to their email address (so we can't search for them with get_user_by()),
-//we can still use FB email hashes to see if they've registered an address that matches any of our existing WP users.
-//Note that we ONLY do this if the user denied the email extended_permission - otherwise, the check above would've already found them.
-if( !$user_login_id && !$fbuser['contact_email'] && count($wp_user_hashes) > 0 )
-{
-    //Search for users via their email hashes.  Facebook can handle 1000 at a time.
-    $insert_limit = 1000;
-    $hash_chunks = array_chunk( $wp_user_hashes, $insert_limit );
-    $jfb_log .= "FP: Searching for user by email hashes (" . count($wp_user_hashes) . " candidates of " . count($wp_users) . " total users)...\n";
-    foreach( $hash_chunks as $num => $hashes )
-    {
-        //First we send Facebook a list of email hashes we want to check against this FB user.
-        $jfb_log .= "    Checking Users #" . ($num*$insert_limit) . "-" . ($num*$insert_limit+count($hashes)-1) . "\n";
-        $ret = 1;
-        try
-        {
-            if( $useNewAPI ) $ret = $facebook->api( array('method'=>'connect.registerUsers', 'accounts'=>$hashes) );
-            else             $ret = $facebook->api_client->connect_registerUsers(json_encode($hashes));
-        }
-        catch(Exception $e)
-        {
-            $jfb_log .= "    WARNING: Could not register hashes with Facebook (connect_registerUsers generated an exception).  Hash lookup will cease here.\n";
-            break;                
-        }
-        if( !$ret )
-        {
-            $jfb_log .= "    WARNING: Could not register hashes with Facebook (connect_registerUsers returned false).  Hash lookup will cease here.\n";
-            break;
-        }
-        
-        //Next we get the hashes for the current FB user; This will only return hashes we
-        //registered above, so if we get back nothing we know the current FB user is not in this group of WP users.
-        $this_fbuser_hashes = $facebook->api_client->users_getInfo($fb_uid, array('email_hashes'));
-        $this_fbuser_hashes = $this_fbuser_hashes[0]['email_hashes'];
-
-        //If we did get back a hash, all we need to do is find which WP user it came from - and that's who's logging in! 
-        if(!empty($this_fbuser_hashes)) 
-        {
-            foreach( $this_fbuser_hashes as $this_fbuser_hash )
-            {
-                foreach( $wp_user_hashes as $this_wpuser_id => $this_wpuser_hash )
-                { 
-                    if( $this_fbuser_hash == $this_wpuser_hash['email_hash'] )
-                    {
-                        $user_login_id   = $this_wpuser_id;
-                        $user_data       = get_userdata($user_login_id);
-                        $user_login_name = $user_data->user_login;
-                        $jfb_log .= "FB: Found existing user by email hash (" . $user_login_name . ")\n";
-                        break;
-                    }
-                }
-            }    
-        }
-        if( $user_login_id ) break;
-    }  //Try the next group of hashes
 }
 
 
@@ -272,7 +191,7 @@ if( $user_login_id )
 }
 
 
-//If we STILL don't have a user_login_id, the FB user who's logging in has never been to this blog.
+//If we still don't have a user_login_id, the FB user who's logging in has never been to this blog.
 //We'll auto-register them a new account.  Note that if they haven't allowed email permissions, the
 //account we register will have a bogus email address (but that's OK, since we still know their Facebook ID)
 if( !$user_login_id )
@@ -281,7 +200,7 @@ if( !$user_login_id )
     $user_data = array();
     $user_data['user_login']    = "FB_" . $fb_uid;
     $user_data['user_pass']     = wp_generate_password();
-    $user_data['user_nicename'] = $user_data['user_login'];
+    $user_data['user_nicename'] = sanitize_title($user_data['user_login']);
     $user_data['first_name']    = $fbuser['first_name'];
     $user_data['last_name']     = $fbuser['last_name'];
     $user_data['display_name']  = $fbuser['first_name'];
@@ -311,14 +230,12 @@ if( !$user_login_id )
     //If the option was selected and permission exists, publish an announcement about the user's registration to their wall
     if( get_option($opt_jfb_ask_stream) )
     {
-        if( $useNewAPI ) $stream_perm = $facebook->api( array('method'=>'users.hasAppPermission', 'ext_perm'=>'publish_stream') );
-        else             $stream_perm = $facebook->api_client->users_hasAppPermission('publish_stream');
+        $stream_perm = $facebook->api( array('method'=>'users.hasAppPermission', 'ext_perm'=>'publish_stream') );
         try
         {
             if( $stream_perm )
             {
-                if( $useNewAPI ) $facebook->api( array('method'=>'stream.publish', 'message'=>get_option($opt_jfb_stream_content)));
-                else             $facebook->api_client->stream_publish(get_option($opt_jfb_stream_content));
+                $facebook->api( array('method'=>'stream.publish', 'message'=>get_option($opt_jfb_stream_content)));
                 $jfb_log .= "FB: Publishing registration news to user's wall.\n";
             }
             else
