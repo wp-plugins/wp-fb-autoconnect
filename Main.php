@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.0.5
+ * Version: 2.0.6
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -312,21 +312,26 @@ function jfb_bp_avatar($avatar, $params='')
 {
     //First, get the userid
 	global $comment;
-	if (is_object($comment))	$user_id = $comment->user_id;
-	if (is_object($params)) 	$user_id = $params->user_id;
-	if (is_array($params))
-	{
-		if ($params['object']=='user')
-			$user_id = $params['item_id'];
-	}
+	if (is_object($comment))	                        $user_id = $comment->user_id;
+	if (is_object($params)) 	                        $user_id = $params->user_id;
+	if (is_array($params) && $params['object']=='user') $user_id = $params['item_id'];
+	if (!$user_id)                                      return $avatar;
+	
+    //Now that we have a userID, let's see if we have their facebook profile pic stored in usermeta.  If not, fallback on the default.
+	if( $params['type'] == 'full' ) $fb_img = get_user_meta($user_id, 'facebook_avatar_full', true);
+	if( !$fb_img )                  $fb_img = get_user_meta($user_id, 'facebook_avatar_thumb', true);
+	if( !$fb_img )                  return $avatar;
 
-	//Then see if we have a Facebook avatar for that user
-	if( $params['type'] == 'full' && get_user_meta($user_id, 'facebook_avatar_full', true))
-		return '<img alt="avatar" src="' . get_user_meta($user_id, 'facebook_avatar_full', true) . '" class="avatar" />';
-    else if( get_user_meta($user_id, 'facebook_avatar_thumb', true) )
-	    return '<img alt="avatar" src="' . get_user_meta($user_id, 'facebook_avatar_thumb', true) . '" class="avatar" />';
-	else
-        return $avatar;
+	//If the usermeta doesn't contain an absolute path, prefix it with the path to the uploads dir
+	if( strpos($fb_img, "http") === FALSE )
+	{
+	    $uploads_url = wp_upload_dir();
+	    $uploads_url = $uploads_url['baseurl'];
+	    $fb_img = trailingslashit($uploads_url) . $fb_img;
+	}
+	
+    //And return the Facebook avatar (rather than the default WP one)
+    return '<img alt="avatar" src="' . $fb_img . '" class="avatar" />';
 }
 
 
