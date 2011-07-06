@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.0.6
+ * Version: 2.0.7
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -300,7 +300,7 @@ function jfb_wp_avatar($avatar, $id_or_email, $size, $default, $alt)
 	}
 	
 	//And return the Facebook avatar (rather than the default WP one)
-	return "<img alt='fb_avatar' src='$fb_img' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' />";
+	return "<img alt='" . esc_attr($alt) . "' src='$fb_img' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' />";
 }
 
 
@@ -331,7 +331,7 @@ function jfb_bp_avatar($avatar, $params='')
 	}
 	
     //And return the Facebook avatar (rather than the default WP one)
-    return '<img alt="avatar" src="' . $fb_img . '" class="avatar" />';
+    return '<img alt="' . esc_attr($params['alt']) . '" src="' . $fb_img . '" class="avatar" />';
 }
 
 
