@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.0.7
+ * Version: 2.0.8
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -357,9 +357,9 @@ function jfb_pretty_username( $wp_userdata, $fb_userdata )
     
     //Strip all non-alphanumeric characters, and make sure we've got something left.  If not, we'll just leave the FB_xxxxx username as is.
     $name = sanitize_user($name, true);
-    if( strlen($name) == 0 || $name == "FB__" )
+    if( strlen($name) <= 1 || $name == "FB__" )
     {
-        $jfb_log .= "WP: Error - Completely non-alphanumeric Facebook name cannot be used; leaving as default.\n";
+        $jfb_log .= "WP: Warning - Completely non-alphanumeric Facebook name cannot be used; leaving as default.\n";
         return $wp_userdata;
     }
     
