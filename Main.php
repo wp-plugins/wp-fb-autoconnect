@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.0.9
+ * Version: 2.1.0
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -91,9 +91,9 @@ function jfb_output_facebook_btn()
     //Tell the button about the extended permissions it'll prompt for
     $email_perms = get_option($opt_jfb_ask_perms) || get_option($opt_jfbp_requirerealmail);
     $stream_perms = get_option($opt_jfb_ask_stream);
-    if( $email_perms && $stream_perms )    $attr = 'perms="'.apply_filters('wpfb_extended_permissions','email,publish_stream').'"';
-    else if( $email_perms )                $attr = 'perms="'.apply_filters('wpfb_extended_permissions','email').'"';
-    else if( $stream_perms )               $attr = 'perms="'.apply_filters('wpfb_extended_permissions','publish_stream').'"';
+    if( $email_perms && $stream_perms )    $attr = 'scope="'.apply_filters('wpfb_extended_permissions','email,publish_stream').'"';
+    else if( $email_perms )                $attr = 'scope="'.apply_filters('wpfb_extended_permissions','email').'"';
+    else if( $stream_perms )               $attr = 'scope="'.apply_filters('wpfb_extended_permissions','publish_stream').'"';
     else                                   $attr = '';
     $btnTag = str_replace( "login-button ", "login-button " . $attr . " ", $btnTag);
         
@@ -124,7 +124,7 @@ function jfb_output_facebook_instapopup( $callbackName=0 )
     {
     	FB.login(function(response)
 		{
-    		  if (response.session)
+    		  if (response.authResponse)
     			<?php echo $callbackName?>();
     		  else
 				alert("Sorry, you must be logged in to access this content.");
@@ -158,7 +158,7 @@ function jfb_output_facebook_init()
       window.fbAsyncInit = function()
       {
         FB.init({
-            appId: '<?php echo get_option($opt_jfb_app_id); ?>', status: true, cookie: true, xfbml: true, channelUrl: '<?php echo $channelURL; ?>' 
+            appId: '<?php echo get_option($opt_jfb_app_id); ?>', status: true, cookie: true, xfbml: true, oauth:true, channelUrl: '<?php echo $channelURL; ?>' 
         });
         <?php do_action('wpfb_add_to_asyncinit'); ?>            
       };
@@ -227,7 +227,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         echo    "    //Make sure the user logged in\n".
             	"    FB.getLoginStatus(function(response)\n".
                 "    {\n".
-                "      if (!response.session)\n".
+                "      if (!response.authResponse)\n".
                 "      {\n".
                 apply_filters('wpfb_login_rejected', '').
                 "      return;\n".

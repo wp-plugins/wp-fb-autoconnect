@@ -70,7 +70,6 @@ $jfb_log .= "WP: Found redirect URL ($redirectTo)\n";
 
 
 //Include Facebook, making sure another plugin didn't already do so
-//NOTE:  I'VE MODIFIED facebook-platform/php-sdk-2.1.2/facebook.php!! See the comment in function getSession() for an explanation!
 if( class_exists('Facebook') )
 {
     $jfb_log .= "WP: WARNING - Another plugin has already included the Facebook API. "
@@ -79,23 +78,27 @@ if( class_exists('Facebook') )
 }
 else
 {
-    require_once('facebook-platform/php-sdk-2.1.2/facebook.php');
+    require_once('facebook-platform/php-sdk-3.1.1/facebook.php');
 }
 
 
 //Connect to FB and make sure we've got a valid session (we should already from the cookie set by JS)  
 $jfb_log .= "FB: Initiating Facebook connection via the new API...\n";
 $facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
-if (!$facebook->getSession())    { j_die("Error: Failed to get the Facebook session. This is usually due to a temporary problem with Facebook's servers; please try again later."); }
 try                              { $fb_uid = $facebook->getUser(); }
-catch (FacebookApiException $e)  { j_die("Error: Failed to get the Facebook userid. Please verify your API Key and Secret."); } 
+catch (FacebookApiException $e)  { j_die("Error: Exception when getting the Facebook userid. Please verify your API Key and Secret."); }
+if (!$fb_uid)                    { j_die("Error: Failed to get the Facebook user session. This is usually due to a temporary problem with Facebook's servers; please try again later."); } 
 $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 //Get the user info from FB
 try
 {
-    $fbuserarray = $facebook->api( array('method'=>'users.getinfo', 'uids'=>$fb_uid, fields=>'name,first_name,last_name,profile_url,contact_email,email,email_hashes,pic_square,pic_big') );    
-    $fbuser = $fbuserarray[0];
+    $fbuser = $facebook->api('/me');
+    $fbuser['profile_url'] = $fbuser['link'];
+    $pic = $facebook->api('/me', array('fields' => 'picture', 'type' => 'square'));
+    $fbuser['pic_square'] = $pic['picture'];
+    $pic = $facebook->api('/me', array('fields' => 'picture', 'type' => 'large'));
+    $fbuser['pic_big'] = $pic['picture'];
 }
 catch( Exception $e ) {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) . "; " . $e );}
 if( !$fbuser )        {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) ); }
@@ -105,20 +108,14 @@ $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 //See if we were given permission to access the user's email
 //This isn't required, and will only matter if it's a new user without an existing WP account
 //(since we'll auto-register an account for them, using the contact_email we get from Facebook - if we can...)
-//If "contact_email" is set, it (as well as "email") contain the users's real email.
-//If "contact_email" is unset and "email" is set, the user granted permission, but chose an anonymouse proxy address.
-//If "contact_email" and "email" are both unset, the user denied permission.
-if( $fbuser['contact_email'] )
-    $jfb_log .= "FB: Email privilege granted (" .$fbuser['email'] . ")\n";
-else if( $fbuser['email'] )
+$userRevealedEmail = false;
+if( strpos($fbuser['email'], 'proxymail.facebook.com') === FALSE )
 {
-    $jfb_log .= "FB: Email privilege granted, but only for an anonymous proxy address (" . $fbuser['email'] . ")\n";
+    $jfb_log .= "FB: Email privilege granted (" .$fbuser['email'] . ")\n";
+    $userRevealedEmail = true;
 }
 else
-{
-    $fbuser['email'] = "FB_" . $fb_uid . $jfb_default_email;
-    $jfb_log .= "FB: Email privilege denied\n";
-}
+    $jfb_log .= "FB: Email privilege granted, but only for an anonymous proxy address (" . $fbuser['email'] . ")\n";
 
 
 //Run a hook so users can`examine this Facebook user *before* letting them login.  You might use this
@@ -148,7 +145,7 @@ foreach ($wp_users as $wp_user)
 
 //Next, try to lookup their email directly (via Wordpress).  Obviously this will only work if they've revealed
 //their "real" address (vs denying access, or changing it to a "proxy" in the popup)
-if ( !$user_login_id && $fbuser['contact_email'] )
+if ( !$user_login_id && $userRevealedEmail )
 {
     $jfb_log .= "WP: Searching for user by email address...\n";
     if ( $wp_user = get_user_by('email', $fbuser['email']) )
@@ -230,16 +227,10 @@ if( !$user_login_id )
     //If the option was selected and permission exists, publish an announcement about the user's registration to their wall
     if( get_option($opt_jfb_ask_stream) )
     {
-        $stream_perm = $facebook->api( array('method'=>'users.hasAppPermission', 'ext_perm'=>'publish_stream') );
         try
         {
-            if( $stream_perm )
-            {
-                $facebook->api( array('method'=>'stream.publish', 'message'=>get_option($opt_jfb_stream_content)));
-                $jfb_log .= "FB: Publishing registration news to user's wall.\n";
-            }
-            else
-                $jfb_log .= "FB: User has DENIED permission to publish to their wall.\n";
+            $jfb_log .= "FB: Publishing registration news to user's wall.\n";
+            $facebook->api('/me/feed/', 'post', array('access_token' => $facebook->access_token, 'message' => get_option($opt_jfb_stream_content)));
         }
         catch (FacebookApiException $e)
         {
