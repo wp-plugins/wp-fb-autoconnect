@@ -109,13 +109,15 @@ $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 //This isn't required, and will only matter if it's a new user without an existing WP account
 //(since we'll auto-register an account for them, using the contact_email we get from Facebook - if we can...)
 $userRevealedEmail = false;
-if( strpos($fbuser['email'], 'proxymail.facebook.com') === FALSE )
+if( strlen($fbuser['email']) != 0 && strpos($fbuser['email'], 'proxymail.facebook.com') === FALSE )
 {
     $jfb_log .= "FB: Email privilege granted (" .$fbuser['email'] . ")\n";
     $userRevealedEmail = true;
 }
-else
+else if( strlen($fbuser['email']) != 0 )
     $jfb_log .= "FB: Email privilege granted, but only for an anonymous proxy address (" . $fbuser['email'] . ")\n";
+else
+    $jfb_log .= "FB: Email priviledge denied.\n"; 
 
 
 //Run a hook so users can`examine this Facebook user *before* letting them login.  You might use this
