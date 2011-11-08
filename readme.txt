@@ -30,7 +30,7 @@ The simple concept behind WP-FB AutoConnect is to offer an easy-to-use widget th
 
 To allow your users to login with their Facebook accounts, you must first setup an Application for your site:
 
-1. Visit [developers.facebook.com/apps](http://developers.facebook.com/apps)
+1. Visit [developers.facebook.com/apps](http://developers.facebook.com/apps) and click the "Create New App" button.
 2. Type in a name (i.e. the name of your blog). This is what Facebook will show on the login popup.
 3. Facebook may now require you to verify your account before continuing (see [here](https://developers.facebook.com/blog/post/386/) for more information).
 4. Once your app has been created, fill in your "Site URL" under "Select how your app integrates with Facebook -&gt; Website.".  Note: http://example.com/ and http://www.example.com/ are *not* the same.
