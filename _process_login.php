@@ -115,9 +115,14 @@ if( strlen($fbuser['email']) != 0 && strpos($fbuser['email'], 'proxymail.faceboo
     $userRevealedEmail = true;
 }
 else if( strlen($fbuser['email']) != 0 )
+{
     $jfb_log .= "FB: Email privilege granted, but only for an anonymous proxy address (" . $fbuser['email'] . ")\n";
+}
 else
-    $jfb_log .= "FB: Email priviledge denied.\n"; 
+{
+    $jfb_log .= "FB: Email priviledge denied.\n";
+    $fbuser['email'] = "FB_" . $fb_uid . $jfb_default_email;
+} 
 
 
 //Run a hook so users can`examine this Facebook user *before* letting them login.  You might use this

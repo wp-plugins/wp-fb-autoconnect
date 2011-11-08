@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.1.3
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -30,17 +30,18 @@ The simple concept behind WP-FB AutoConnect is to offer an easy-to-use widget th
 
 To allow your users to login with their Facebook accounts, you must first setup an Application for your site:
 
-1. Visit [www.facebook.com/developers/createapp.php](http://www.facebook.com/developers/createapp.php)
+1. Visit [developers.facebook.com/apps](http://developers.facebook.com/apps)
 2. Type in a name (i.e. the name of your blog). This is what Facebook will show on the login popup.
-3. Click the "Web Site" tab and fill in your "Site URL" (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are *not* - be sure this matches Settings -&gt; General -&gt; Wordpress Address.
-4. Click "Save Changes," and note the API Key and Application Secret (you'll need them in a minute).
+3. Facebook may now require you to verify your account before continuing (see [here](https://developers.facebook.com/blog/post/386/) for more information).
+4. Once your app has been created, fill in your "Site URL" under "Select how your app integrates with Facebook -&gt; Website.".  Note: http://example.com/ and http://www.example.com/ are *not* the same.
+5. Click "Save Changes," and note the App ID and Secret (you'll need them in a minute).
 
 Then you can install the plugin:
 
 1. Download the latest version from [here](http://wordpress.org/extend/plugins/wp-fb-autoconnect/), unzip it, and upload the extracted files to your plugins directory.
 2. Login to your Wordpress admin panel and activate the plugin.
 3. Navigate to Settings -> WP-FB AutoConn.
-4. Enter your Application's API Key and Secret (obtained above), and click "Save."
+4. Enter your App ID and Secret (obtained above), and click "Save."
 5. If you're using BuddyPress, a Facebook button will automatically be added to its built-in login panel.  If not, navigate to Appearance -&gt; Widgets and add the WP-FB AutoConnect widget to your sidebar. 
 
 That's it - users should now be able to use the widget to login to your blog with their Facebook accounts.
@@ -59,6 +60,13 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 2.1.2 (2011-11-08) =
+* Eliminate the outdated xd_receiver.htm file
+* Eliminate the outdated validate_php5.php file
+* Update the instructions for creating an app (Facebook has changed things around yet again)
+* Use https instead of http in channel.html to prevent insecure content warning
+* Fix "wp_insert_user failed" bug (since 2.1.0)
+
 = 2.1.1 (2011-10-29) =
 * Fix a critical bug introduced in 2.1.0: not prompting for e-mail *could* result in false user account matches (i.e. logging someone in as someone else).  Please update now!
 * Replace deprecated get_settings() with get_option()

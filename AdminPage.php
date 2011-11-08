@@ -78,7 +78,6 @@ function jfb_admin_page()
     if( isset($_POST['fb_opts_updated']) )
     {
         //When saving the Facebook options, make sure the key and secret are valid.
-        if( !class_exists('Facebook') ) require_once('facebook-platform/validate_php5.php');
         $fbValid = jfb_validate_key($_POST[$opt_jfb_api_key], $_POST[$opt_jfb_api_sec]);
         if( $fbValid && method_exists($fbValid->api_client, 'admin_getAppProperties') )
         {
@@ -95,12 +94,11 @@ function jfb_admin_page()
             }
             else
             {
-                $message = "Key " . $_POST[$opt_jfb_api_key];
-                if( defined('WPFBAUTOCONNECT_API'))
-                    jfb_auth($jfb_name, $jfb_version, 3, "Unknown instead of array (getAppProperties returns: " . print_r($appInfo, true) . ")" );
-                $appID = 0;
-                ?><div class="error"><p><strong>Warning:</strong> Facebook failed to retrieve your Application's properties!  The plugin is very unlikely to work until it's fixed.<br /><br />I've thus far not been able to determine the exact cause of this extremely rare problem, but my best guess is that you've made a mistake somewhere in your configuration.  If you see this warning and figure out how to fix it, please let me know <b><a href="<?php echo $jfb_homepage ?>">here</a></b> so I can clarify my setup instructions.</p></div><?php
+                $fbValid = false;
             }
+        }
+        if( $fbValid )
+        {            
             update_option( $opt_jfb_valid, 1 );
             if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
                jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
@@ -184,11 +182,12 @@ function jfb_admin_page()
       
     To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:<br /><br />
     <ol>
-      <li>Visit <a href="http://www.facebook.com/developers/createapp.php" target="_lnk">www.facebook.com/developers/createapp.php</a></li>
-      <li>Type in a name (i.e. the name of your website).  This is the name your users will see on the Facebook login popup.</li>
-      <li>Click the "Web Site" tab and fill in your "Site URL" (with a trailing slash).  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
+      <li>Visit <a href="http://developers.facebook.com/apps" target="_lnk">developers.facebook.com/apps</a> and click the "Create New App" button.</li>
+      <li>Type in a name (i.e. the name of your website) and click "Continue."  This is the name your users will see on the Facebook login popup.</li>
+      <li>Facebook may now require you to verify your account before continuing (see <a target="_fbInfo" href="https://developers.facebook.com/blog/post/386/">here</a> for more information).</li>
+      <li>Once your app has been created, scroll down and fill in your "Site URL" under "Select how your app integrates with Facebook -&gt;"Website."  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
       <li>Click "Save Changes."</li>
-      <li>Copy the API Key and Secret to the boxes below.</li>
+      <li>Copy the App ID and App Secret to the boxes below.</li>
       <li>Click "Save" below.</li>
     </ol>
     <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a>, or if you're using BuddyPress, a Facebook button will be automatically added to its built-in login panel.<br /><br />
@@ -199,8 +198,8 @@ function jfb_admin_page()
     
     <h3>Facebook Connect</h3>
     <form name="formFacebook" method="post" action="">
-        <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> API Key<br />
-        <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> API Secret
+        <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> App ID<br />
+        <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> App Secret
         <input type="hidden" name="fb_opts_updated" value="1" />
         <div class="submit"><input type="submit" name="Submit" value="Connect" /></div>
     </form>
@@ -305,6 +304,26 @@ function jfb_fix_rewrites($rules)
     return $rules;
 }
 
+
+/*
+ * Use the key and secret to generate an auth_token, just to test if they're valid.
+ * If so, return a Facebook API instance.  Otherwise, return null.
+ */
+function jfb_validate_key($key, $secret)
+{
+      require_once('facebook-platform/php/facebook.php');
+      $facebook = new Facebook($key, $secret, null, true);
+      $facebook->api_client->session_key = 0;
+      try
+      {
+         $token = $facebook->api_client->auth_createToken();
+         return $facebook;
+      }
+      catch(Exception $e)
+      {
+          return null;
+      }
+}
 
 /*
  * I use this for bug-finding; you can remove it if you want, but I'd appreciate it if you didn't.
