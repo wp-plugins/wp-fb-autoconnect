@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.1.2
+ * Version: 2.1.3
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -428,12 +428,12 @@ function jfb_bp_add_fb_login_button()
   * So stupid IE will render the button correctly
   */
 add_filter('language_attributes', 'jfb_output_fb_namespace');
-function jfb_output_fb_namespace()
+function jfb_output_fb_namespace($attr)
 {
     global $current_user;
-    if( isset($current_user) && $current_user->ID != 0 ) return;
-    if( has_filter( "language_attributes", "wordbooker_schema" ) ) return;
-    echo 'xmlns:fb="http://www.facebook.com/2008/fbml"';
+    if( isset($current_user) && $current_user->ID != 0 ) return $attr;
+    if( has_filter( "language_attributes", "wordbooker_schema" ) ) return $attr;
+    return $attr .= ' xmlns:fb="http://www.facebook.com/2008/fbml"';
 }
 
 
