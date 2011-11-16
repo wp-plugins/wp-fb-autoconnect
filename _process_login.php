@@ -230,20 +230,6 @@ if( !$user_login_id )
     
     //Run an action so i.e. usermeta can be added to a user after registration
     do_action('wpfb_inserted_user', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook, 'WP_UserData' => $user_data) );
-
-    //If the option was selected and permission exists, publish an announcement about the user's registration to their wall
-    if( get_option($opt_jfb_ask_stream) )
-    {
-        try
-        {
-            $jfb_log .= "FB: Publishing registration news to user's wall.\n";
-            $facebook->api('/me/feed/', 'post', array('access_token' => $facebook->access_token, 'message' => get_option($opt_jfb_stream_content)));
-        }
-        catch (FacebookApiException $e)
-        {
-            $jfb_log .= "WARNING: Failed to publish to the user's wall (is your message too long?) (" . $e . ")\n";
-        }
-    }
 }
 
 //Tag the user with our meta so we can recognize them next time, without resorting to email hashes

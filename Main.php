@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.1.3
+ * Version: 2.1.4
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -387,6 +387,27 @@ function jfb_pretty_username( $wp_userdata, $fb_userdata )
 }
 
 
+/**********************************************************************/
+/******************************Post-To-Wall****************************/
+/**********************************************************************/
+
+/**
+  * If the option was selected and permission exists, publish an announcement about the user's registration to their wall 
+  */
+if( get_option($opt_jfb_ask_stream) ) add_action('wpfb_inserted_user', 'jfb_post_to_wall');
+function jfb_post_to_wall($args)
+{
+    global $opt_jfb_ask_stream, $jfb_log, $opt_jfb_stream_content;
+    try
+    {
+        $jfb_log .= "FB: Publishing registration news to user's wall.\n";
+        $args['facebook']->api('/me/feed/', 'post', array('access_token' => $args['facebook']->access_token, 'message' => get_option($opt_jfb_stream_content)));
+    }
+    catch (FacebookApiException $e)
+    {
+        $jfb_log .= "WARNING: Failed to publish to the user's wall (is your message too long?) (" . $e . ")\n";
+    }
+}   
 
 /**********************************************************************/
 /*******************BUDDYPRESS (previously in BuddyPress.php)**********/
