@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.1.4
+ * Version: 2.1.5
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -343,7 +343,7 @@ function jfb_bp_avatar($avatar, $params='')
  * Optionally modify the FB_xxxxxx to something "prettier", based on the user's real name on Facebook
  */
 global $opt_jfb_username_style;
-if( get_option($opt_jfb_username_style) == 1 || get_option($opt_jfb_username_style) == 2 ) add_filter( 'wpfb_insert_user', 'jfb_pretty_username', 10, 2 );
+if( get_option($opt_jfb_username_style) == 1 || get_option($opt_jfb_username_style) == 2 || get_option($opt_jfb_username_style) == 3 ) add_filter( 'wpfb_insert_user', 'jfb_pretty_username', 10, 2 );
 function jfb_pretty_username( $wp_userdata, $fb_userdata )
 {
     global $jfb_log, $opt_jfb_username_style;
@@ -352,8 +352,10 @@ function jfb_pretty_username( $wp_userdata, $fb_userdata )
     //Create a username from the user's Facebook name
     if( get_option($opt_jfb_username_style) == 1 )
         $name = "FB_" . str_replace( ' ', '', $fb_userdata['first_name'] . "_" . $fb_userdata['last_name'] );
-    else
+    else if( get_option($opt_jfb_username_style) == 2 )
         $name = str_replace( ' ', '', $fb_userdata['first_name'] . "." . $fb_userdata['last_name'] );
+    else
+        $name = str_replace( ' ', '', $fb_userdata['first_name'] . "_" . $fb_userdata['last_name'] );
     
     //Strip all non-alphanumeric characters, and make sure we've got something left.  If not, we'll just leave the FB_xxxxx username as is.
     $name = sanitize_user($name, true);
