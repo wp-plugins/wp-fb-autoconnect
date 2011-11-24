@@ -28,7 +28,14 @@ function jfb_add_plugin_links($links, $file)
 add_action('admin_head', 'jfb_admin_styles');
 function jfb_admin_styles()
 {
-    echo '<style type="text/css">.wp-fb-autoconnect-admin dfn{border-bottom:1px dotted #0000FF; cursor:help; font-style:italic; font-size:80%;}</style>';
+    echo '<style type="text/css">'.
+            '.jfb-admin_warning     {background-color: #FFEBE8; border:1px solid #C00; padding:0 .6em; margin:10px 0 15px; -khtml-border-radius:3px; -webkit-border-radius:3px; border-radius:3px;}'.
+            '.jfb-admin_wrapper     {clear:both; background-color:#FFFEEB; border:1px solid #CCC; padding:0 8px; }'.
+    	    '.jfb-admin_wrapper dfn {border-bottom:1px dotted #0000FF; cursor:help; font-style:italic; font-size:80%;}'.
+    		'.jfb-admin_tabs        {width:100%; clear:both; float:left; margin:0 0 -0.1em 0; padding:0;}'.
+            '.jfb-admin_tabs li     {list-style:none; float:left; margin:0; padding:0.2em 0.5em 0.2em 0.5em; }'.
+            '.jfb-admin_tab_selected{background-color:#FFFEEB; border-left:1px solid #CCC; border-right:1px solid #CCC; border-top:1px solid #CCC;}'.
+         '</style>';
 }
 
 
@@ -54,7 +61,7 @@ function jfb_admin_page()
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
     global $opt_jfb_username_style, $opt_jfb_hidesponsor;
     ?>
-    <div class="wrap wp-fb-autoconnect-admin">
+    <div class="wrap">
      <h2><?php echo $jfb_name; ?> Options</h2>
     <?php
     
@@ -73,6 +80,9 @@ function jfb_admin_page()
         ?><div class="error"><p><strong>Warning:</strong> Wordpress MultiSite is only fully supported by the premium version of this plugin; please see <a href="<?php echo $jfb_homepage ?>#premium"><b>here</b></a> for details.</p></div><?php
     }
     do_action('wpfb_admin_messages');
+    
+    //Which tab to show by default
+    $shownTab = get_option($opt_jfb_valid)?2:1;
       
     //Update options
     if( isset($_POST['fb_opts_updated']) )
@@ -99,6 +109,7 @@ function jfb_admin_page()
         }
         if( $fbValid )
         {            
+            $shownTab = 2;
             update_option( $opt_jfb_valid, 1 );
             if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
                jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
@@ -106,6 +117,7 @@ function jfb_admin_page()
         }
         else
         {
+            $shownTab = 1;
             update_option( $opt_jfb_valid, 0 );
             $message = "ERROR: Facebook could not validate your session key and secret!  Are you sure you've entered them correctly?";
             ?><div class="updated"><p><?php echo $message ?></p></div><?php
@@ -117,6 +129,7 @@ function jfb_admin_page()
     }
     if( isset($_POST['main_opts_updated']) )
     {
+        $shownTab = 2;
         update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
         update_option( $opt_jfb_ask_stream, $_POST[$opt_jfb_ask_stream] );
         update_option( $opt_jfb_wp_avatars, $_POST[$opt_jfb_wp_avatars] );
@@ -132,19 +145,12 @@ function jfb_admin_page()
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
     {
+        $shownTab = 3;
         jfb_update_premium_opts();
-    }
-    if( isset($_POST['mod_rewrite_update']) )
-    {
-        add_action('generate_rewrite_rules', 'jfb_add_rewrites');
-        add_filter('mod_rewrite_rules', 'jfb_fix_rewrites');
-        global $wp_rewrite;
-        $wp_rewrite->flush_rules();
-        update_option( $opt_jfb_mod_done, true );
-        ?><div class="updated"><p><strong><?php _e('HTACCESS Updated.', 'mt_trans_domain' ); ?></strong></p></div><?php          
     }
     if( isset($_POST['remove_all_settings']) )
     {
+        $shownTab = 1;
         delete_option($opt_jfb_api_key);
         delete_option($opt_jfb_api_sec);
         delete_option($opt_jfb_email_to);
@@ -179,132 +185,131 @@ function jfb_admin_page()
         <a href="?page=wp-fb-autoconnect&<?php echo $opt_jfb_hidesponsor ?>=1">Hide these messages</a></div><br clear="all" />
         <hr />
      <?php endif; ?>
-      
-    To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:<br /><br />
-    <ol>
-      <li>Visit <a href="http://developers.facebook.com/apps" target="_lnk">developers.facebook.com/apps</a> and click the "Create New App" button.</li>
-      <li>Type in a name (i.e. the name of your website) and click "Continue."  This is the name your users will see on the Facebook login popup.</li>
-      <li>Facebook may now require you to verify your account before continuing (see <a target="_fbInfo" href="https://developers.facebook.com/blog/post/386/">here</a> for more information).</li>
-      <li>Once your app has been created, scroll down and fill in your "Site URL" under "Select how your app integrates with Facebook -&gt;"Website."  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
-      <li>Click "Save Changes."</li>
-      <li>Copy the App ID and App Secret to the boxes below.</li>
-      <li>Click "Save" below.</li>
-    </ol>
-    <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a>, or if you're using BuddyPress, a Facebook button will be automatically added to its built-in login panel.<br /><br />
-    For more complete documentation and help, visit the <a href="<?php echo $jfb_homepage?>">plugin homepage</a>.<br />
      
-    <br />
-    <hr />
-    
-    <h3>Facebook Connect</h3>
-    <form name="formFacebook" method="post" action="">
-        <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> App ID<br />
-        <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> App Secret
-        <input type="hidden" name="fb_opts_updated" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Connect" /></div>
-    </form>
-    <hr />
-    
-    <h3>Basic Options</h3>
+
+    <!-- Tab Navigation -->
     <?php 
-    //Only show the options if the Facebook connection is valid!
-    if(get_option($opt_jfb_valid)):
+    //Define some variables that'll be used for our tab-switching
+    $allTabsClass = "jfb_admin_tab";
+    $allTabBtnsClass = "jfb_admin_tab_btn";
+    $tab1Id = "jfb_admin_fbsetup";
+    $tab2Id = "jfb_admin_basicoptions";
+    $tab3Id = "jfb_admin_premiumoptions";
+    $tab4Id = "jfb_admin_uninstall";
     ?>
     
-    <form name="formMainOptions" method="post" action="">
-    
-        <b>Autoregistered Usernames:</b><br />
-        <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="0" <?php echo (get_option($opt_jfb_username_style)==0?"checked='checked'":"")?> >Based on Facebook ID (i.e. FB_123456)<br />
-        <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="1" <?php echo (get_option($opt_jfb_username_style)==1?"checked='checked'":"")?> >Based on real name with prefix (i.e. FB_John_Smith)<br />
-        <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="3" <?php echo (get_option($opt_jfb_username_style)==2?"checked='checked'":"")?> >Based on real name without prefix (i.e. John_Smith) <i><b>(Recommended for BuddyPress)</b></i><br />
-        <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="2" <?php echo (get_option($opt_jfb_username_style)==2?"checked='checked'":"")?> >Legacy Format (i.e. John.Smith) <i><b>(Not Recommended, <dfn title="Although the original 'BuddyPress-friendly' username format included a period, I later learned that this creates issues with author links in Wordpress.  I've left the option here for legacy support, but advise against using it (unless you have only one author on your blog, in which case Facebook-connected users won't have author links and so it doesn't matter).  If you do have multiple authors and are experiencing broken author links, changing this option will fix it for all NEW users, but you may want to consider fixing your existing users by replacing all of the '.'s with '_'s in the 'user_nicename' field of the 'wp_users' database table.">mouseover for why</dfn>)</b></i><br /><br />
-    
-        <b>E-Mail:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Request permission to get the connecting user's email address<br />
+    <script type="text/javascript">
+        function jfb_swap_tabs(show_tab_id) 
+        {
+            //Hide all the tabs, then show just the one specified
+        	jQuery(".<?php echo $allTabsClass ?>").hide();
+        	jQuery("#" + show_tab_id).show();
 
-        <br /><b>Announcement:</b><br />
-		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
-		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:<br />
-		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
-
-		<br /><b>Avatars:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars<br />
-
-        <br /><b>Credit:</b><br />
-        <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))<br />
-
-		<br /><b>Debug:</b><br />
-		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
-		<input type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send all event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /><br />
-		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
-        <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />
-        <input type="hidden" name="main_opts_updated" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
-    </form>
-    <hr />
-
-	<?php 
-	if( function_exists('jfb_output_premium_panel')) 
-	    jfb_output_premium_panel(); 
-	else
-	    jfb_output_premium_panel_tease();
-    ?>    
+        	//Unhighlight all the tab buttons, then highlight just the one specified
+        	jQuery(".<?php echo $allTabBtnsClass?>").attr("class", "<?php echo $allTabBtnsClass?>");
+        	jQuery("#" + show_tab_id + "_btn").addClass("jfb-admin_tab_selected");
+		}
+	</script>
+	        
+    <div>     
+         <ul class="jfb-admin_tabs">
+         	<li id="<?php echo $tab1Id?>_btn" class="<?php echo $allTabBtnsClass?> <?php echo ($shownTab==1?"jfb-admin_tab_selected":"")?>"><a href="javascript:void(0);" onclick="jfb_swap_tabs('<?php echo $tab1Id?>');">Facebook Setup</a></li>
+         	<li id="<?php echo $tab2Id?>_btn" class="<?php echo $allTabBtnsClass?> <?php echo ($shownTab==2?"jfb-admin_tab_selected":"")?>"><a href="javascript:void(0);" onclick="jfb_swap_tabs('<?php echo $tab2Id?>')";>Basic Options</a></li>
+         	<li id="<?php echo $tab3Id?>_btn" class="<?php echo $allTabBtnsClass?> <?php echo ($shownTab==3?"jfb-admin_tab_selected":"")?>"><a href="javascript:void(0);" onclick="jfb_swap_tabs('<?php echo $tab3Id?>');">Premium Options</a></li>
+         	<li id="<?php echo $tab4Id?>_btn" class="<?php echo $allTabBtnsClass?> <?php echo ($shownTab==4?"jfb-admin_tab_selected":"")?>"><a href="javascript:void(0);" onclick="jfb_swap_tabs('<?php echo $tab4Id?>');">Uninstall</a></li>
+         </ul>
+     </div>
+     
+    <div class="jfb-admin_wrapper">
+        <div class="<?php echo $allTabsClass ?>" id="<?php echo $tab1Id?>" style="display:<?php echo ($shownTab==1?"block":"none")?>">
+        	<h3>Setup Instructions</h3>
+            To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:<br /><br />
+            <ol>
+              <li>Visit <a href="http://developers.facebook.com/apps" target="_lnk">developers.facebook.com/apps</a> and click the "Create New App" button.</li>
+              <li>Type in a name (i.e. the name of your website) and click "Continue."  This is the name your users will see on the Facebook login popup.</li>
+              <li>Facebook may now require you to verify your account before continuing (see <a target="_fbInfo" href="https://developers.facebook.com/blog/post/386/">here</a> for more information).</li>
+              <li>Once your app has been created, scroll down and fill in your "Site URL" under "Select how your app integrates with Facebook -&gt;"Website."  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
+              <li>Click "Save Changes."</li>
+              <li>Copy the App ID and App Secret to the boxes below.</li>
+              <li>Click "Save" below.</li>
+            </ol>
+            <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a>, or if you're using BuddyPress, a Facebook button will be automatically added to its built-in login panel.<br /><br />
+            For more complete documentation and help, visit the <a href="<?php echo $jfb_homepage?>">plugin homepage</a>.<br />
+             
+            <br />
+            <hr />
+            
+            <h3>Facebook Connect</h3>
+            <form name="formFacebook" method="post" action="">
+                <input type="text" size="40" name="<?php echo $opt_jfb_api_key?>" value="<?php echo get_option($opt_jfb_api_key) ?>" /> App ID<br />
+                <input type="text" size="40" name="<?php echo $opt_jfb_api_sec?>" value="<?php echo get_option($opt_jfb_api_sec) ?>" /> App Secret
+                <input type="hidden" name="fb_opts_updated" value="1" />
+                <div class="submit"><input type="submit" name="Submit" value="Connect" /></div>
+            </form>
+        </div> <!-- End Tab -->
+        
+        <div class="<?php echo $allTabsClass ?>" id="<?php echo $tab2Id?>" style="display:<?php echo ($shownTab==2?"block":"none")?>">
+            <?php
+            if(!get_option($opt_jfb_valid))
+                echo "<div class=\"jfb-admin_warning\"><i><b>You must enter a valid APP ID and Secret under the \"Facebook Setup\" tab before this plugin will function.</b></i></div>";    
+            ?>
+            <h3>Basic Options</h3>
+            <form name="formMainOptions" method="post" action="">
+                <b>Autoregistered Usernames:</b><br />
+                <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="0" <?php echo (get_option($opt_jfb_username_style)==0?"checked='checked'":"")?> >Based on Facebook ID (i.e. FB_123456)<br />
+                <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="1" <?php echo (get_option($opt_jfb_username_style)==1?"checked='checked'":"")?> >Based on real name with prefix (i.e. FB_John_Smith)<br />
+                <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="3" <?php echo (get_option($opt_jfb_username_style)==3?"checked='checked'":"")?> >Based on real name without prefix (i.e. John_Smith) <i><b>(Recommended for BuddyPress)</b></i><br />
+                <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="2" <?php echo (get_option($opt_jfb_username_style)==2?"checked='checked'":"")?> >Legacy Format (i.e. John.Smith) <i><b>(Not Recommended, <dfn title="Although the original 'BuddyPress-friendly' username format included a period, I later learned that this creates issues with author links in Wordpress.  I've left the option here for legacy support, but advise against using it (unless you have only one author on your blog, in which case Facebook-connected users won't have author links and so it doesn't matter).  If you do have multiple authors and are experiencing broken author links, changing this option will fix it for all NEW users, but you may want to consider fixing your existing users by replacing all of the '.'s with '_'s in the 'user_nicename' field of the 'wp_users' database table.">mouseover for why</dfn>)</b></i><br /><br />
+            
+                <b>E-Mail:</b><br />
+                <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Request permission to get the connecting user's email address<br />
+        
+                <br /><b>Announcement:</b><br />
+        		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
+        		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:<br />
+        		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
+        
+        		<br /><b>Avatars:</b><br />
+                <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars<br />
+        
+                <br /><b>Credit:</b><br />
+                <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))<br />
+        
+        		<br /><b>Debug:</b><br />
+        		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
+        		<input type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send all event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /><br />
+        		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
+                <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
+                <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />
+                <input type="hidden" name="main_opts_updated" value="1" />
+                <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
+            </form>
+    	</div><!-- End Tab -->
     
-    <!--
-    FOR ADVANCED USERS: See _autologin.php for what this does.
-    <h3>Mod Rewrite Rules</h3>
-    <?php
-    if (get_option($opt_jfb_mod_done))
-        echo "It looks like your htaccess has already been updated.  If you're having trouble with autologin links, make sure the file is writable and click the Update button again.";
-    else
-        echo "In order to use this plugin's autologin shortcut links (i.e. www.example.com/autologin/5), your .htaccess file needs to be updated.  Click the button below to update it now.<br />Note that this is an advanced feature and won't be needed by most users; see the plugin's homepage for documentation."
-    ?>
-    <form name="formRewriteOptions" method="post" action="">
-        <input type="hidden" name="mod_rewrite_update" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Update Rules" /></div>
-    </form><hr />
-    -->
+    	<div class="<?php echo $allTabsClass ?>" id="<?php echo $tab3Id?>" style="display:<?php echo ($shownTab==3?"block":"none")?>">
+            <?php
+            if(!get_option($opt_jfb_valid))
+                echo "<div class=\"jfb-admin_warning\"><i><b>You must enter a valid APP ID and Secret under the \"Facebook Setup\" tab before this plugin will function.</b></i></div>";    
+            if( function_exists('jfb_output_premium_panel')) 
+                jfb_output_premium_panel(); 
+            else
+                jfb_output_premium_panel_tease(); 
+            ?>
+        </div> <!-- End Tab -->
+        
+        <div class="<?php echo $allTabsClass ?>" id="<?php echo $tab4Id?>" style="display:<?php echo ($shownTab==4?"block":"none")?>">
+            <h3>Delete All Plugin Options</h3>
+            The following button will <i>permanently</i> delete all of this plugin's options from your Wordpress database, as if it had never been installed.  Use with care!
+            <form name="formDebugOptions" method="post" action="">
+                <input type="hidden" name="remove_all_settings" value="1" />
+                <div class="submit"><input type="submit" name="Submit" value="Delete" /></div>
+            </form>
+        </div> <!-- End Tab -->
     
-    <?php 
-    else:
-        echo "Please enter a Facebook API Key and Secret above. Once these have been successfully stored & validated, the main plugin options will become available.<br /><br /><hr />";
-    endif;
-    ?>
-    
-    <h3>Delete All Plugin Options</h3>
-    <form name="formDebugOptions" method="post" action="">
-        <input type="hidden" name="remove_all_settings" value="1" />
-        <div class="submit"><input type="submit" name="Submit" value="Delete" /></div>
-    </form>
-      
-   </div><?php
+    </div><!-- div jfb-admin_wrapper -->  
+   </div> <!-- div wrap -->
+<?php
 }
-
-
-/*
- * Append our RewriteRule to htaccess so we can use links like www.example.com/autologin/123
- * This gets invoked by the generate_rewrite_rules filter when we call $wp_rewrite->flush_rules(),
- * which is triggered by the Update Now button
- */
-function jfb_add_rewrites($wp_rewrite)
-{
-    $autologin = explode(get_bloginfo('url'), plugins_url(dirname(plugin_basename(__FILE__))));
-    $autologin = trim($autologin[1] . "/_autologin.php", "/") . '?p=$1';
-    $wp_rewrite->non_wp_rules = $wp_rewrite->non_wp_rules + array('autologin[/]?([0-9]*)$' => $autologin);
-}
-
-/*
- * Wordpress is HARDCODED to specify every rewriterule as [QSA,L]; the only way to get a redirect is to string-replace it.
- */
-function jfb_fix_rewrites($rules)
-{
-    $autologin = explode(get_bloginfo('url'), plugins_url(dirname(plugin_basename(__FILE__))));
-    $autologin = trim($autologin[1] . "/_autologin.php", "/") . '?p=$1';
-    $rules = str_replace($autologin . ' [QSA,L]', $autologin . ' [R,L]', $rules);
-    return $rules;
-}
-
 
 /*
  * Use the key and secret to generate an auth_token, just to test if they're valid.
@@ -391,7 +396,7 @@ function jfb_output_premium_panel_tease()
     
     <?php 
     if( !defined('JFB_PREMIUM') )
-        echo "<div class=\"error\"><i><b>The following options are available to Premium users only.</b><br />For information about the WP-FB-AutoConnect Premium Add-On, including purchasing instructions, please visit the plugin homepage <b><a href=\"$jfb_homepage#premium\">here</a></b></i>.</div>";
+        echo "<div class=\"jfb-admin_warning\"><i><b>The following options are available to Premium users only.</b><br />For information about the WP-FB-AutoConnect Premium Add-On, including purchasing instructions, please visit the plugin homepage <b><a href=\"$jfb_homepage#premium\">here</a></b></i>.</div>";
     ?>
     
     <form name="formPremOptions" method="post" action="">
@@ -499,7 +504,6 @@ function jfb_output_premium_panel_tease()
         <input type="hidden" name="prem_opts_updated" value="1" />
         <div class="submit"><input <?php disableatt() ?> type="submit" name="Submit" value="Save Premium" /></div>
     </form>
-    <hr />
     <?php    
 }
 
