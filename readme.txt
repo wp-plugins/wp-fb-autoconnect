@@ -60,7 +60,7 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
-= 2.1.7 (2011-11-xx) =
+= 2.1.7 (2011-11-25) =
 * Fix: wpfb_extended_permissions filter was not being applied if neither "post to wall" nor "request email" options were checked.
 * Add new BuddyPress XProfile mapping to the premium admin panel
 
