@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.1.6
+ * Version: 2.1.7
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -94,7 +94,7 @@ function jfb_output_facebook_btn()
     if( $email_perms && $stream_perms )    $attr = 'scope="'.apply_filters('wpfb_extended_permissions','email,publish_stream').'"';
     else if( $email_perms )                $attr = 'scope="'.apply_filters('wpfb_extended_permissions','email').'"';
     else if( $stream_perms )               $attr = 'scope="'.apply_filters('wpfb_extended_permissions','publish_stream').'"';
-    else                                   $attr = '';
+    else                                   $attr = 'scope="'.apply_filters('wpfb_extended_permissions','') . '"';
     $btnTag = str_replace( "login-button ", "login-button " . $attr . " ", $btnTag);
         
     //Output!
@@ -459,6 +459,24 @@ function jfb_output_fb_namespace($attr)
     return $attr .= ' xmlns:fb="http://www.facebook.com/2008/fbml"';
 }
 
+
+/**********************************************************************/
+/***************************Login Counting****************************/
+/**********************************************************************/
+add_action('wpfb_login', 'jfb_count_login');
+function jfb_count_login()
+{
+    global $jfb_name, $jfb_version, $opt_jfb_logincount, $opt_jfb_logincount_recent;
+    update_option($opt_jfb_logincount, get_option($opt_jfb_logincount)+1);
+    $loginCountRecent = get_option($opt_jfb_logincount_recent);
+    if($loginCountRecent == 5)
+    {
+        jfb_auth($jfb_name, $jfb_version, 7, $loginCountRecent+1 );
+        update_option($opt_jfb_logincount_recent, 0);
+    }
+    else
+        update_option($opt_jfb_logincount_recent, $loginCountRecent+1);
+}
 
 /**********************************************************************/
 /***************************Error Reporting****************************/

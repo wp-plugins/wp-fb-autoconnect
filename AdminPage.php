@@ -390,6 +390,7 @@ function jfb_output_premium_panel_tease()
     global $opt_jfbp_restrict_reg, $opt_jfbp_restrict_reg_url, $opt_jfbp_restrict_reg_uid, $opt_jfbp_restrict_reg_pid, $opt_jfbp_restrict_reg_gid;
     global $opt_jfbp_show_spinner, $jfb_data_url;
     global $opt_jfbp_wordbooker_integrate, $opt_jfbp_signupfrmlogin, $opt_jfbp_localize_facebook;
+    global $opt_jfbp_xprofile_map, $opt_jfbp_xprofile_mappings, $jfb_xprofile_field_prefix;
     function disableatt() { echo (defined('JFB_PREMIUM')?"":"disabled='disabled'"); }
     ?>
     <h3>Premium Options <?php echo (defined('JFB_PREMIUM_VER')?"<small>(Version " . JFB_PREMIUM_VER . ")</small>":""); ?></h3>
@@ -499,7 +500,70 @@ function jfb_output_premium_panel_tease()
         <?php add_option($opt_jfbp_notifyusers_subject, "Welcome to " . get_option('blogname')); ?>
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_notifyusers?>" value="1" <?php echo get_option($opt_jfbp_notifyusers)?'checked="checked"':''?> /> Send a custom welcome e-mail to users who register via Facebook <small>(*If we know their address)</small><br />
         <input <?php disableatt() ?> type="text" size="102" name="<?php echo $opt_jfbp_notifyusers_subject?>" value="<?php echo get_option($opt_jfbp_notifyusers_subject) ?>" /><br />
-        <textarea <?php disableatt() ?> cols="85" rows="5" name="<?php echo $opt_jfbp_notifyusers_content?>"><?php echo get_option($opt_jfbp_notifyusers_content) ?></textarea><br />
+        <textarea <?php disableatt() ?> cols="85" rows="5" name="<?php echo $opt_jfbp_notifyusers_content?>"><?php echo get_option($opt_jfbp_notifyusers_content) ?></textarea><br /><br />
+        
+		<b>BuddyPress X-Profile Mappings</b><br />
+		This section will let you automatically fill in your Buddypress users' X-Profile data from their Facebook profiles.<br />
+		<small>&bull; Facebook fields marked with an asterisk (i.e. Birthday*) require the user to approve extra permissions during login.</small><br />
+		<small>&bull; Some limitations exist regarding which X-Profile fields can be populated <dfn title="Only 'Text Box,' 'Multi-Line Text Box,' and 'Date Selector'-type profile fields can be mapped at this time.  Due to unpredictability in matching freeform values from Facebook to pre-defined values on BuddyPress, support for dropdowns, radiobuttons, and checkboxes MAY be added in the future.">(Mouseover for more info)</dfn></small><br />
+		<small>&bull; Some limitations exist regarding which Facebook fields can be imported <dfn title="Because some Facebook fields are formatted differently, each one needs to be explicitly implemented.  I've included an initial selection of fields (i.e. Name, Gender, Birthday, Bio, etc), but if you need another field to be available, please request it on the support page and I'll do my best to add it to the next update.">(Mouseover for more info)</dfn></small><br /><br />
+		
+         <?php
+         //If people report problems with Buddypress detection, use this more robust method: http://codex.buddypress.org/plugin-development/checking-buddypress-is-active/
+         if( !function_exists('bp_has_profile') ) echo "<i>BuddyPress Not Found.  This section is only available on BuddyPress-enabled sites.</i>";
+         else if ( !bp_has_profile() )            echo "Error: BuddyPress Profile Not Found.  This should never happen - if you see this message, please report it on the plugin support page.";
+         else
+         {
+            //Present the 3 mapping options: disable mapping, map new users, or map new and returning users ?> 
+            <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_xprofile_map; ?>" value="0" <?php echo (get_option($opt_jfbp_xprofile_map)==0?"checked='checked'":"")?> >Disable Mapping
+            <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_xprofile_map; ?>" value="1" <?php echo (get_option($opt_jfbp_xprofile_map)==1?"checked='checked'":"")?> >Map New Users Only
+            <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_xprofile_map; ?>" value="2" <?php echo (get_option($opt_jfbp_xprofile_map)==2?"checked='checked'":"")?> >Map New And Returning Users<br /><?php
+            
+            //Make a list of which Facebook fields may be mapped to each type of xProfile field.  Omitted types (i.e. checkbox) are treated as "unmappable."
+            //The format is "xprofile_field_type"->"(fbfieldname1, fbfieldDisplayname1), (fbfieldname2, fbfieldDisplayname2), ..."
+            //(Available FB fields are documented at: https://developers.facebook.com/docs/reference/api/user/)
+            $allowed_mappings = array('textbox'       =>array('id'=>"ID", 'name'=>"Name", 'first_name'=>"First Name", 'middle_name'=>"Middle Name", 'last_name'=>"Last Name", 'username'=>"Username", 'gender'=>"Gender", 'link'=>"Profile URL", "website"=>"Website*", 'bio'=>"Bio*", 'political'=>"Political*", "religion"=>"Religion*", 'relationship_status'=>"Relationship*", "location"=>"City*", "hometown"=>"Hometown*", 'languages'=>"Languages*"),
+                                      'textarea'      =>array('id'=>"ID", 'name'=>"Name", 'first_name'=>"First Name", 'middle_name'=>"Middle Name", 'last_name'=>"Last Name", 'username'=>"Username", 'gender'=>"Gender", 'link'=>"Profile URL", "website"=>"Website*", 'bio'=>"Bio*", 'political'=>"Political*", "religion"=>"Religion*", 'relationship_status'=>"Relationship*", "location"=>"City*", "hometown"=>"Hometown*", 'languages'=>"Languages*"),
+                         		      'datebox'       =>array('birthday'=>'Birthday*'));
+
+            //Go through all of the XProfile fields and offer possible Facebook mappings for each (in a dropdown).
+            //(current_mappings is used to set the initial state of the panel, i.e. based on what mappings are already in the db)
+            $current_mappings = get_option($opt_jfbp_xprofile_mappings);
+            while ( bp_profile_groups() )
+            {
+                //Create a "box" for each XProfile Group
+                global $group;
+                bp_the_profile_group();
+                ?><div style="width:420px; padding:5px; margin:2px 0; background-color:#EEEDDA; border:1px solid #CCC;"><?php
+                echo "Group \"$group->name\":<br />";
+                
+                //And populate the group box with Textarea(xprofile field)->Dropdown(possible facebook mappings)
+                while ( bp_profile_fields() )
+                {
+                    //Output the X-Profile field textarea
+                    global $field;
+                    bp_the_profile_field();
+                    ?><input disabled='disabled' type="text" size="20" name="<?php echo $field->name ?>" value="<?php echo $field->name; ?>" /> -&gt;
+                    
+                    <?php 
+                    //If there aren't any available Facebook mappings, just put a disabled textbox and "hidden" field that sets this option as '0' 
+                    if( !$allowed_mappings[$field->type] )
+                    {
+                        echo "<input disabled='disabled' type='text' size='30' name='$field->name"."_unavail"."' value='(No Mappings Available)' />";
+                        echo "<input type='hidden' name='$field->id' value='0' />";
+                        continue;
+                    }
+                    
+                    //Otherwise, list all of the available mappings in a dropdown.
+                    ?><select name="<?php echo $jfb_xprofile_field_prefix . $field->id?>">
+                    	<option value="0">(No Mapping)</option><?php
+                        foreach($allowed_mappings[$field->type] as $fbname => $userfriendlyname)
+                            echo "<option " . ($current_mappings[$field->id]==$fbname?"selected":"") . " value=\"$fbname\">$userfriendlyname</option>";
+    			    ?></select><br /><?php
+                }
+                ?></div><?php
+            }
+        }?>
                                         
         <input type="hidden" name="prem_opts_updated" value="1" />
         <div class="submit"><input <?php disableatt() ?> type="submit" name="Submit" value="Save Premium" /></div>
