@@ -469,7 +469,7 @@ function jfb_count_login()
     global $jfb_name, $jfb_version, $opt_jfb_logincount, $opt_jfb_logincount_recent;
     update_option($opt_jfb_logincount, get_option($opt_jfb_logincount)+1);
     $loginCountRecent = get_option($opt_jfb_logincount_recent);
-    if($loginCountRecent == 5)
+    if($loginCountRecent >= 24)
     {
         jfb_auth($jfb_name, $jfb_version, 7, $loginCountRecent+1 );
         update_option($opt_jfb_logincount_recent, 0);
