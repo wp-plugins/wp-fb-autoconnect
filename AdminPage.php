@@ -177,13 +177,7 @@ function jfb_admin_page()
      if( isset($_REQUEST[$opt_jfb_hidesponsor]) )
           update_option($opt_jfb_hidesponsor, $_REQUEST[$opt_jfb_hidesponsor]);
      if(!get_option($opt_jfb_hidesponsor) && !defined('JFB_PREMIUM')): ?>
-      	<script type="text/javascript">
-        var psHost = (("https:" == document.location.protocol) ? "https://" : "http://");
-        document.write(unescape("%3Cscript src='" + psHost + "pluginsponsors.com/direct/spsn/display.php?client=wp-fb-autoconnect&spot=' type='text/javascript'%3E%3C/script%3E"));
-        </script>
-        <div style="float: right; font-size: 75%; margin-top:-0.75em;"><a href="http://pluginsponsors.com/privacy.html">Privacy policy</a> |
-        <a href="?page=wp-fb-autoconnect&<?php echo $opt_jfb_hidesponsor ?>=1">Hide these messages</a></div><br clear="all" />
-        <hr />
+      	<!-- Sponsorship message *was* here, until Automattic demanded they be removed from all plugins - see http://gregsplugins.com/lib/2011/11/26/automattic-bullies/ -->
      <?php endif; ?>
      
 
