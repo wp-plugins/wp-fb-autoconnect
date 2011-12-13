@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "2.1.8";
+$jfb_version    = "2.1.9";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 $jfb_data_url   = plugins_url(dirname(plugin_basename(__FILE__)));
 
@@ -13,7 +13,7 @@ $jfb_data_url   = plugins_url(dirname(plugin_basename(__FILE__)));
 global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_delay_redir, $opt_jfb_ask_perms, $opt_jfb_ask_stream, $opt_jfb_stream_content;
 global $opt_jfb_mod_done, $opt_jfb_valid;
 global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
-global $opt_jfb_username_style, $opt_jfbp_use_new_api;
+global $opt_jfb_username_style;
 global $opt_jfb_logincount, $opt_jfb_logincount_recent;
 $opt_jfb_app_id     = "jfb_app_id";
 $opt_jfb_api_key    = "jfb_api_key";
@@ -35,8 +35,6 @@ $opt_jfb_username_style = "jfb_username_style";
 $opt_jfb_hidesponsor = "jfb_hidesponsor";
 $opt_jfb_logincount = "jfb_logincount";
 $opt_jfb_logincount_recent = "jfb_logincount_recent";
-$opt_jfbp_use_new_api = 'jfb_p_use_new_api';    //WAS a premium feature, now is free
-update_option($opt_jfbp_use_new_api, 1);        //Now required
 
 //Shouldn't ever need to change these
 global $jfb_nonce_name, $jfb_uid_meta_name, $jfb_js_callbackfunc, $jfb_default_email;

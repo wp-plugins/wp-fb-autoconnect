@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.2.1
-Stable tag: 2.1.8
+Stable tag: 2.1.9
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -60,6 +60,9 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 2.1.9 (2011-12-13) =
+* Removed an old (now unused) database option that was getting written on every pageload (thanks Aaron Frerichs!)
+
 = 2.1.8 (2011-11-28) =
 * Removed plugin sponsorship messages.  See [Automattic Bullies WordPress Plugin Developers -- Again](http://gregsplugins.com/lib/2011/11/26/automattic-bullies/).
 
