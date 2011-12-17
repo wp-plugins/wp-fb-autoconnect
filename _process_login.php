@@ -6,7 +6,7 @@
   */
 
 //A very simple check to avoid people from accessing this script directly.
-if( !isset($_POST['redirectTo']) || !isset($_POST['_wpnonce']) )
+if( !isset($_POST['redirectTo']) )
     die("Please do not access this script directly.");
 
 //Make sure we're using PHP5
@@ -31,7 +31,7 @@ do_action('wpfb_prelogin');
 //Check the nonce to make sure this was a valid login attempt (unless the user has disabled nonce checking)
 if( !get_option($opt_jfb_disablenonce) )
 {
-    if( wp_verify_nonce ($_REQUEST['_wpnonce'], $jfb_nonce_name) != 1 )
+    if( wp_verify_nonce ($_REQUEST[$jfb_nonce_name], $jfb_nonce_name) != 1 )
     {
         //If there's already a user logged in, tell the user and give them a link back to where they were.
         $currUser = wp_get_current_user(); 
