@@ -51,6 +51,25 @@ function jfb_warn_premium_version()
 
 
 /*
+ * Warn if the user's server doesn't have curl 
+ */
+if (!function_exists('curl_init')) add_action('admin_notices', 'jfb_warn_curl');
+function jfb_warn_curl()
+{
+    ?><div class="error"><p><strong>Warning:</strong> WP-FB-AutoConnect requires the CURL PHP extension to work.  Please install / enable it before attempting to use this plugin.</p></div><?php
+}
+
+/*
+ * Warn if the user's server doesn't have json_decode
+ */
+if (!function_exists('json_decode')) add_action('admin_notices', 'jfb_warn_json');
+function jfb_warn_json()
+{
+    ?><div class="error"><p><strong>Warning:</strong> WP-FB-AutoConnect requires the JSON PHP extension to work.  Please install / enable it before attempting to use this plugin.</p></div><?php
+}
+
+
+/*
  * Output the Admin page
  */
 function jfb_admin_page()
@@ -190,6 +209,7 @@ function jfb_admin_page()
     $tab2Id = "jfb_admin_basicoptions";
     $tab3Id = "jfb_admin_premiumoptions";
     $tab4Id = "jfb_admin_uninstall";
+    $tab5Id = "jfb_admin_supportinfo";
     ?>
     
     <script type="text/javascript">
@@ -211,6 +231,7 @@ function jfb_admin_page()
          	<li id="<?php echo $tab2Id?>_btn" class="<?php echo $allTabBtnsClass?> <?php echo ($shownTab==2?"jfb-admin_tab_selected":"")?>"><a href="javascript:void(0);" onclick="jfb_swap_tabs('<?php echo $tab2Id?>')";>Basic Options</a></li>
          	<li id="<?php echo $tab3Id?>_btn" class="<?php echo $allTabBtnsClass?> <?php echo ($shownTab==3?"jfb-admin_tab_selected":"")?>"><a href="javascript:void(0);" onclick="jfb_swap_tabs('<?php echo $tab3Id?>');">Premium Options</a></li>
          	<li id="<?php echo $tab4Id?>_btn" class="<?php echo $allTabBtnsClass?> <?php echo ($shownTab==4?"jfb-admin_tab_selected":"")?>"><a href="javascript:void(0);" onclick="jfb_swap_tabs('<?php echo $tab4Id?>');">Uninstall</a></li>
+         	<li id="<?php echo $tab5Id?>_btn" class="<?php echo $allTabBtnsClass?> <?php echo ($shownTab==5?"jfb-admin_tab_selected":"")?>"><a href="javascript:void(0);" onclick="jfb_swap_tabs('<?php echo $tab5Id?>');">Support Info</a></li>
          </ul>
      </div>
      
@@ -298,6 +319,52 @@ function jfb_admin_page()
                 <input type="hidden" name="remove_all_settings" value="1" />
                 <div class="submit"><input type="submit" name="Submit" value="Delete" /></div>
             </form>
+        </div> <!-- End Tab -->
+        
+        <div class="<?php echo $allTabsClass ?>" id="<?php echo $tab5Id?>" style="display:<?php echo ($shownTab==5?"block":"none")?>">
+            <h3>Support Information</h3>
+            <div style="width:500px;">
+            Before submitting a support request, please make sure to carefully read all the documentation and FAQs on the <a href="<?php echo $jfb_homepage; ?>" target="_support">plugin homepage</a>.  Every problem that's ever been reported has a solution posted there.<br /><br />            
+            If you're still having trouble, you may submit a request (on the <a href="<?php echo $jfb_homepage; ?>" target="_support">same homepage</a>), but please <i><u>specifically mention</u></i> that you've tried it with all other plugins disabled and the default theme (see <a href="<?php echo $jfb_homepage ?>#FAQ100">FAQ100</a>).  Also, be sure to include the following information about your Wordpress environment:
+            </div>
+            <div style="width:500px; padding:5px; margin:2px 0; background-color:#EEEDDA; border:1px solid #CCC;">
+            	Wordpress Version: <b><?php echo $GLOBALS['wp_version']; ?></b><br />
+            	BuddyPress Version: <b><?php echo defined('BP_VERSION')?BP_VERSION:"Not Detected"; ?></b><br />
+            	MultiSite Status: <b> <?php echo (defined('WP_ALLOW_MULTISITE')?"Allowed":"Not Allowed") . " / " . (function_exists('is_multisite')?(is_multisite()?"Enabled":"Disabled"):"Undefined"); ?></b><br />
+            	Browser Version: <b><?php $browser = jfb_get_browser(); echo $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform']; ?></b><br />
+            	Plugin Version: <b><?php echo $jfb_version ?></b><br />
+    			Addon Version: <b><?php echo defined('JFB_PREMIUM_VER')?JFB_PREMIUM_VER:"Not Detected";?></b><br />
+				Facebook API: <b><?php echo class_exists('Facebook')?"Already present!":"OK" ?></b><br />
+                Theme: <b><?php echo get_current_theme(); ?></b><br />
+                Server: <b><?php echo substr($_SERVER['SERVER_SOFTWARE'], 0, 45) . (strlen($_SERVER['SERVER_SOFTWARE'])>45?"...":""); ?></b><br />
+                cURL: 
+                <?php 
+            	if( !function_exists('curl_init') ) 
+            	    echo "<b>Not installed!</b><br />";
+    	        else
+    	        {
+    	           $ch = curl_init();
+    	           curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/platform');
+    	           curl_setopt($ch, CURLOPT_HEADER, 0);
+    	           curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    	           curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    	           curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/facebook-platform/php-sdk-3.1.1/fb_ca_chain_bundle.crt');
+    	           curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0');
+    	           $curlcontent = @curl_exec($ch);
+    	           $x=json_decode($curlcontent);
+    	           if ($x->name=="Facebook Platform") echo "<b>OK</b><br />";
+                   else                               echo "<b>Curl is available but cannot access Facebook!</b> (" . curl_errno($ch) ." - ". curl_error($ch) .")<br />";
+      	           curl_close($ch);
+    	        }
+        	    ?>
+                Active Plugins: 
+                <?php $active_plugins = get_option('active_plugins');
+                      $plug_info=get_plugins();
+                      echo "<b>" . count($active_plugins) . "</b><small> (";
+        	          foreach($active_plugins as $name) echo $plug_info[$name]['Title']. " " . $plug_info[$name]['Version']."; ";
+        	          echo "</small>)<br />"
+                ?><br />
+            </div>
         </div> <!-- End Tab -->
     
     </div><!-- div jfb-admin_wrapper -->  
