@@ -133,10 +133,24 @@ do_action('wpfb_connect', array('FB_ID' => $fb_uid, 'facebook' => $facebook) );
 
 
 //Examine all existing WP users to see if any of them match this Facebook user. 
-//First we check their meta: whenever a user logs in with FB, this plugin tags them with usermeta
-//so we can find them again easily.  This obviously will only work for returning FB Connect users.
-if(!isset($wp_users)) $wp_users = get_users_of_blog();
-$jfb_log .= "WP: Searching " . count($wp_users) . " existing users by meta...\n";
+//The base query for getting the users comes from get_users_from_blog(), to which I add a subquery
+//that limits results only to users who also have the appropriate facebook usermeta.
+if(!isset($wp_users))
+{
+	global $wpdb, $blog_id;
+	if ( empty($id) ) $id = (int) $blog_id;
+	$blog_prefix = $wpdb->get_blog_prefix($id);
+	$sql = "SELECT user_id, user_id AS ID, user_login, display_name, user_email, meta_value ".
+		   "FROM $wpdb->users, $wpdb->usermeta ".
+		   "WHERE {$wpdb->users}.ID = {$wpdb->usermeta}.user_id AND meta_key = '{$blog_prefix}capabilities' ".
+		   "AND {$wpdb->users}.ID IN (SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '$jfb_uid_meta_name' AND meta_value = '$fb_uid')"; 
+	$wp_users = $wpdb->get_results( $sql );
+}
+
+//Although $wp_users should only contain the one matching user (or be empty), this "loop" method of searching
+//for matching usermeta is retained for backwards compatibility with old 3rd party hooks which may've relied on it.
+//Originally, $wp_users contained the full list of users (not just those with matching usermeta).
+$jfb_log .= "WP: Searching " . count($wp_users) . " existing candidates by meta...\n";
 foreach ($wp_users as $wp_user)
 {
     $meta_uid  = get_user_meta($wp_user->ID, $jfb_uid_meta_name, true);
