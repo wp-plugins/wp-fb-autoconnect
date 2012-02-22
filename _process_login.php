@@ -16,6 +16,7 @@ if(version_compare('5', PHP_VERSION, ">"))
 //Include our options and the Wordpress core
 require_once("__inc_wp.php");
 require_once("__inc_opts.php");
+jfb_debug_checkpoint('start');
 
 //If present, include the Premium addon
 @include_once(realpath(dirname(__FILE__))."/../WP-FB-AutoConnect-Premium.php");
@@ -83,11 +84,11 @@ else
 
 
 //Connect to FB and make sure we've got a valid session (we should already from the cookie set by JS)  
-$jfb_log .= "FB: Initiating Facebook connection via the new API...\n";
+$jfb_log .= "FB: Initiating Facebook connection...\n";
 $facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
 try                              { $fb_uid = $facebook->getUser(); }
 catch (FacebookApiException $e)  { j_die("Error: Exception when getting the Facebook userid. Please verify your API Key and Secret."); }
-if (!$fb_uid)                    { j_die("Error: Failed to get the Facebook user session. This is usually due to a temporary problem with Facebook's servers; please try again later."); } 
+if (!$fb_uid)                    { j_die("Error: Failed to get the Facebook user session. Please see FAQ37 on the plugin documentation page. UID: $fb_uid"); } 
 $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 //Get the user info from FB
@@ -135,7 +136,7 @@ do_action('wpfb_connect', array('FB_ID' => $fb_uid, 'facebook' => $facebook) );
 //First we check their meta: whenever a user logs in with FB, this plugin tags them with usermeta
 //so we can find them again easily.  This obviously will only work for returning FB Connect users.
 if(!isset($wp_users)) $wp_users = get_users_of_blog();
-$jfb_log .= "WP: Searching for user by meta...\n";
+$jfb_log .= "WP: Searching " . count($wp_users) . " existing users by meta...\n";
 foreach ($wp_users as $wp_user)
 {
     $meta_uid  = get_user_meta($wp_user->ID, $jfb_uid_meta_name, true);

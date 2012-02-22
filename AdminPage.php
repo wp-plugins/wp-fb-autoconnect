@@ -40,33 +40,31 @@ function jfb_admin_styles()
 
 
 /**
- * Version 2.1.0 moved to a new version of the Facebook API that required changes on both the free and premium plugins;
- * warn Premium users who have upgraded their free plugin, but not their addon.
- */
-if( defined('JFB_PREMIUM') && version_compare(JFB_PREMIUM_VER, 24) == -1 ) add_action('admin_notices', 'jfb_warn_premium_version');
-function jfb_warn_premium_version()
-{ 
-    ?><div class="error"><p><strong>Warning:</strong> This version of WP-FB-AutoConnect requires Premium addon version 24 or better (you're currently using version <?php echo JFB_PREMIUM_VER; ?>).  Please login to your account on <a target="store" href="http://store.justin-klein.com/index.php?route=account/download">store.justin-klein.com</a> to obtain the latest version.  I apologize for the inconvenience, but it was unavoidable due to a sudden change in Facebook's security policies.</p></div><?php
-}
-
-
-/*
- * Warn if the user's server doesn't have curl 
- */
-if (!function_exists('curl_init')) add_action('admin_notices', 'jfb_warn_curl');
-function jfb_warn_curl()
+  * Admin warning notices (shown globally; warnings only shown on this page are below)
+  */
+add_action('admin_notices', 'jfb_admin_notices');
+function jfb_admin_notices()
 {
-    ?><div class="error"><p><strong>Warning:</strong> WP-FB-AutoConnect requires the CURL PHP extension to work.  Please install / enable it before attempting to use this plugin.</p></div><?php
-}
+	//Version 2.1.0 moved to a new version of the Facebook API that required changes on both the free and premium plugins;
+ 	//warn Premium users who have upgraded their free plugin, but not their addon.
+	if( defined('JFB_PREMIUM') && version_compare(JFB_PREMIUM_VER, 24) == -1 )
+	{
+	    ?><div class="error"><p><strong>Warning:</strong> This version of WP-FB-AutoConnect requires Premium addon version 24 or better (you're currently using version <?php echo JFB_PREMIUM_VER; ?>).  Please login to your account on <a target="store" href="http://store.justin-klein.com/index.php?route=account/download">store.justin-klein.com</a> to obtain the latest version.  I apologize for the inconvenience, but it was unavoidable due to a sudden change in Facebook's security policies.</p></div><?php
+	}
+	
+	//Warn if the user's server doesn't have cURL
+	if (!function_exists('curl_init'))
+	{
+    	?><div class="error"><p><strong>Warning:</strong> WP-FB-AutoConnect requires the CURL PHP extension to work.  Please install / enable it before attempting to use this plugin.</p></div><?php
+	}	
+	
+	//Warn if the user's server doesn't have json_decode
+	if (!function_exists('json_decode'))
+	{
+  	 	?><div class="error"><p><strong>Warning:</strong> WP-FB-AutoConnect requires the JSON PHP extension to work.  Please install / enable it before attempting to use this plugin.</p></div><?php
+	}
+} 
 
-/*
- * Warn if the user's server doesn't have json_decode
- */
-if (!function_exists('json_decode')) add_action('admin_notices', 'jfb_warn_json');
-function jfb_warn_json()
-{
-    ?><div class="error"><p><strong>Warning:</strong> WP-FB-AutoConnect requires the JSON PHP extension to work.  Please install / enable it before attempting to use this plugin.</p></div><?php
-}
 
 
 /*
@@ -84,7 +82,7 @@ function jfb_admin_page()
      <h2><?php echo $jfb_name; ?> Options</h2>
     <?php
     
-    //Show applicable warnings
+    //Show applicable warnings (only on this panel's page; global warnings are above)
     if( class_exists('Facebook') )
     {
         ?><div class="error"><p><strong>Warning:</strong> Another plugin has included the Facebook API throughout all of Wordpress.  I suggest you contact that plugin's author and ask them to include it only in pages where it's actually needed.<br /><br />Things may work fine as-is, but *if* the API version included by the other plugin is older than the one required by WP-FB AutoConnect, it's possible that the login process could fail.</p></div><?php
@@ -98,6 +96,7 @@ function jfb_admin_page()
     {
         ?><div class="error"><p><strong>Warning:</strong> Wordpress MultiSite is only fully supported by the premium version of this plugin; please see <a href="<?php echo $jfb_homepage ?>#premium"><b>here</b></a> for details.</p></div><?php
     }
+	
     do_action('wpfb_admin_messages');
     
     //Which tab to show by default
@@ -323,18 +322,18 @@ function jfb_admin_page()
         
         <div class="<?php echo $allTabsClass ?>" id="<?php echo $tab5Id?>" style="display:<?php echo ($shownTab==5?"block":"none")?>">
             <h3>Support Information</h3>
-            <div style="width:500px;">
+            <div style="width:600px;">
             Before submitting a support request, please make sure to carefully read all the documentation and FAQs on the <a href="<?php echo $jfb_homepage; ?>" target="_support">plugin homepage</a>.  Every problem that's ever been reported has a solution posted there.<br /><br />            
             If you're still having trouble, you may submit a request (on the <a href="<?php echo $jfb_homepage; ?>" target="_support">same homepage</a>), but please <i><u>specifically mention</u></i> that you've tried it with all other plugins disabled and the default theme (see <a href="<?php echo $jfb_homepage ?>#FAQ100">FAQ100</a>).  Also, be sure to include the following information about your Wordpress environment:
             </div>
-            <div style="width:500px; padding:5px; margin:2px 0; background-color:#EEEDDA; border:1px solid #CCC;">
+            <div style="width:600px; padding:5px; margin:2px 0; background-color:#EEEDDA; border:1px solid #CCC;">
             	Wordpress Version: <b><?php echo $GLOBALS['wp_version']; ?></b><br />
             	BuddyPress Version: <b><?php echo defined('BP_VERSION')?BP_VERSION:"Not Detected"; ?></b><br />
             	MultiSite Status: <b> <?php echo (defined('WP_ALLOW_MULTISITE')?"Allowed":"Not Allowed") . " / " . (function_exists('is_multisite')?(is_multisite()?"Enabled":"Disabled"):"Undefined"); ?></b><br />
             	Browser Version: <b><?php $browser = jfb_get_browser(); echo $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform']; ?></b><br />
             	Plugin Version: <b><?php echo $jfb_version ?></b><br />
     			Addon Version: <b><?php echo defined('JFB_PREMIUM_VER')?JFB_PREMIUM_VER:"Not Detected";?></b><br />
-				Facebook API: <b><?php echo class_exists('Facebook')?"Already present!":"OK" ?></b><br />
+				Facebook API: <b><?php echo class_exists('Facebook')?"Already present!":"OK" ?></b><br /> 
                 Theme: <b><?php echo get_current_theme(); ?></b><br />
                 Server: <b><?php echo substr($_SERVER['SERVER_SOFTWARE'], 0, 45) . (strlen($_SERVER['SERVER_SOFTWARE'])>45?"...":""); ?></b><br />
                 cURL: 
@@ -445,13 +444,14 @@ function jfb_auth($name, $version, $event, $message=0)
 function jfb_output_premium_panel_tease()
 {
     global $jfb_homepage;
-    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_registrationfrmlogin, $opt_jfbp_cache_avatars, $opt_jfbp_cache_avatar_dir;
+    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_registrationfrmlogin, $opt_jfbp_cache_avatars, $opt_jfbp_cache_avatars_fullsize, $opt_jfbp_cache_avatar_dir;
     global $opt_jfbp_buttonsize, $opt_jfbp_buttontext, $opt_jfbp_requirerealmail;
     global $opt_jfbp_redirect_new, $opt_jfbp_redirect_new_custom, $opt_jfbp_redirect_existing, $opt_jfbp_redirect_existing_custom, $opt_jfbp_redirect_logout, $opt_jfbp_redirect_logout_custom;
     global $opt_jfbp_restrict_reg, $opt_jfbp_restrict_reg_url, $opt_jfbp_restrict_reg_uid, $opt_jfbp_restrict_reg_pid, $opt_jfbp_restrict_reg_gid;
     global $opt_jfbp_show_spinner, $jfb_data_url;
     global $opt_jfbp_wordbooker_integrate, $opt_jfbp_signupfrmlogin, $opt_jfbp_localize_facebook;
     global $opt_jfbp_xprofile_map, $opt_jfbp_xprofile_mappings, $jfb_xprofile_field_prefix;
+	global $opt_jfbp_bpstream_login, $opt_jfbp_bpstream_logincontent, $opt_jfbp_bpstream_register, $opt_jfbp_bpstream_registercontent;
     function disableatt() { echo (defined('JFB_PREMIUM')?"":"disabled='disabled'"); }
     ?>
     <h3>Premium Options <?php echo (defined('JFB_PREMIUM_VER')?"<small>(Version " . JFB_PREMIUM_VER . ")</small>":""); ?></h3>
@@ -467,9 +467,10 @@ function jfb_output_premium_panel_tease()
 		<input disabled='disabled' type="checkbox" name="musupport" value="1" <?php echo ((defined('JFB_PREMIUM')&&function_exists('is_multisite')&&is_multisite())?"checked='checked'":"")?> >
 		Automatically enabled when a MultiSite install is detected
 		<dfn title="The free plugin is not aware of users registered on other sites in your WPMU installation, which can result in problems i.e. if someone tries to register on more than one site.  The Premium version will actively detect and handle existing users across all your sites.">(Mouseover for more info)</dfn><br /><br />
-		
+        		
 		<b>Double Logins:</b><br />
-        <input disabled='disabled' type="checkbox" name="doublelogin" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> /> Automatically handle double logins 
+        <input disabled='disabled' type="checkbox" name="doublelogin" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> />
+        Automatically handle double logins 
         <dfn title="If a visitor opens two browser windows, logs into one, then logs into the other, the security nonce check will fail.  This is because in the second window, the current user no longer matches the user for which the nonce was generated.  The free version of the plugin reports this to the visitor, giving them a link to their desired redirect page.  The premium version will transparently handle such double-logins: to visitors, it'll look like the page has just been refreshed and they're now logged in.  For more information on nonces, please visit http://codex.wordpress.org/WordPress_Nonces.">(Mouseover for more info)</dfn><br /><br />
 		
 		<!-- Facebook's OAuth 2.0 migration BROKE my ability to localize the XFBML-generated dialog.  I've reported a bug, and will do my best to fix it as soon as possible.
@@ -484,17 +485,20 @@ function jfb_output_premium_panel_tease()
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_requirerealmail?>" value="1" <?php echo get_option($opt_jfbp_requirerealmail)?'checked="checked"':''?> /> Enforce access to user's real (unproxied) email
         <dfn title="The basic option to request user emails will prompt your visitors, but they can still hide their true addresses by using a Facebook proxy (click 'change' in the permissions dialog, and select 'xxx@proxymail.facebook.com').  This option performs a secondary check to enforce that they allow access to their REAL e-mail.  Note that the check requires several extra queries to Facebook's servers, so it could result in a slightly longer delay before the login initiates.">(Mouseover for more info)</dfn><br /><br />
 
-        <b>Avatar Caching:</b><br />         
+        <b>Avatar Caching:</b><br />  
+        <?php add_option($opt_jfbp_cache_avatars_fullsize, get_option($opt_jfbp_cache_avatars)); ?>       
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars)?'checked="checked"':''?> />
-        Cache Facebook avatars to: <span style="background-color:#FFFFFF; color:#aaaaaa; padding:2px 0;">
-        <?php 
+        Cache Facebook avatars locally (thumbnail) <dfn title="This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.">(Mouseover for more info)</dfn><br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars_fullsize?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars_fullsize)?'checked="checked"':''?> />
+        Cache Facebook avatars locally (fullsize) <dfn title="Because most themes only utilize thumbnail-sized avatars, caching full-sized images is often unnecessary.  If you're not actually using full-sized avatars I recommend disabling this option, as doing so will speed up logins and save space on your server (there's a small per-login performance cost to copying the files locally).">(Mouseover for more info)</dfn><br />
+        Cache directory:
+        <span style="background-color:#FFFFFF; color:#aaaaaa; padding:2px 0;"><?php 
         add_option($opt_jfbp_cache_avatar_dir, 'facebook-avatars');
         $ud = wp_upload_dir();
         echo "<i>" . $ud['basedir'] . "/</i>";         
-        ?>
-        </span>
+        ?></span>
         <input <?php disableatt() ?> type="text" size="20" name="<?php echo $opt_jfbp_cache_avatar_dir; ?>" value="<?php echo get_option($opt_jfbp_cache_avatar_dir); ?>" />
-        <dfn title="This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.  NOTE: Changing the cache directory will not move existing avatars or update existing users; it only applies to subsequent logins.  It's therefore recommended that you choose a cache directory once, then leave it be.">(Mouseover for more info)</dfn><br /><br />        
+        <dfn title="Changing the cache directory will not move existing avatars or update existing users; it only applies to subsequent logins.  It's therefore recommended that you choose a cache directory once, then leave it be.">(Mouseover for more info)</dfn><br /><br />
 
         <b>Wordbooker Avatar Integration:</b><br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wordbooker_integrate?>" value="1" <?php echo get_option($opt_jfbp_wordbooker_integrate)?'checked="checked"':''?> /> Use Facebook avatars for <a href="http://wordpress.org/extend/plugins/wordbooker/">Wordbooker</a>-imported comments
@@ -562,7 +566,15 @@ function jfb_output_premium_panel_tease()
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_notifyusers?>" value="1" <?php echo get_option($opt_jfbp_notifyusers)?'checked="checked"':''?> /> Send a custom welcome e-mail to users who register via Facebook <small>(*If we know their address)</small><br />
         <input <?php disableatt() ?> type="text" size="102" name="<?php echo $opt_jfbp_notifyusers_subject?>" value="<?php echo get_option($opt_jfbp_notifyusers_subject) ?>" /><br />
         <textarea <?php disableatt() ?> cols="85" rows="5" name="<?php echo $opt_jfbp_notifyusers_content?>"><?php echo get_option($opt_jfbp_notifyusers_content) ?></textarea><br /><br />
-        
+
+        <b>BuddyPress Activity Stream:</b><br />
+        <?php add_option($opt_jfbp_bpstream_logincontent, "%user% logged in with Facebook"); ?>
+        <?php add_option($opt_jfbp_bpstream_registercontent, "%user% registered with Facebook"); ?>
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_bpstream_register?>" value="1" <?php echo get_option($opt_jfbp_bpstream_register)?'checked="checked"':''?> /> When a new user autoconnects to your site, post to the BP Activity Stream:
+        <input <?php disableatt() ?> type="text" size="50" name="<?php echo $opt_jfbp_bpstream_registercontent?>" value="<?php echo get_option($opt_jfbp_bpstream_registercontent) ?>" /><br />
+		<input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_bpstream_login?>" value="1" <?php echo get_option($opt_jfbp_bpstream_login)?'checked="checked"':''?> /> When an existing user returns to your site, post to the BP Activity Stream:
+        <input <?php disableatt() ?> type="text" size="50" name="<?php echo $opt_jfbp_bpstream_logincontent?>" value="<?php echo get_option($opt_jfbp_bpstream_logincontent) ?>" /><br /><br />
+ 
 		<b>BuddyPress X-Profile Mappings</b><br />
 		This section will let you automatically fill in your Buddypress users' X-Profile data from their Facebook profiles.<br />
 		<small>&bull; Facebook fields marked with an asterisk (i.e. Birthday*) require the user to approve extra permissions during login.</small><br />
@@ -586,6 +598,7 @@ function jfb_output_premium_panel_tease()
             $allowed_mappings = array('textbox'       =>array('id'=>"ID", 'name'=>"Name", 'first_name'=>"First Name", 'middle_name'=>"Middle Name", 'last_name'=>"Last Name", 'username'=>"Username", 'gender'=>"Gender", 'link'=>"Profile URL", "website"=>"Website*", 'bio'=>"Bio*", 'political'=>"Political*", "religion"=>"Religion*", 'relationship_status'=>"Relationship*", "location"=>"City*", "hometown"=>"Hometown*", 'languages'=>"Languages*"),
                                       'textarea'      =>array('id'=>"ID", 'name'=>"Name", 'first_name'=>"First Name", 'middle_name'=>"Middle Name", 'last_name'=>"Last Name", 'username'=>"Username", 'gender'=>"Gender", 'link'=>"Profile URL", "website"=>"Website*", 'bio'=>"Bio*", 'political'=>"Political*", "religion"=>"Religion*", 'relationship_status'=>"Relationship*", "location"=>"City*", "hometown"=>"Hometown*", 'languages'=>"Languages*"),
                          		      'datebox'       =>array('birthday'=>'Birthday*'));
+			$allowed_mappings = apply_filters('wpfb_xprofile_allowed_mappings', $allowed_mappings);
 
             //Go through all of the XProfile fields and offer possible Facebook mappings for each (in a dropdown).
             //(current_mappings is used to set the initial state of the panel, i.e. based on what mappings are already in the db)

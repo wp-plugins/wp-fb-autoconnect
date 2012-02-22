@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "2.2.1";
+$jfb_version    = "2.2.2";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 $jfb_data_url   = plugins_url(dirname(plugin_basename(__FILE__)));
 
@@ -46,6 +46,7 @@ $jfb_default_email  = '@unknown.com';
 //List to remember how many times we've called jfb_output_facebook_callback(), preventing duplicates
 $jfb_callback_list = array(); 
 
+
 //Error reporting function
 function j_die($msg)
 {
@@ -56,17 +57,57 @@ function j_die($msg)
     die($msg);
 }
 
-//Log reporting function
+/*
+ * Log reporting function: If enabled, email a detailed log to the site admin
+ */
 function j_mail($subj, $msg='')
 {
     global $opt_jfb_email_to, $opt_jfb_email_logs, $jfb_log;
+	global $jfb_debug_array;
     if( get_option($opt_jfb_email_logs) && get_option($opt_jfb_email_to) )
     {
         if( $msg )            $msg .= "\n\n";
         if( isset($jfb_log) ) $msg .= "---LOG:---\n" . $jfb_log;
+		
+		jfb_debug_checkpoint('final');
+		$count = count($jfb_debug_array);
+		$keys = array_keys($jfb_debug_array);
+		
+		$msg .= "\n---TIME:---\n";
+		for($i=0; $i<$count; $i++)
+		{
+			if($i==0) $msg .= sprintf("%-9s", $keys[$i]) . ") +0s\n";
+			else 	  $msg .= sprintf("%-9s", $keys[$i]) . ") +" . round($jfb_debug_array[$keys[$i]]['time']-$jfb_debug_array[$keys[$i-1]]['time'],2) . "s\n";
+		}
+		$msg .= "TOTAL    ) " . round($jfb_debug_array[$keys[$count-1]]['time']-$jfb_debug_array[$keys[0]]['time'],2) . "s\n";
+		
+		$msg .= "\n---MEMORY:---\n";
+		for($i=0; $i<$count; $i++)
+		{
+			$value = $jfb_debug_array[$keys[$i]]['mem'];
+			if($i==0) $msg .= sprintf("%-9s", $keys[$i]) . ") " . round( $value / (1024*1024), 2) . "M\n";
+			else      $msg .= sprintf("%-9s", $keys[$i]) . ") " . round( $value / (1024*1024), 2) . "M (+".round(($value-$jfb_debug_array[$keys[$i-1]]['mem'])/(1024*1024),2)."M)\n";
+		}
+		$msg .= "LIMIT    ) " . ini_get('memory_limit') . "\n";
+		        
         $msg .= "\n---REQUEST:---\n" . print_r($_REQUEST, true);
         mail(get_option($opt_jfb_email_to), $subj, $msg);
     }
+}
+
+
+/**
+  * A function for debuging time/memory usage at various points in script execution.
+  * Calling this function (with a label) will add a "checkpoint."  All checkpoints will be
+  * included in the final log sent to the admin by j_mail 
+  */
+function jfb_debug_checkpoint($label)
+{
+	global $jfb_debug_array;
+	if(!is_array($jfb_debug_array)) $jfb_debug_array = array();
+    $time = explode (' ',microtime()); 
+    $time = (double)($time[0] + $time[1]);
+	$jfb_debug_array[$label] = array('time'=>$time, 'mem'=>memory_get_usage()); 
 }
 
 

@@ -3,8 +3,8 @@ Contributors: Justin_K
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T88Y2AZ53836U
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
-Tested up to: 3.3
-Stable tag: 2.2.1
+Tested up to: 3.3.1
+Stable tag: 2.2.2
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -60,6 +60,13 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 2.2.2 (2012/02/22) =
+* Update version compatibility number
+* The 'Failed to get the Facebook User Session' error now refers to a specific FAQ.
+* Add support for debugging memory usage and execution time (via the email logs)
+* Combine Admin notices into one action
+* Update the admin panel's premium teaser to include newly-added features
+
 = 2.2.1 (2012/01/10) =
 * Add an admin panel check to warn users whose servers don't have CURL installed
 * Add an admin panel check to warn users whose servers dont have JSON installed
