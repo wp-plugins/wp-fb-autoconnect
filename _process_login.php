@@ -258,9 +258,13 @@ $jfb_log .= "WP: Updated usermeta ($jfb_uid_meta_name)\n";
 //Also store the user's facebook avatar(s), in case the user wants to use them later
 if( $fbuser['pic_square'] )
 {
-    update_user_meta($user_login_id, 'facebook_avatar_thumb', $fbuser['pic_square']);
-    update_user_meta($user_login_id, 'facebook_avatar_full', $fbuser['pic_big']);
-    $jfb_log .= "WP: Updated avatars (" . $fbuser['pic_square'] . ")\n";
+    if( isset($fbuser['pic_square']['data']['url']) ) $avatarThumb = $fbuser['pic_square']['data']['url']; 
+	else 											  $avatarThumb = $fbuser['pic_square'];
+    if( isset($fbuser['pic_big']['data']['url']) )    $avatarFull = $fbuser['pic_big']['data']['url'];
+	else 											  $avatarFull = $fbuser['pic_big'];
+	update_user_meta($user_login_id, 'facebook_avatar_full', $avatarFull);
+	update_user_meta($user_login_id, 'facebook_avatar_thumb', $avatarThumb);
+	$jfb_log .= "WP: Updated avatars (" . $avatarThumb . ")\n";
 }
 else
 {
