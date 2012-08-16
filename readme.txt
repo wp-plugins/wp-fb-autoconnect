@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.3.1
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -60,6 +60,9 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 2.3.2 (2012/08/16) =
+* Facebook has yet again broken their API, causing avatars to always fetch size 50x50 (even for the "large" size used by BuddyPress and some 3rd party themes).  This update should work around FB's bug, returning avatars to their former behavior.
+
 = 2.3.1 (2012/07/21) =
 * Fix a rare bug with avatar fetching
 

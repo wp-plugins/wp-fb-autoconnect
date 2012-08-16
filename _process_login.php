@@ -96,10 +96,14 @@ try
 {
     $fbuser = $facebook->api('/me');
     $fbuser['profile_url'] = $fbuser['link'];
-    $pic = $facebook->api('/me', array('fields' => 'picture', 'type' => 'square'));
-    $fbuser['pic_square'] = $pic['picture'];
-    $pic = $facebook->api('/me', array('fields' => 'picture', 'type' => 'large'));
-    $fbuser['pic_big'] = $pic['picture'];
+    //$pic = $facebook->api('/me', array('fields' => 'picture', 'type' => 'square'));
+   	//$fbuser['pic_square'] = $pic['picture'];
+   	$pic = $facebook->api(array('method'=>'fql.query', 'query'=>"SELECT pic_square FROM user WHERE uid=$fb_uid"));
+	$fbuser['pic_square'] = $pic[0]['pic_square']; 
+    //$pic = $facebook->api('/me', array('fields' => 'picture', 'type' => 'large'));
+   	//$fbuser['pic_big'] = $pic['picture'];
+   	$pic = $facebook->api(array('method'=>'fql.query', 'query'=>"SELECT pic_big FROM user WHERE uid=$fb_uid")); 
+    $fbuser['pic_big'] = $pic[0]['pic_big'];
 }
 catch( Exception $e ) {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) . "; " . $e );}
 if( !$fbuser )        {j_die("Error: Could not access the Facebook API client (failed on users_getInfo($fb_uid)).  Result: " . print_r($fbuserarray, true) ); }
@@ -264,7 +268,8 @@ if( $fbuser['pic_square'] )
 	else 											  $avatarFull = $fbuser['pic_big'];
 	update_user_meta($user_login_id, 'facebook_avatar_full', $avatarFull);
 	update_user_meta($user_login_id, 'facebook_avatar_thumb', $avatarThumb);
-	$jfb_log .= "WP: Updated avatars (" . $avatarThumb . ")\n";
+	$jfb_log .= "WP: Updated small avatar ($avatarThumb)\n";
+	$jfb_log .= "WP: Updated large avatar ($avatarFull)\n"; 
 }
 else
 {
