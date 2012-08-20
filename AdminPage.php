@@ -351,7 +351,7 @@ function jfb_admin_page()
     	           curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0');
     	           $curlcontent = @curl_exec($ch);
     	           $x=json_decode($curlcontent);
-    	           if ($x->name=="Facebook Platform") echo "<b>OK</b><br />";
+    	           if ($x->name=="Facebook Developers") echo "<b>OK</b><br />";
                    else                               echo "<b>Curl is available but cannot access Facebook!</b> (" . curl_errno($ch) ." - ". curl_error($ch) .")<br />";
       	           curl_close($ch);
     	        }
