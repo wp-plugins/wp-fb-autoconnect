@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.3.3
+ * Version: 2.3.4
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -291,6 +291,9 @@ function jfb_wp_avatar($avatar, $id_or_email, $size, $default, $alt)
 	$fb_img = get_user_meta($user_id, 'facebook_avatar_thumb', true);
 	if( !$fb_img ) return $avatar;
 	
+	//Users who didn't update to 2.3.1 when it was released may have some malformed avatar URLs in their db.  Handle this.
+	if( is_array($fb_img) && isset($fb_img['data']['url'])) $fb_img = $fb_img['data']['url'];
+	
 	//If the usermeta doesn't contain an absolute path, prefix it with the path to the uploads dir
 	if( strpos($fb_img, "http") === FALSE )
 	{
@@ -322,6 +325,9 @@ function jfb_bp_avatar($avatar, $params='')
 	if( !$fb_img )                  $fb_img = get_user_meta($user_id, 'facebook_avatar_thumb', true);
 	if( !$fb_img )                  return $avatar;
 
+	//Users who didn't update to 2.3.1 when it was released may have some malformed avatar URLs in their db.  Handle this.
+	if( is_array($fb_img) && isset($fb_img['data']['url'])) $fb_img = $fb_img['data']['url'];
+	
 	//If the usermeta doesn't contain an absolute path, prefix it with the path to the uploads dir
 	if( strpos($fb_img, "http") === FALSE )
 	{
