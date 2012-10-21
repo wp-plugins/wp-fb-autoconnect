@@ -27,7 +27,33 @@ $browser = jfb_get_browser();
 $jfb_log = "Starting login process (Client: " . $_SERVER['REMOTE_ADDR'] . ", Version: $jfb_version, Browser: " . $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . ")\n";
 
 //Run one hook before ANYTHING happens.
+$jfb_log .= "WP: Running action wpfb_prelogin\n";
 do_action('wpfb_prelogin');
+
+
+//Include Facebook, making sure another plugin didn't already do so
+if( class_exists('Facebook') )
+{
+    $jfb_log .= "WP: WARNING - Another plugin has already included the Facebook API. "
+             .  "If the login fails, please contact the other plugin's author and ask them not to "
+             .  "include Facebook for every page throughout Wordpress.\n";
+}
+else
+{
+    require_once('facebook-platform/php-sdk-3.1.1/facebook.php');
+}
+
+
+//Connect to FB and make sure we've got a valid session (we should already from the cookie set by JS)  
+$jfb_log .= "FB: Initiating Facebook connection...\n";
+$facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
+try                              { $fb_uid = $facebook->getUser(); }
+catch (FacebookApiException $e)  { j_die("Error: Exception when getting the Facebook userid. Please verify your API Key and Secret."); }
+if (!$fb_uid)                    { j_die("Error: Failed to get the Facebook user session. Please see FAQ37 on the plugin documentation page. UID: $fb_uid"); } 
+$jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
+$jfb_log .= "WP: Running action wpfb_session_established\n";
+do_action('wpfb_session_established', array('FB_ID' => $fb_uid, 'facebook' => $facebook) );
+
 
 //Check the nonce to make sure this was a valid login attempt (unless the user has disabled nonce checking)
 if( !get_option($opt_jfb_disablenonce) )
@@ -69,27 +95,6 @@ if( !isset($_POST['redirectTo']) || !$_POST['redirectTo'] )
 $redirectTo = $_POST['redirectTo'];
 $jfb_log .= "WP: Found redirect URL ($redirectTo)\n";
 
-
-//Include Facebook, making sure another plugin didn't already do so
-if( class_exists('Facebook') )
-{
-    $jfb_log .= "WP: WARNING - Another plugin has already included the Facebook API. "
-             .  "If the login fails, please contact the other plugin's author and ask them not to "
-             .  "include Facebook for every page throughout Wordpress.\n";
-}
-else
-{
-    require_once('facebook-platform/php-sdk-3.1.1/facebook.php');
-}
-
-
-//Connect to FB and make sure we've got a valid session (we should already from the cookie set by JS)  
-$jfb_log .= "FB: Initiating Facebook connection...\n";
-$facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>get_option($opt_jfb_api_sec), 'cookie'=>true ));
-try                              { $fb_uid = $facebook->getUser(); }
-catch (FacebookApiException $e)  { j_die("Error: Exception when getting the Facebook userid. Please verify your API Key and Secret."); }
-if (!$fb_uid)                    { j_die("Error: Failed to get the Facebook user session. Please see FAQ37 on the plugin documentation page. UID: $fb_uid"); } 
-$jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 //Get the user info from FB
 try
@@ -133,6 +138,7 @@ else
 //Run a hook so users can`examine this Facebook user *before* letting them login.  You might use this
 //to limit logins based on friendship status - if someone isn't your friend, you could redirect them
 //to an error page (and terminate this script).
+$jfb_log .= "WP: Running action wpfb_connect\n";
 do_action('wpfb_connect', array('FB_ID' => $fb_uid, 'facebook' => $facebook) );
 
 
@@ -210,6 +216,7 @@ if( $user_login_id )
     }
     
     //Run a hook when an existing user logs in
+    $jfb_log .= "WP: Running action wpfb_existing_user\n";
     do_action('wpfb_existing_user', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook, 'WP_UserData' => $user_data) );
 }
 
@@ -232,6 +239,7 @@ if( !$user_login_id )
     
     //Run a filter so the user can be modified to something different before registration
     //NOTE: If the user has selected "pretty names", this'll change FB_xxx to i.e. "John.Smith"
+    $jfb_log .= "WP: Applying filters wpfb_insert_user/wpfb_inserting_user\n";
     $user_data = apply_filters('wpfb_insert_user', $user_data, $fbuser );
     $user_data = apply_filters('wpfb_inserting_user', $user_data, array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook, 'FB_UserData' => $fbuser) );
     
@@ -252,6 +260,7 @@ if( !$user_login_id )
     wp_new_user_notification($user_login_name);
     
     //Run an action so i.e. usermeta can be added to a user after registration
+    $jfb_log .= "WP: Running action wpfb_inserted_user\n";
     do_action('wpfb_inserted_user', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook, 'WP_UserData' => $user_data) );
 }
 
@@ -284,6 +293,7 @@ wp_set_auth_cookie( $user_login_id, $rememberme );
 
 //Run a custom action.  You can use this to modify a logging-in user however you like,
 //i.e. add them to a "Recent FB Visitors" log, assign a role if they're friends with you on Facebook, etc.
+$jfb_log .= "WP: Running action wpfb_login\n";
 do_action('wpfb_login', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook) );
 do_action('wp_login', $user_login_name);
 
