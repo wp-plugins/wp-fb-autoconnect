@@ -136,7 +136,7 @@ function jfb_admin_page()
 			//Note: this plugin doesn't actually use the app-token; I simply cache it so it can be accessible to users wishing to further
 			//interact with Facebook via hooks & filters.
 			$response = wp_remote_get("https://graph.facebook.com/oauth/access_token?client_id=" . $_POST[$opt_jfb_api_key] . "&client_secret=" . $_POST[$opt_jfb_api_sec] . "&grant_type=client_credentials");
-			if( strpos($response['body'], 'access_token=') !== FALSE )
+			if( is_array($response) && strpos($response['body'], 'access_token=') !== FALSE )
 			{
 				update_option( $opt_jfb_app_token, substr($response['body'], 13) );
 				?><div class="updated"><p><strong>Successfully connected with <?php echo $message ?></strong></p></div><?php
