@@ -72,7 +72,7 @@ function jfb_admin_notices()
  */
 function jfb_admin_page()
 {
-    global $jfb_name, $jfb_version;
+    global $jfb_name, $jfb_version, $opt_jfb_app_token;
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
@@ -131,7 +131,21 @@ function jfb_admin_page()
             update_option( $opt_jfb_valid, 1 );
             if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
                jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
-            ?><div class="updated"><p><strong>Successfully connected with <?php echo $message ?></strong></p></div><?php
+			
+			//Also fetch an app token and store it in the options table.  App tokens never expire unless the app secret is refreshed.
+			//Note: this plugin doesn't actually use the app-token; I simply cache it so it can be accessible to users wishing to further
+			//interact with Facebook via hooks & filters.
+			$response = wp_remote_get("https://graph.facebook.com/oauth/access_token?client_id=" . $_POST[$opt_jfb_api_key] . "&client_secret=" . $_POST[$opt_jfb_api_sec] . "&grant_type=client_credentials");
+			if( strpos($response['body'], 'access_token=') !== FALSE )
+			{
+				update_option( $opt_jfb_app_token, substr($response['body'], 13) );
+				?><div class="updated"><p><strong>Successfully connected with <?php echo $message ?></strong></p></div><?php
+			}
+			else
+			{
+				update_option($opt_jfb_app_token, 0);
+				?><div class="updated"><p><strong>Successfully connected with <?php echo $message ?>,</strong> <i>but the app token could not be obtained.</i><br />This will not affect the plugin's functionality if you have not implemented any custom add-ons - it's safe to ignore this warning.</p></div><?php
+			}
         }
         else
         {
@@ -179,6 +193,7 @@ function jfb_admin_page()
         delete_option($opt_jfb_stream_content);
         delete_option($opt_jfb_mod_done);
         delete_option($opt_jfb_valid);
+		delete_option($opt_jfb_app_token);
         delete_option($opt_jfb_bp_avatars);
         delete_option($opt_jfb_wp_avatars);
         delete_option($opt_jfb_fulllogerr);

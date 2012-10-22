@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.4.2
-Stable tag: 2.3.5
+Stable tag: 2.3.6
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -60,6 +60,9 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 2.3.6 (2012-10-21) =
+* When connecting with Facebook in the admin panel, cache the app token to the database (so addons/customizations can use it to access the API later)
+
 = 2.3.5 (2012-10-20) =
 * Add log messages when each action/filter is run in _process_login.php (for debugging add-ins)
 * Move the Facebook connection to *before* the nonce check

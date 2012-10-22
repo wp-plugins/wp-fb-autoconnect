@@ -54,6 +54,15 @@ $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 $jfb_log .= "WP: Running action wpfb_session_established\n";
 do_action('wpfb_session_established', array('FB_ID' => $fb_uid, 'facebook' => $facebook) );
 
+//New in v2.3.6: the app access token is stored in the database, so it can be used by 3rd party addons to interact with the API.
+//It's fetched when you "Connect" to Facebook in the admin panel; for people who setup the plugin prior to 2.3.6, check if the value is there and cache it once now.
+add_option($opt_jfb_app_token, -1);
+if(get_option($opt_jfb_app_token) == -1)
+{
+	$jfb_log .= "FB: ONE-TIME UPDATE: Cacheing app access token to database.\n";
+	$response = wp_remote_get("https://graph.facebook.com/oauth/access_token?client_id=" . get_option($opt_jfb_api_key) . "&client_secret=" . get_option($opt_jfb_api_sec) . "&grant_type=client_credentials");
+	update_option( $opt_jfb_app_token, substr($response['body'], 13) );
+}
 
 //Check the nonce to make sure this was a valid login attempt (unless the user has disabled nonce checking)
 if( !get_option($opt_jfb_disablenonce) )
