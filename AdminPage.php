@@ -7,7 +7,7 @@ add_action('admin_menu', 'jfb_add_admin_page', 99);
 function jfb_add_admin_page()
 { 
     global $jfb_name;
-    add_options_page("$jfb_name Options", 'WP-FB AutoConn', 'administrator', "wp-fb-autoconnect", 'jfb_admin_page');
+    add_options_page("$jfb_name Options", 'WP-FB AutoConn' . (defined('JFB_PREMIUM')?"+":""), 'administrator', "wp-fb-autoconnect", 'jfb_admin_page');
 }
 
 

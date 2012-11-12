@@ -249,7 +249,7 @@ if( !$user_login_id )
         j_die("Error: wp_insert_user failed!<br/><br/>".
               "If you get this error while running a Wordpress MultiSite installation, it means you'll need to purchase the <a href=\"$jfb_homepage#premium\">premium version</a> of this plugin to enable full MultiSite support.<br/><br/>".
               "If you're <u><i>not</i></u> using MultiSite, please report this bug to the plugin author on the support page <a href=\"$jfb_homepage#feedback\">here</a>.<br /><br />".
-              "Error message: " . (function_exists(array(&$user_login_id,'get_error_message'))?$user_login_id->get_error_message():"Undefined") . "<br />".
+              "Error message: " . (method_exists($user_login_id, 'get_error_message')?$user_login_id->get_error_message():"Undefined") . "<br />".
               "WP_ALLOW_MULTISITE: " . (defined('WP_ALLOW_MULTISITE')?constant('WP_ALLOW_MULTISITE'):"Undefined") . "<br />".
               "is_multisite: " . (function_exists('is_multisite')?is_multisite():"Undefined"));
     }
