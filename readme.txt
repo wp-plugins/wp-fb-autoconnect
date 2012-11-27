@@ -62,6 +62,7 @@ For more information on exactly how this plugin's login process works and how it
 == Changelog ==
 = 2.4.0 (2012-11-26) =
 * I've eliminated the old REST PHP library, which was only being used to validate the AppID & Secret in the admin panel; validation is now done with Graph.  IMPORTANT: If you've been using this plugin since the old "App Key" days (over a year ago) and the AppID in your admin panel is an old alphanumeric value, you should replace it with the new numeric-only AppID shown in your App's settings on Facebook.
+* Include the AppID in login logs
 
 = 2.3.11 (2012-11-19) =
 * Add a few more things to the Support Info tab
