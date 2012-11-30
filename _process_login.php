@@ -85,7 +85,7 @@ $facebook = new Facebook(array('appId'=>get_option($opt_jfb_app_id), 'secret'=>g
 try                              { $uid = $facebook->getUser(); }
 catch (FacebookApiException $e)  { $jfb_log .= "Warning: Exception when getting the Facebook userid. Please verify your API Key and Secret.\n"; }
 if (!$uid)                       { $jfb_log .= "Warning: Failed to get the Facebook user session. Please see FAQ37 on the plugin documentation page. UID: $uid\n"; } 
-do_action('wpfb_session_established', array('FB_ID' => $fb_uid, 'facebook' => $facebook, 'access_token'=>$access_token) );
+do_action('wpfb_session_established', array('FB_ID' => $uid, 'facebook' => $facebook, 'access_token'=>$access_token) );
 ////DEPRECATED CODE////
 
 
