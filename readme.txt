@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.4.2
-Stable tag: 2.4.1
+Stable tag: 2.5.0
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -60,6 +60,17 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 2.5.0 (2012-11-29) =
+* I've eliminated the need for the Facebook PHP SDK entirely.  Although it's still included and passed to the actions/filters for backwards-compatibility, calls to the Graph API should now performed via jfb_api_get() and jfb_api_post(), using the access_token provided.  Specific changes:
+* Rename jfb_get() to jfb_api_get()
+* Add jfb_api_post() for API calls requiring HTTP POST
+* Facebook JSON responses are decoded to associative arrays rather than objects (to match the format of the PHP SDK)
+* Rename "accessToken" to "access_token" to better match the naming convention used by the Graph API
+* Update jfb_post_to_wall() to avoid using the $facebook class
+* Update all queries & error checks in _process_login.php to avoid using the $facebook class
+* Rearrange things in _process_login.php, putting the $facebook initialization code into a "to deprecate" block
+* Get rid of the 2.3.6 'one-time update' code to store the app access token in the DB
+
 = 2.4.1 (2012-11-27) =
 * Explicitly pass & check for the user access token in _process_login.php
 * Provide the user access token to wpfb_session_established, wpfb_connect, wpfb_existing_user, wpfb_inserting_user, wpfb_inserted_user, and wpfb_login (so you can use it to query the Graph API in your addons)

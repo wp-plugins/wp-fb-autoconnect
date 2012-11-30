@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "2.4.1";
+$jfb_version    = "2.5.0";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 $jfb_data_url   = plugins_url(dirname(plugin_basename(__FILE__)));
 
@@ -48,24 +48,35 @@ $jfb_default_email  = '@unknown.com';
 $jfb_callback_list = array(); 
 
 
-//A wrapper function to pull data from the Facebook Graph API
-function jfb_get($url)
+//A wrapper function to GET data from the Facebook Graph API
+function jfb_api_get($url)
 {
-    //Try to access the URL
-    $result = wp_remote_get($url, array( 'sslverify' => false ));
-    
-    //In some rare situations, Wordpress may unexpectedly return WP_Error.  If so, I'll create a Facebook-style error object
+    return jfb_api_process( wp_remote_get($url, array( 'sslverify' => false )) );
+}
+
+//A wrapper function to POST data to the Facebook Graph API
+function jfb_api_post($url)
+{
+    return jfb_api_process( wp_remote_post($url, array( 'sslverify' => false )) );
+}
+
+//Process the result of GETting or POSTing the Graph API
+function jfb_api_process($result)
+{   
+    //In some situations, Wordpress may unexpectedly return WP_Error.  If so, I'll create a Facebook-style error array
     //so my Facebook-style error handling will pick it up without special cases everywhere.
     if(is_wp_error($result))
     {
-        $result->error->message = "wp_remote_get() failed!";
-        if( method_exists($result, 'get_error_message')) $result->error->message .= " Message: " . $result->get_error_message();
-        return $result;
+        $errResult = array();
+        $errResult['error']['message'] = "wp_remote_get() failed!";
+        if( method_exists($result, 'get_error_message')) $errResult['error']['message'] .= " Message: " . $result->get_error_message();
+        return $errResult;
     }
     
-    //Otherwise, we're OK - decode the JSON text provided by Facebook into a PHP object.
-    return json_decode($result['body']);
+    //Otherwise, decode the JSON text provided by Facebook into a PHP object.
+    return json_decode($result['body'], true);
 }
+
 
 //Error reporting function
 function j_die($msg)

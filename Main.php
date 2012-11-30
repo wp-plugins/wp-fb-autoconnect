@@ -2,14 +2,14 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.4.1
+ * Version: 2.5.0
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
 
 
 /*
- * Copyright 2010-2011 Justin Klein (email: justin@justin-klein.com)
+ * Copyright 2010-2012 Justin Klein (email: justin@justin-klein.com)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -215,7 +215,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
      //Output an html form that we'll submit via JS once the FB login is complete; it redirects us to the PHP script that logs us into WP.  
      ?><form id="wp-fb-ac-fm" name="<?php echo $callbackName ?>_form" method="post" action="<?php echo plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php"?>" >
           <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
-          <input type="hidden" name="accessToken" id="jfb_accessToken" value="0" />
+          <input type="hidden" name="access_token" id="jfb_access_token" value="0" />
           <?php wp_nonce_field ($jfb_nonce_name, $jfb_nonce_name) ?>
           <?php do_action('wpfb_add_to_form'); ?>   
      </form>
@@ -238,7 +238,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
             }
             
             //Set the access token to be sent in to our login script
-            jQuery('#jfb_accessToken').val(response.authResponse.accessToken);
+            jQuery('#jfb_access_token').val(response.authResponse.accessToken);
         
             //Submit the login and close the FB.getLoginStatus call
             <?php echo apply_filters('wpfb_submit_loginfrm', "document." . $callbackName . "_form.submit();\n" ); ?>
@@ -412,16 +412,12 @@ if( get_option($opt_jfb_ask_stream) ) add_action('wpfb_inserted_user', 'jfb_post
 function jfb_post_to_wall($args)
 {
     global $opt_jfb_ask_stream, $jfb_log, $opt_jfb_stream_content;
-    try
-    {
-        $jfb_log .= "FB: Publishing registration news to user's wall.\n";
-        $args['facebook']->api('/me/feed/', 'post', array('access_token' => $args['facebook']->access_token, 'message' => get_option($opt_jfb_stream_content)));
-    }
-    catch (FacebookApiException $e)
-    {
-        $jfb_log .= "WARNING: Failed to publish to the user's wall (is your message too long?) (" . $e . ")\n";
-    }
-}   
+    $jfb_log .= "FB: Publishing registration news to user's wall.\n";
+    $url = "https://graph.facebook.com/me/feed?message=" . urlencode(get_option($opt_jfb_stream_content)) . "&access_token=".$args['access_token']; 
+    $reply = jfb_api_post($url);
+    if(isset($reply['error']))
+        $jfb_log .= "WARNING: Failed to publish to the user's wall (" . $reply['error']['message'] . ")\n";
+}
 
 /**********************************************************************/
 /*******************BUDDYPRESS (previously in BuddyPress.php)**********/
