@@ -68,7 +68,7 @@ $jfb_log .= "FB: Found access token (" . substr($access_token, 0, 30) . "...)\n"
 
 
 ////DEPRECATED CODE////
-//As of 3.5.0, this plugin uses jfb_api_get() and jfb_api_post() to access Facebook Graph URLs directly.
+//As of 2.5.0, this plugin uses jfb_api_get() and jfb_api_post() to access Facebook Graph URLs directly.
 //I'm in the process of retiring the FB PHP SDK; it's still included here for backwards compatibility,
 //but you should NOT use "$facebook" when developing your addons from now on.
 if( class_exists('Facebook') )
