@@ -98,9 +98,8 @@ $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
 //Get some extra stuff (TODO: I should combine these into one query with the above, for better efficiency)
 $fbuser['profile_url'] = $fbuser['link'];
-$pic = jfb_api_get("https://graph.facebook.com/fql?q=".urlencode("SELECT pic_square FROM user WHERE uid=$fb_uid")."&access_token=$access_token");
+$pic = jfb_api_get("https://graph.facebook.com/fql?q=".urlencode("SELECT pic_square,pic_big FROM user WHERE uid=$fb_uid")."&access_token=$access_token");
 $fbuser['pic_square'] = $pic['data'][0]['pic_square']; 
-$pic = jfb_api_get("https://graph.facebook.com/fql?q=".urlencode("SELECT pic_big FROM user WHERE uid=$fb_uid")."&access_token=$access_token");
 $fbuser['pic_big'] = $pic['data'][0]['pic_big'];
 $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 

@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.5.0
+ * Version: 2.5.1
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -76,12 +76,11 @@ function jfb_enqueue_styles()
 
 
 /*
- * Output a Facebook Connect Button.  Note that the button will not function until you've called 
- * jfb_output_facebook_init().  I use document.write() because the button isn't XHTML valid.
- * NOTE: The button tag itself maybe overwritten by the Premium addon (wpfb_output_button filter)
+ * Output a Login with Facebook Button.
  */
 function jfb_output_facebook_btn()
 {
+    //Make sure the plugin has been setup
     global $jfb_name, $jfb_version, $jfb_js_callbackfunc, $opt_jfb_valid;
     global $opt_jfb_ask_perms, $opt_jfb_ask_stream, $opt_jfbp_requirerealmail;
     echo "<!-- $jfb_name Button v$jfb_version -->\n";
@@ -90,31 +89,35 @@ function jfb_output_facebook_btn()
         echo "<!--WARNING: Invalid or Unset Facebook API Key-->";
         return;
     }
-    ?>
-    <span class="fbLoginButton">
-    <script type="text/javascript">//<!--
-    <?php 
-    $btnTag = "document.write('<fb:login-button v=\"2\" size=\"small\" onlogin=\"$jfb_js_callbackfunc();\">Login with Facebook</fb:login-button>');";  
-
-    //Let the premium addon overwrite the size/text
-    $btnTag = apply_filters('wpfb_output_button', $btnTag );
-        
-    //Tell the button about the extended permissions it'll prompt for
+    
+    //Figure out our scope (aka extended permissions)
     $email_perms = get_option($opt_jfb_ask_perms) || get_option($opt_jfbp_requirerealmail);
     $stream_perms = get_option($opt_jfb_ask_stream);
-    if( $email_perms && $stream_perms )    $attr = 'scope="'.apply_filters('wpfb_extended_permissions','email,publish_stream').'"';
-    else if( $email_perms )                $attr = 'scope="'.apply_filters('wpfb_extended_permissions','email').'"';
-    else if( $stream_perms )               $attr = 'scope="'.apply_filters('wpfb_extended_permissions','publish_stream').'"';
-    else                                   $attr = 'scope="'.apply_filters('wpfb_extended_permissions','') . '"';
-    $btnTag = str_replace( "login-button ", "login-button " . $attr . " ", $btnTag);
-        
-    //Output!
-    echo $btnTag;
-    ?>
-    //--></script>
-    </span>
+    if( $email_perms && $stream_perms )    $scope = 'email,publish_stream';
+    else if( $email_perms )                $scope = 'email';
+    else if( $stream_perms )               $scope = 'publish_stream';
+    else                                   $scope = '';
+    $scope = apply_filters('wpfb_extended_permissions', $scope);
     
-    <?php
+    //Output the button for the Premium version
+    if(defined('JFB_PREMIUM_VER'))
+    {
+        ?><span class="fbLoginButton"><script type="text/javascript">//<!--
+        <?php $btnTag = jfb_output_facebook_btn_premium('');
+        echo str_replace( "login-button ", "login-button scope=\"" . $scope . "\" ", $btnTag); ?>
+        //--></script></span><?php
+    }
+    
+    //Output the button for the free version
+    else
+    {
+        ?><span class="fbLoginButton"><script type="text/javascript">//<!--
+        <?php $btnTag = "document.write('<fb:login-button v=\"2\" size=\"small\" onlogin=\"$jfb_js_callbackfunc();\">Login with Facebook</fb:login-button>');";
+        echo str_replace( "login-button ", "login-button scope=\"" . $scope . "\" ", $btnTag);  ?>
+        //--></script></span><?php
+    }
+ 
+    //Run action
     do_action('wpfb_after_button');
 }
 
