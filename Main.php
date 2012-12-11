@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.5.1
+ * Version: 2.5.2
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -103,8 +103,7 @@ function jfb_output_facebook_btn()
     if(defined('JFB_PREMIUM_VER'))
     {
         ?><span class="fbLoginButton"><script type="text/javascript">//<!--
-        <?php $btnTag = jfb_output_facebook_btn_premium('');
-        echo str_replace( "login-button ", "login-button scope=\"" . $scope . "\" ", $btnTag); ?>
+            <?php echo str_replace( "login-button ", "login-button scope=\"" . $scope . "\" ", jfb_output_facebook_btn_premium('')); ?>
         //--></script></span><?php
     }
     
@@ -112,8 +111,7 @@ function jfb_output_facebook_btn()
     else
     {
         ?><span class="fbLoginButton"><script type="text/javascript">//<!--
-        <?php $btnTag = "document.write('<fb:login-button v=\"2\" size=\"small\" onlogin=\"$jfb_js_callbackfunc();\">Login with Facebook</fb:login-button>');";
-        echo str_replace( "login-button ", "login-button scope=\"" . $scope . "\" ", $btnTag);  ?>
+            <?php echo "document.write('<fb:login-button scope=\"" . $scope . "\" v=\"2\" size=\"small\" onlogin=\"$jfb_js_callbackfunc();\">Login with Facebook</fb:login-button>');"; ?>
         //--></script></span><?php
     }
  
