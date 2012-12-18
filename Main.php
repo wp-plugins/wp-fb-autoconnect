@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.5.2
+ * Version: 2.5.3
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -111,7 +111,7 @@ function jfb_output_facebook_btn()
     else
     {
         ?><span class="fbLoginButton"><script type="text/javascript">//<!--
-            <?php echo "document.write('<fb:login-button scope=\"" . $scope . "\" v=\"2\" size=\"small\" onlogin=\"$jfb_js_callbackfunc();\">Login with Facebook</fb:login-button>');"; ?>
+            document.write('<fb:login-button scope="<?php echo $scope ?>" v="2" size="small" onlogin="<?php echo $jfb_js_callbackfunc ?>();"><?php echo apply_filters('wpfb_button_text', 'Login with Facebook') ?></fb:login-button>');
         //--></script></span><?php
     }
  
@@ -328,6 +328,7 @@ function jfb_bp_avatar($avatar, $params='')
 	if (!$user_id)                                      return $avatar;
 	
     //Now that we have a userID, let's see if we have their facebook profile pic stored in usermeta.  If not, fallback on the default.
+	$fb_img = 0;
 	if( $params['type'] == 'full' ) $fb_img = get_user_meta($user_id, 'facebook_avatar_full', true);
 	if( !$fb_img )                  $fb_img = get_user_meta($user_id, 'facebook_avatar_thumb', true);
 	if( !$fb_img )                  return $avatar;
