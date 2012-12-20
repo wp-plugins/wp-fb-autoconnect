@@ -246,7 +246,7 @@ if( !$user_login_id )
     
     //Success! Notify the site admin.
     $user_login_name = $user_data['user_login'];
-    wp_new_user_notification($user_login_name);
+    wp_new_user_notification($user_login_id);
     
     //Run an action so i.e. usermeta can be added to a user after registration
     $jfb_log .= "WP: Running action wpfb_inserted_user\n";
