@@ -119,7 +119,7 @@ function jfb_admin_page()
 			//If we got here, we know the App ID is correct.  Now try to get an app token and store it in the options table; if this works we know the secret is correct too.  
 			//Note: this plugin doesn't actually use the app-token; I simply cache it so it can be accessible to users wishing to further interact with Facebook via hooks & filters.
 			//Note: App tokens never expire unless the app secret is refreshed.
-			$response = wp_remote_get("https://graph.facebook.com/oauth/access_token?client_id=" . $_POST[$opt_jfb_api_key] . "&client_secret=" . $_POST[$opt_jfb_api_sec] . "&grant_type=client_credentials");
+			$response = wp_remote_get("https://graph.facebook.com/oauth/access_token?client_id=" . $_POST[$opt_jfb_api_key] . "&client_secret=" . $_POST[$opt_jfb_api_sec] . "&grant_type=client_credentials", array( 'sslverify' => false ));
 			if( is_array($response) && strpos($response['body'], 'access_token=') !== FALSE )
 			{
                 //We're valid!
