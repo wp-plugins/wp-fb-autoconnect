@@ -60,7 +60,7 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
-= 2.5.7 (2012-12-24) =
+= 2.5.7 (2012-12-23) =
 * Fix for validating the API key/secret on servers with invalid SSL cert
 
 = 2.5.6 (2012-12-23) =
