@@ -284,7 +284,7 @@ wp_set_auth_cookie( $user_login_id, $rememberme );
 //i.e. add them to a "Recent FB Visitors" log, assign a role if they're friends with you on Facebook, etc.
 $jfb_log .= "WP: Running action wpfb_login\n";
 do_action('wpfb_login', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'facebook' => $facebook, 'access_token'=>$access_token) );
-do_action('wp_login', $user_login_name);
+do_action('wp_login', $user_login_name, $user_data);
 
 
 //Email logs if requested
