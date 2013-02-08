@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 2.5.9
+ * Version: 2.5.10
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -218,6 +218,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
      ?><form id="wp-fb-ac-fm" name="<?php echo $callbackName ?>_form" method="post" action="<?php echo plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php"?>" >
           <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
           <input type="hidden" name="access_token" id="jfb_access_token" value="0" />
+          <input type="hidden" name="fbuid" id="jfb_fbuid" value="0" />
           <?php wp_nonce_field ($jfb_nonce_name, $jfb_nonce_name) ?>
           <?php do_action('wpfb_add_to_form'); ?>   
      </form>
@@ -239,8 +240,9 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
                 return;
             }
             
-            //Set the access token to be sent in to our login script
+            //Set the uid & access token to be sent in to our login script
             jQuery('#jfb_access_token').val(response.authResponse.accessToken);
+            jQuery("#jfb_fbuid").val(response.authResponse.userID);
         
             //Submit the login and close the FB.getLoginStatus call
             <?php echo apply_filters('wpfb_submit_loginfrm', "document." . $callbackName . "_form.submit();\n" ); ?>

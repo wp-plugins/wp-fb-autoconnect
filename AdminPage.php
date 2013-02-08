@@ -333,29 +333,19 @@ function jfb_admin_page()
             	Browser Version: <b><?php $browser = jfb_get_browser(); echo $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform']; ?></b><br />
             	Plugin Version: <b><?php echo $jfb_version ?></b><br />
     			Addon Version: <b><?php echo defined('JFB_PREMIUM_VER')?JFB_PREMIUM_VER:"Not Detected";?></b><br />
-				Facebook API: <b><?php echo class_exists('Facebook')?"Already present!":"OK" ?></b><br /> 
+				Facebook API: <b><?php echo class_exists('Facebook')?"Already present!":"OK" ?></b><br />
+				Facebook App: <b><?php echo get_option($opt_jfb_app_id)?get_option($opt_jfb_app_id):"&lt;Unset&gt;"?></b><br/>
+				Facebook Reachable: 
+                <b><?php 
+                $result = jfb_api_get("https://graph.facebook.com/platform");
+                if(!$result)                       echo "NO (Empty Reply)";
+                else if (isset($result['error']))  echo "NO (" . isset($result['error']['message'])?$result['error']['message']:"Unknown" . ")";
+                else if (!$result['is_published']) echo "NO (is_published=false)";
+                else                               echo "OK";
+                ?></b><br/>
+				Facebook Validated: <b><?php echo get_option($opt_jfb_valid)?"OK":"NO"?></b><br/>
                 Theme: <b><?php echo get_current_theme(); ?></b><br />
                 Server: <b><?php echo substr($_SERVER['SERVER_SOFTWARE'], 0, 45) . (strlen($_SERVER['SERVER_SOFTWARE'])>45?"...":""); ?></b><br />
-                cURL: 
-                <?php 
-            	if( !function_exists('curl_init') ) 
-            	    echo "<b>Not installed!</b><br />";
-    	        else
-    	        {
-    	           $ch = curl_init();
-    	           curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/platform');
-    	           curl_setopt($ch, CURLOPT_HEADER, 0);
-    	           curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    	           curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    	           curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/facebook-platform/php-sdk-3.1.1/fb_ca_chain_bundle.crt');
-    	           curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0');
-    	           $curlcontent = @curl_exec($ch);
-    	           $x=json_decode($curlcontent);
-    	           if ($x->name=="Facebook Developers") echo "<b>OK</b><br />";
-                   else                               echo "<b>Curl is available but cannot access Facebook!</b> (" . curl_errno($ch) ." - ". curl_error($ch) .")<br />";
-      	           curl_close($ch);
-    	        }
-        	    ?>
                 Active Plugins: 
                 <?php $active_plugins = get_option('active_plugins');
                       $plug_info=get_plugins();

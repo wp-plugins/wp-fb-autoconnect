@@ -24,7 +24,7 @@ if( !defined('JFB_PREMIUM') ) @include_once("Premium.php");
 
 //Start logging
 $browser = jfb_get_browser();
-$jfb_log = "Starting login process (IP: " . $_SERVER['REMOTE_ADDR'] . ", App: " . get_option($opt_jfb_app_id) . ", Version: $jfb_version, Browser: " . $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . ")\n";
+$jfb_log = "Starting login process (IP: " . $_SERVER['REMOTE_ADDR'] . ", User: " . $_POST['fbuid'] . ", App: " . get_option($opt_jfb_app_id) . ", Version: $jfb_version, Browser: " . $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . ")\n";
 
 //Run one hook before ANYTHING happens.
 $jfb_log .= "WP: Running action wpfb_prelogin\n";
