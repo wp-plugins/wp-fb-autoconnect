@@ -49,7 +49,7 @@ function jfb_admin_notices()
  	//warn Premium users who have upgraded their free plugin, but not their addon.
 	if( defined('JFB_PREMIUM') && version_compare(JFB_PREMIUM_VER, 24) == -1 )
 	{
-	    ?><div class="error"><p><strong>Warning:</strong> This version of WP-FB-AutoConnect requires Premium addon version 24 or better (you're currently using version <?php echo JFB_PREMIUM_VER; ?>).  Please login to your account on <a target="store" href="http://store.justin-klein.com/index.php?route=account/download">store.justin-klein.com</a> to obtain the latest version.  I apologize for the inconvenience, but it was unavoidable due to a sudden change in Facebook's security policies.</p></div><?php
+	    ?><div class="error"><p><strong>Warning:</strong> This version of WP-FB-AutoConnect requires Premium addon version 24 or better (you're currently using version <?php echo JFB_PREMIUM_VER; ?>).  Please login to your account on <a target="store" href="http://www.justin-klein.com/store">justin-klein.com/store</a> to obtain the latest version.  I apologize for the inconvenience, but it was unavoidable due to a sudden change in Facebook's security policies.</p></div><?php
 	}
 	
 	//Warn if the user's server doesn't have cURL
