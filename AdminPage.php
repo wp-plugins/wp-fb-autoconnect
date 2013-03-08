@@ -464,9 +464,13 @@ function jfb_output_premium_panel_tease()
         <dfn title="The free plugin is not aware of users registered on other sites in your WPMU installation, which can result in problems i.e. if someone tries to register on more than one site.  The Premium version will actively detect and handle existing users across all your sites.">(Mouseover for more info)</dfn><br /><br />
 
         <b>Button Style:</b><br />
-        <?php add_option($opt_jfbp_buttontext, "Login with Facebook"); ?>
-        <?php add_option($opt_jfbp_buttonsize, "2"); ?>
-        <?php add_option($opt_jfbp_buttonimg, $jfb_data_url . "/assets/btn01.png"); ?>
+        <?php add_option($opt_jfbp_buttontext, "Login with Facebook");
+        add_option($opt_jfbp_buttonsize, "2");
+        $btnDefault = $jfb_data_url . "/assets/btn01.png";
+        add_option($opt_jfbp_buttonimg, $btnDefault);
+        $btnPreview = get_option($opt_jfbp_buttonimg);
+        if(!$btnPreview) $btnPreview = $btnDefault;
+        ?>
 
         <input <?php disableatt() ?> type="radio" style="float:left;" name="<?php echo $opt_jfbp_buttonstyle; ?>" value="0" <?php echo (get_option($opt_jfbp_buttonstyle)==0?"checked='checked'":"")?>>
         <div class="jfb-greybox" style="float:left;">
@@ -482,7 +486,7 @@ function jfb_output_premium_panel_tease()
         <div class="jfb-greybox" style="float:left;">
             <b>Image (styleable):</b><br/>
             URL: <input <?php disableatt() ?> type="text" size="80" name="<?php echo $opt_jfbp_buttonimg; ?>" value="<?php echo get_option($opt_jfbp_buttonimg); ?>" /><br/>
-            Preview: <img style="vertical-align:middle;margin-top:5px;" src="<?php echo get_option($opt_jfbp_buttonimg)?>" alt="(Login Button)" />
+            Preview: <img style="vertical-align:middle;margin-top:5px;" src="<?php echo $btnPreview?>" alt="(Login Button)" />
         </div><br clear="all"/><br/>
         
         <b>Additional Buttons:</b><br />
