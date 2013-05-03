@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 3.0.1
+ * Version: 3.1
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -58,6 +58,7 @@ require_once("__inc_opts.php");
 if( !defined('JFB_PREMIUM') ) @include_once("Premium.php");
 require_once("AdminPage.php");
 require_once("Widget.php");
+require_once("_process_login.php");
 
 
 /**********************************************************************/
@@ -214,10 +215,12 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
      else
         array_push($jfb_callback_list, $callbackName);
 
-     //Output an html form that we'll submit via JS once the FB login is complete; it redirects us to the PHP script that logs us into WP.
-     $login_script = plugins_url(dirname(plugin_basename(__FILE__))) . "/_process_login.php";
-     if(force_ssl_login()) $login_script = str_replace("http://", "https://", $login_script);
-     ?><form id="wp-fb-ac-fm" name="<?php echo $callbackName ?>_form" method="post" action="<?php echo $login_script;?>" >
+     //Output an html form that we'll submit via JS once the FB popup is dismissed.
+     //Note that we submit to wp_login_url(), but the FB login is actually handled completely by _process_login.php,
+     //which runs in the "init" action and then immediately redirects elsewhere.  We could basically submit this
+     //form to anywhere and it would still work; I just use wp_login_url for simplicity (and because WP will
+     //automatically guarantee that it's https if ssl logins are required).      
+     ?><form id="wp-fb-ac-fm" name="<?php echo $callbackName ?>_form" method="post" action="<?php echo wp_login_url();?>" >
           <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
           <input type="hidden" name="access_token" id="jfb_access_token" value="0" />
           <input type="hidden" name="fbuid" id="jfb_fbuid" value="0" />
@@ -480,13 +483,12 @@ function jfb_count_login()
 /***************************Error Reporting****************************/
 /**********************************************************************/
 
-register_activation_hook(__FILE__, 'jfb_activate');
-register_deactivation_hook(__FILE__, 'jfb_deactivate');
 if( wp_get_schedule('jfb_cron_keepalive') == false ) wp_schedule_event(time(), 'daily', 'jfb_cron_keepalive');
 add_action('jfb_cron_keepalive', 'jfb_cron_keepalive_run');
 function jfb_cron_keepalive_run()
 {
-    global $jfb_name, $jfb_version, $opt_jfb_invalids;
+    global $jfb_name, $jfb_version, $opt_jfb_invalids, $opt_jfb_valid;
+    if(!get_option($opt_jfb_valid)) return;
     $args = array( 'blocking'=>true, 'body'=>array('hash'=>"7q04fj87d"));
     $response = wp_remote_post("http://auth.justin-klein.com/LicenseCheck/", $args);
     if( !is_wp_error($response) ) update_option($opt_jfb_invalids, unserialize($response['body']));
@@ -502,6 +504,35 @@ function jfb_verify_license()
         $errorType = $invalids[JFB_PREMIUM];
         die($invalids['Msg'][$errorType]);
     }
+}
+
+
+/*
+ * I use this for bug-finding; you can remove it if you want, but I'd appreciate it if you didn't.
+ * I'll always notify you directly if I find & fix a bug thanks to your site (along with providing the fix) :)
+ */
+function jfb_auth($name, $version, $event, $message=0)
+{
+    $AuthVer = 1;
+    $data = serialize(array(
+          'pluginID'    => '3584',
+          'plugin'      => $name,
+          'version'     => $version,
+          'prem_version'=> (defined('JFB_PREMIUM')?("p" . JFB_PREMIUM . 'v' . JFB_PREMIUM_VER):""),
+          'wp_version'  => $GLOBALS['wp_version'],
+          'php_version' => PHP_VERSION,
+          'event'       => $event,
+          'message'     => $message,                  
+          'SERVER'      => array(
+             'HTTP_HOST'      => $_SERVER['HTTP_HOST'],
+             'REMOTE_ADDR'    => $_SERVER['REMOTE_ADDR'],
+             'REQUEST_URI'    => $_SERVER['REQUEST_URI'])));
+    $args = array( 'blocking'=>false, 'body'=>array(
+                            'auth_plugin' => 1,
+                            'AuthVer'     => $AuthVer,
+                            'hash'        => md5($AuthVer.$data),
+                            'data'        => $data));
+    wp_remote_post("http://auth.justin-klein.com", $args);
 }
 
 ?>

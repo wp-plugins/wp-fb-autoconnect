@@ -134,7 +134,7 @@ function jfb_admin_page()
                 update_option( $opt_jfb_valid, 1 );
                 update_option( $opt_jfb_app_token, substr($response['body'], 13) );
                 if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
-                   jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $message );
+                   jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $_POST[$opt_jfb_api_key] );
 				?><div class="updated"><p><strong>Successfully connected with "<?php echo $result['name'] ?>" (ID <?php echo $result['id']; ?>)</strong></p></div><?php
 			}
 			else
@@ -258,8 +258,8 @@ function jfb_admin_page()
               <li>Visit <a href="http://developers.facebook.com/apps" target="_lnk">developers.facebook.com/apps</a> and click the "Create New App" button.</li>
               <li>Type in a name (i.e. the name of your website) and click "Continue."  This is the name your users will see on the Facebook login popup.</li>
               <li>Facebook may now require you to verify your account before continuing (see <a target="_fbInfo" href="https://developers.facebook.com/blog/post/386/">here</a> for more information).</li>
-              <li>Once your app has been created, scroll down and fill in your "Site URL" under "Select how your app integrates with Facebook -&gt;"Website."  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
-              <li>Click "Save Changes."</li>
+              <li>Once your app has been created, scroll down and fill in your "Site URL" under "Website with Facebook Login."  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
+              <li>Make sure "Sandbox Mode" is disabled, and click "Save Changes."</li>
               <li>Copy the App ID and App Secret to the boxes below.</li>
               <li>Click "Save" below.</li>
             </ol>
@@ -381,48 +381,6 @@ function jfb_admin_page()
 }
 
 
-/*
- * I use this for bug-finding; you can remove it if you want, but I'd appreciate it if you didn't.
- * I'll always notify you directly if I find & fix a bug thanks to your site (along with providing the fix) :)
- */
-function jfb_activate()  
-{
-    global $jfb_name, $jfb_version, $opt_jfb_valid, $opt_jfb_api_key;
-    $msg = get_option($opt_jfb_valid)?"VALID":(!get_option($opt_jfb_api_key)||get_option($opt_jfb_api_key)==''?"NOKEY":"INVALIDKEY");
-    jfb_auth($jfb_name, $jfb_version, 1, "ON: " . $msg);
-}
-function jfb_deactivate()
-{
-    global $jfb_name, $jfb_version, $opt_jfb_valid, $opt_jfb_api_key;
-    $msg = get_option($opt_jfb_valid)?"VALID":(!get_option($opt_jfb_api_key)||get_option($opt_jfb_api_key)==''?"NOKEY":"INVALIDKEY"); 
-    jfb_auth($jfb_name, $jfb_version, 0, "OFF: " . $msg);
-}
-function jfb_auth($name, $version, $event, $message=0)
-{
-    $AuthVer = 1;
-    $data = serialize(array(
-          'pluginID'	=> '3584',
-          'plugin'      => $name,
-          'version'     => $version,
-          'prem_version'=> (defined('JFB_PREMIUM')?("p" . JFB_PREMIUM . 'v' . JFB_PREMIUM_VER):""),
-          'wp_version'  => $GLOBALS['wp_version'],
-          'php_version' => PHP_VERSION,
-          'event'       => $event,
-          'message'     => $message,                  
-          'SERVER'      => array(
-             'SERVER_NAME'    => $_SERVER['SERVER_NAME'],
-             'HTTP_HOST'      => $_SERVER['HTTP_HOST'],
-             'SERVER_ADDR'    => $_SERVER['SERVER_ADDR'],
-             'REMOTE_ADDR'    => $_SERVER['REMOTE_ADDR'],
-             'SCRIPT_FILENAME'=> $_SERVER['SCRIPT_FILENAME'],
-             'REQUEST_URI'    => $_SERVER['REQUEST_URI'])));
-    $args = array( 'blocking'=>false, 'body'=>array(
-                            'auth_plugin' => 1,
-                            'AuthVer'     => $AuthVer,
-                            'hash'        => md5($AuthVer.$data),
-                            'data'        => $data));
-    wp_remote_post("http://auth.justin-klein.com", $args);
-}
 
 /*********************************************************************************/
 /**********************Premium Teaser - show the premium options******************/
