@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.5.1
-Stable tag: 3.1
+Stable tag: 3.1.0
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -24,8 +24,6 @@ The simple concept behind WP-FB AutoConnect is to offer an easy-to-use widget th
 * Custom logging options can notify you whenever someone connects with Facebook.
 * A powerful set of hooks and filters allow developers to easily tailor the login process to their personal needs: redirect to a custom page, fill xProfile data with information from Facebook, setup permissions based on social connections, and more.
 * Fully HTML/CSS valid.
-
-NOTE: Like many "service-based" plugins, this plugin makes use of a phone home feature. It is used to ensure the Facebook API is running properly, to preempt bugs, and to notify of potential issues/interruptions.  It does not include any names or e-mail addresses (or anything else that could result in spam).
 
 == Installation ==
 
@@ -62,12 +60,15 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
-= 3.1 (2013-05-02) =
-* Rather than directing to _process_login.php, login handling is performed via a POST check during the "init" action.  _process_login.php is always included, and __inc_wp.php has been deleted.
+= 3.1.0 (2013-05-07) =
+* Revisions to satisfy wp.org's (apparently) new, stricter repo rules...:
+* Instead of redirecting to _process_login.php, _process_login.php is always included and logins are handled during "init" (via a $_POST check)
+* Remove __inc_wp.php
+* Remove _autologin.php (it was extremely outdated & not necessary to the core plugin)
+* Remove unused jQuery file
+* Remove licensecheck
+* Remove the auths (& add *option* to report usage statistics)
 * Update the app setup instructions to mention Sandbox Mode (which FB now seems to be enabling by default)
-* Delete unused bundled jQuery file
-* Delete the _autologin.php file.  It was extremely outdated & not necessary to the core plugin.
-* Remove the activation & deactivation auth; Remove server_name, remote_addr, & script_filename from auths
 
 = 3.0.1 (2013-03-08) =
 * Update WP compatibility number

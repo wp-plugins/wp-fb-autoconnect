@@ -77,7 +77,7 @@ function jfb_admin_page()
     global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
-    global $opt_jfb_username_style, $opt_jfb_hidesponsor;
+    global $opt_jfb_username_style, $opt_jfb_hidesponsor, $opt_jfb_reportstats;
     ?>
     <div class="wrap">
      <h2><?php echo $jfb_name; ?> Options</h2>
@@ -133,8 +133,6 @@ function jfb_admin_page()
                 $shownTab = 1;
                 update_option( $opt_jfb_valid, 1 );
                 update_option( $opt_jfb_app_token, substr($response['body'], 13) );
-                if( get_option($opt_jfb_api_key) != $_POST[$opt_jfb_api_key] )
-                   jfb_auth($jfb_name, $jfb_version, 2, "SET: " . $_POST[$opt_jfb_api_key] );
 				?><div class="updated"><p><strong>Successfully connected with "<?php echo $result['name'] ?>" (ID <?php echo $result['id']; ?>)</strong></p></div><?php
 			}
 			else
@@ -161,7 +159,8 @@ function jfb_admin_page()
         update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
         update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
         update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );
-        update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] ); 
+        update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] );
+        update_option( $opt_jfb_reportstats, $_POST[$opt_jfb_reportstats] );
         ?><div class="updated"><p><strong>Options saved.</strong></p></div><?php         
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
@@ -190,6 +189,7 @@ function jfb_admin_page()
         delete_option($opt_jfb_show_credit);
         delete_option($opt_jfb_username_style);
         delete_option($opt_jfb_hidesponsor);
+        delete_option($opt_jfb_reportstats);
         if( function_exists('jfb_delete_premium_opts') ) jfb_delete_premium_opts();
         ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
     }
@@ -302,8 +302,9 @@ function jfb_admin_page()
         		<br /><b>Avatars:</b><br />
                 <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars<br />
         
-                <br /><b>Credit:</b><br />
+                <br /><b>Appreciation:</b><br />
                 <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))<br />
+                <input type="checkbox" name="<?php echo $opt_jfb_reportstats?>" value="1" <?php echo get_option($opt_jfb_reportstats)?'checked="checked"':''?> /> Periodically report usage stats to the plugin author.  <dfn title="Reports include some very basic server info & a login count, to help me understand how & where the plugin is most used, and how I should focus my development.  No names or e-mail addresses are sent.">(Mouseover for more)</dfn><br />
         
         		<br /><b>Debug:</b><br />
         		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>

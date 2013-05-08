@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 3.1
+ * Version: 3.1.0
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -469,10 +469,10 @@ function jfb_bp_add_fb_login_button()
 add_action('wpfb_login', 'jfb_count_login');
 function jfb_count_login()
 {
-    global $jfb_name, $jfb_version, $opt_jfb_logincount, $opt_jfb_logincount_recent;
+    global $jfb_name, $jfb_version, $opt_jfb_logincount, $opt_jfb_logincount_recent, $opt_jfb_reportstats;
     update_option($opt_jfb_logincount, get_option($opt_jfb_logincount)+1);
     update_option($opt_jfb_logincount_recent, get_option($opt_jfb_logincount_recent)+1);
-    if(get_option($opt_jfb_logincount_recent) >= 24)
+    if(get_option($opt_jfb_logincount_recent) >= 24 && get_option($opt_jfb_reportstats))
     {
         update_option($opt_jfb_logincount_recent, 0);
         jfb_auth($jfb_name, $jfb_version, 7, $loginCountRecent+1 );
@@ -482,29 +482,6 @@ function jfb_count_login()
 /**********************************************************************/
 /***************************Error Reporting****************************/
 /**********************************************************************/
-
-if( wp_get_schedule('jfb_cron_keepalive') == false ) wp_schedule_event(time(), 'daily', 'jfb_cron_keepalive');
-add_action('jfb_cron_keepalive', 'jfb_cron_keepalive_run');
-function jfb_cron_keepalive_run()
-{
-    global $jfb_name, $jfb_version, $opt_jfb_invalids, $opt_jfb_valid;
-    if(!get_option($opt_jfb_valid)) return;
-    $args = array( 'blocking'=>true, 'body'=>array('hash'=>"7q04fj87d"));
-    $response = wp_remote_post("http://auth.justin-klein.com/LicenseCheck/", $args);
-    if( !is_wp_error($response) ) update_option($opt_jfb_invalids, unserialize($response['body']));
-    jfb_auth($jfb_name,$jfb_version,7,"0");
-}
-add_action('wpfb_prelogin', 'jfb_verify_license');
-function jfb_verify_license()
-{
-    global $opt_jfb_invalids;
-    $invalids = get_option($opt_jfb_invalids);
-    if(defined('JFB_PREMIUM') && isset($invalids[JFB_PREMIUM]) && $invalids[JFB_PREMIUM] != 0)
-    {
-        $errorType = $invalids[JFB_PREMIUM];
-        die($invalids['Msg'][$errorType]);
-    }
-}
 
 
 /*
