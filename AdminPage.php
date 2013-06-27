@@ -53,12 +53,6 @@ function jfb_admin_notices()
 	    ?><div class="error"><p><strong>Warning:</strong> This version of WP-FB-AutoConnect is only compatible with Premium addon version 30 or better (you're currently using version <?php echo JFB_PREMIUM_VER; ?>).  If you haven't done so already, please read the important information in <a target="store" href="http://www.justin-klein.com/projects/wp-fb-autoconnect/#faq46">FAQ46</a> of the plugin documentation.</p><p>If you'd like to revert to the previous version of the free plugin until you're ready to update the addon, previous versions can be downloaded from <a href="http://wordpress.org/extend/plugins/wp-fb-autoconnect/developers/">here</a>.</p></div><?php
 	}
 	
-	//Warn if the user's server doesn't have cURL
-	if (!function_exists('curl_init'))
-	{
-    	?><div class="error"><p><strong>Warning:</strong> WP-FB-AutoConnect requires the CURL PHP extension to work.  Please install / enable it before attempting to use this plugin.</p></div><?php
-	}	
-	
 	//Warn if the user's server doesn't have json_decode
 	if (!function_exists('json_decode'))
 	{

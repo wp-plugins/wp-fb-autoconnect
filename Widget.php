@@ -44,7 +44,7 @@ class Widget_LoginLogout extends WP_Widget
                 <input type='text' name='log' id='user_login' class='input' tabindex='20' /><input type='submit' name='wp-submit' id='wp-submit' value='Login' tabindex='23' /><br />
                 <label>Pass:</label><br />
                 <input type='password' name='pwd' id='user_pass' class='input' tabindex='21' />
-                <span id="forgotText"><a href="<?php echo get_option('siteurl')?>/wp-login.php?action=lostpassword" rel="nofollow" ><?php _e('Forgot')?>?</a></span><br />
+                <span id="forgotText"><a href="<?php echo wp_lostpassword_url()?>" rel="nofollow" ><?php _e('Forgot')?>?</a></span><br />
                 <?php //echo "<input name='rememberme' type='hidden' id='rememberme' value='forever' />";?>
                 <?php echo wp_register('',''); ?>
                 <input type='hidden' name='redirect_to' value='<?php echo htmlspecialchars($_SERVER['REQUEST_URI'])?>' />
