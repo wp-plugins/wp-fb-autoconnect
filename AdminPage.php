@@ -37,6 +37,12 @@ function jfb_admin_styles()
             '.jfb-admin_tab_selected{background-color:#FFFEEB; border-left:1px solid #CCC; border-right:1px solid #CCC; border-top:1px solid #CCC;}'.
             '.jfb-greybox           {width:600px; padding:5px; margin:2px 0; background-color:#EEEDDA; border:1px solid #CCC;}'.
          '</style>';
+    //Simple 'lightbox' for showing pop-up 'more info' descriptions.  From http://stephenmcintyre.net/blog/simple-css-lightbox
+    echo '<style type="text/css">'.
+           '.wpfb-moreinfo-bg{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:#000; -moz-opacity:0.5; opacity:.50; filter:alpha(opacity=50); }' .
+           '.wpfb-moreinfo-box{display:none; position:fixed; top:100px; left:25%; width:50%; background-color:#fff; padding:5px; }'.
+           '.wpfb-moreinfo-lnk{text-decoration:none;font-size:80%;border-bottom: 1px dotted #0000FF;color:inherit;cursor: help;font-style: italic;}'.
+         '</style>';
 }
 
 
@@ -136,25 +142,25 @@ function jfb_admin_page()
         endif;
 
         //We can save these either way, because if "valid" isn't set, a button won't be shown.
-        update_option( $opt_jfb_app_id, $result['id']);
+        update_option( $opt_jfb_app_id, ( isset($result['id']) ? $result['id'] : "") );
         update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
         update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
     }
     if( isset($_POST['main_opts_updated']) )
     {
         $shownTab = 1;
-        update_option( $opt_jfb_ask_perms, $_POST[$opt_jfb_ask_perms] );
-        update_option( $opt_jfb_ask_stream, $_POST[$opt_jfb_ask_stream] );
-        update_option( $opt_jfb_wp_avatars, $_POST[$opt_jfb_wp_avatars] );
-        update_option( $opt_jfb_stream_content, $_POST[$opt_jfb_stream_content] );        
-        update_option( $opt_jfb_show_credit, $_POST[$opt_jfb_show_credit] );
-        update_option( $opt_jfb_email_to, $_POST[$opt_jfb_email_to] );
-        update_option( $opt_jfb_email_logs, $_POST[$opt_jfb_email_logs] );
-        update_option( $opt_jfb_delay_redir, $_POST[$opt_jfb_delay_redir] );
-        update_option( $opt_jfb_fulllogerr, $_POST[$opt_jfb_fulllogerr] );
-        update_option( $opt_jfb_disablenonce, $_POST[$opt_jfb_disablenonce] );
-        update_option( $opt_jfb_username_style, $_POST[$opt_jfb_username_style] );
-        update_option( $opt_jfb_reportstats, $_POST[$opt_jfb_reportstats] );
+        update_option( $opt_jfb_ask_perms, ( isset( $_POST[$opt_jfb_ask_perms] ) ? $_POST[$opt_jfb_ask_perms] : 0 ) );
+        update_option( $opt_jfb_ask_stream, ( isset( $_POST[$opt_jfb_ask_stream] ) ? $_POST[$opt_jfb_ask_stream] : 0 ) );
+        update_option( $opt_jfb_wp_avatars, ( isset( $_POST[$opt_jfb_wp_avatars] ) ? $_POST[$opt_jfb_wp_avatars] : 0 ) );
+        update_option( $opt_jfb_stream_content, ( isset( $_POST[$opt_jfb_stream_content] ) ? $_POST[$opt_jfb_stream_content] : '' ) );        
+        update_option( $opt_jfb_show_credit, ( isset( $_POST[$opt_jfb_show_credit] ) ? $_POST[$opt_jfb_show_credit] : 0 ) );
+        update_option( $opt_jfb_email_to, ( isset( $_POST[$opt_jfb_email_to] ) ? $_POST[$opt_jfb_email_to] : '' ) );
+        update_option( $opt_jfb_email_logs, ( isset( $_POST[$opt_jfb_email_logs] ) ? $_POST[$opt_jfb_email_logs] : 0 ) );
+        update_option( $opt_jfb_delay_redir, ( isset( $_POST[$opt_jfb_delay_redir] ) ? $_POST[$opt_jfb_delay_redir] : 0 ) );
+        update_option( $opt_jfb_fulllogerr, ( isset( $_POST[$opt_jfb_fulllogerr] ) ? $_POST[$opt_jfb_fulllogerr] : 0 ) );
+        update_option( $opt_jfb_disablenonce, ( isset( $_POST[$opt_jfb_disablenonce] ) ? $_POST[$opt_jfb_disablenonce] : 0 ) );
+        update_option( $opt_jfb_username_style, ( isset( $_POST[$opt_jfb_username_style] ) ? $_POST[$opt_jfb_username_style] : 0 ) );
+        update_option( $opt_jfb_reportstats, ( isset( $_POST[$opt_jfb_reportstats] ) ? $_POST[$opt_jfb_reportstats] : 0 ) );
         ?><div class="updated"><p><strong>Options saved.</strong></p></div><?php         
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
@@ -283,7 +289,8 @@ function jfb_admin_page()
                 <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="0" <?php echo (get_option($opt_jfb_username_style)==0?"checked='checked'":"")?> >Based on Facebook ID (i.e. FB_123456)<br />
                 <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="1" <?php echo (get_option($opt_jfb_username_style)==1?"checked='checked'":"")?> >Based on real name with prefix (i.e. FB_John_Smith)<br />
                 <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="3" <?php echo (get_option($opt_jfb_username_style)==3?"checked='checked'":"")?> >Based on real name without prefix (i.e. John_Smith) <i><b>(Recommended for BuddyPress)</b></i><br />
-                <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="2" <?php echo (get_option($opt_jfb_username_style)==2?"checked='checked'":"")?> >Legacy Format (i.e. John.Smith) <i><b>(Not Recommended, <dfn title="Although the original 'BuddyPress-friendly' username format included a period, I later learned that this creates issues with author links in Wordpress.  I've left the option here for legacy support, but advise against using it (unless you have only one author on your blog, in which case Facebook-connected users won't have author links and so it doesn't matter).  If you do have multiple authors and are experiencing broken author links, changing this option will fix it for all NEW users, but you may want to consider fixing your existing users by replacing all of the '.'s with '_'s in the 'user_nicename' field of the 'wp_users' database table.">mouseover for why</dfn>)</b></i><br /><br />
+                <input type="radio" name="<?php echo $opt_jfb_username_style; ?>" value="2" <?php echo (get_option($opt_jfb_username_style)==2?"checked='checked'":"")?> >Legacy Format (i.e. John.Smith) 
+                <i><b>(Not Recommended,</b></i> <?php jfb_output_simple_lightbox("Click for more info", "Although the original 'BuddyPress-friendly' username format included a period, I later learned that this creates issues with author links in Wordpress.  I've left the option here for legacy support, but advise against using it (unless you have only one author on your blog, in which case Facebook-connected users won't have author links and so it doesn't matter).  If you do have multiple authors and are experiencing broken author links, changing this option will fix it for all NEW users, but you may want to consider fixing your existing users by replacing all of the '.'s with '_'s in the 'user_nicename' field of the 'wp_users' database table."); ?><i><b>)</b></i><br /><br />
             
                 <b>E-Mail:</b><br />
                 <input type="checkbox" name="<?php echo $opt_jfb_ask_perms?>" value="1" <?php echo get_option($opt_jfb_ask_perms)?'checked="checked"':''?> /> Request permission to get the connecting user's email address<br />
@@ -298,7 +305,7 @@ function jfb_admin_page()
         
                 <br /><b>Appreciation:</b><br />
                 <input type="checkbox" name="<?php echo $opt_jfb_show_credit?>" value="1" <?php echo get_option($opt_jfb_show_credit)?'checked="checked"':''?> /> Display a "Powered By" link in the blog footer (would be appreciated! :))<br />
-                <input type="checkbox" name="<?php echo $opt_jfb_reportstats?>" value="1" <?php echo get_option($opt_jfb_reportstats)?'checked="checked"':''?> /> Periodically report usage stats to the plugin author.  <dfn title="Reports include some very basic server info & a login count, to help me understand how & where the plugin is most used, and how I should focus my development.  No names or e-mail addresses are sent.">(Mouseover for more)</dfn><br />
+                <input type="checkbox" name="<?php echo $opt_jfb_reportstats?>" value="1" <?php echo get_option($opt_jfb_reportstats)?'checked="checked"':''?> /> Periodically report usage stats to the plugin author.  <?php jfb_output_simple_lightbox("(Click for more info)", "Reports include some very basic server info & a login count, to help me understand how & where the plugin is most used, and how I should focus my development.  No names or e-mail addresses are sent.");?><br />
         
         		<br /><b>Debug:</b><br />
         		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
@@ -376,6 +383,27 @@ function jfb_admin_page()
 }
 
 
+/*
+ * Simple helper to output my "simple lightbox" for "click for more info" links.
+ * Based on http://stephenmcintyre.net/blog/simple-css-lightbox
+ */
+function jfb_output_simple_lightbox($linkCaption, $contents)
+{
+    global $jfbLbID;
+    if(!isset($jfbLbID)) $jfbLbID = 0;
+    else                 $jfbLbID++;
+    ?>
+    <a class="wpfb-moreinfo-lnk" href="javascript:void(0)" title="<?php echo $contents?>" onclick="document.getElementById('wpfb-moreinfo-bg<?php echo $jfbLbID?>').style.display='block'; document.getElementById('wpfb-moreinfo-box<?php echo $jfbLbID?>').style.display='block';"><?php echo $linkCaption; ?></a>
+    <div class="wpfb-moreinfo-bg" id="wpfb-moreinfo-bg<?php echo $jfbLbID?>" onclick="document.getElementById('wpfb-moreinfo-bg<?php echo $jfbLbID?>').style.display='none'; document.getElementById('wpfb-moreinfo-box<?php echo $jfbLbID?>').style.display='none';"></div>
+    <div class="wpfb-moreinfo-box" id="wpfb-moreinfo-box<?php echo $jfbLbID?>">
+      <a href="javascript:void(0)" onclick="document.getElementById('wpfb-moreinfo-bg<?php echo $jfbLbID?>').style.display='none'; document.getElementById('wpfb-moreinfo-box<?php echo $jfbLbID?>').style.display='none';">Close</a><br />
+      <div style="padding:5px;">
+        <?php echo $contents; ?>
+      </div>
+    </div>
+    <?php
+}
+
 
 /*********************************************************************************/
 /**********************Premium Teaser - show the premium options******************/
@@ -414,7 +442,7 @@ function jfb_output_premium_panel_tease()
         <b>MultiSite Support:</b><br/>
         <input disabled='disabled' type="checkbox" name="musupport" value="1" <?php echo ((defined('JFB_PREMIUM')&&function_exists('is_multisite')&&is_multisite())?"checked='checked'":"")?> >
         Automatically enabled when a MultiSite install is detected
-        <dfn title="The free plugin is not aware of users registered on other sites in your WPMU installation, which can result in problems i.e. if someone tries to register on more than one site.  The Premium version will actively detect and handle existing users across all your sites.">(Mouseover for more info)</dfn><br /><br />
+        <?php jfb_output_simple_lightbox("(Click for more info)", "The free plugin is not aware of users registered on other sites in your WPMU installation, which can result in problems i.e. if someone tries to register on more than one site.  The Premium version will actively detect and handle existing users across all your sites.")?><br /><br />
 
         <b>Button Style:</b><br />
         <?php add_option($opt_jfbp_buttontext, "Login with Facebook");
@@ -459,9 +487,9 @@ function jfb_output_premium_panel_tease()
         <b>Avatar Caching:</b><br />  
         <?php add_option($opt_jfbp_cache_avatars_fullsize, get_option($opt_jfbp_cache_avatars)); ?>       
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars)?'checked="checked"':''?> />
-        Cache Facebook avatars locally (thumbnail) <dfn title="This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.">(Mouseover for more info)</dfn><br />
+        Cache Facebook avatars locally (thumbnail) <?php jfb_output_simple_lightbox("(Click for more info)", "This will make a local copy of Facebook avatars, so they'll always load reliably, even if Facebook's servers go offline or if a user deletes their photo from Facebook. They will be fetched and updated whenever a user logs in.");?><br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_cache_avatars_fullsize?>" value="1" <?php echo get_option($opt_jfbp_cache_avatars_fullsize)?'checked="checked"':''?> />
-        Cache Facebook avatars locally (fullsize) <dfn title="Because most themes only utilize thumbnail-sized avatars, caching full-sized images is often unnecessary.  If you're not actually using full-sized avatars I recommend disabling this option, as doing so will speed up logins and save space on your server (there's a small per-login performance cost to copying the files locally).">(Mouseover for more info)</dfn><br />
+        Cache Facebook avatars locally (fullsize) <?php jfb_output_simple_lightbox("(Click for more info)", "Because most themes only utilize thumbnail-sized avatars, caching full-sized images is often unnecessary.  If you're not actually using full-sized avatars I recommend disabling this option, as doing so will speed up logins and save space on your server (there's a small per-login performance cost to copying the files locally).")?><br />
         
         <?php add_option($opt_jfbp_cache_avatar_dir, 'facebook-avatars'); ?>
         Cache dir:
@@ -494,26 +522,26 @@ function jfb_output_premium_panel_tease()
             }
             ?>
         <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_cache_avatar_dir; ?>" value="<?php echo get_option($opt_jfbp_cache_avatar_dir); ?>" />
-        <dfn title="Changing the cache directory will not move existing avatars or update existing users; it only applies to subsequent logins.  It's therefore recommended that you choose a cache directory once, then leave it be.">(Mouseover for more info)</dfn><br /><br />
+        <?php jfb_output_simple_lightbox("(Click for more info)", "Changing the cache directory will not move existing avatars or update existing users; it only applies to subsequent logins.  It's therefore recommended that you choose a cache directory once, then leave it be.")?><br /><br />
 
         <b>Double Logins:</b><br />
         <input disabled='disabled' type="checkbox" name="doublelogin" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> />
         Automatically handle double logins 
-        <dfn title="If a visitor opens two browser windows, logs into one, then logs into the other, the security nonce check will fail.  This is because in the second window, the current user no longer matches the user for which the nonce was generated.  The free version of the plugin reports this to the visitor, giving them a link to their desired redirect page.  The premium version will transparently handle such double-logins: to visitors, it'll look like the page has just been refreshed and they're now logged in.  For more information on nonces, please visit http://codex.wordpress.org/WordPress_Nonces.">(Mouseover for more info)</dfn><br /><br />
+        <?php jfb_output_simple_lightbox("(Click for more info)", "If a visitor opens two browser windows, logs into one, then logs into the other, the security nonce check will fail.  This is because in the second window, the current user no longer matches the user for which the nonce was generated.  The free version of the plugin reports this to the visitor, giving them a link to their desired redirect page.  The premium version will transparently handle such double-logins: to visitors, it'll look like the page has just been refreshed and they're now logged in.  For more information on nonces, please visit http://codex.wordpress.org/WordPress_Nonces.")?><br /><br />
 
         <b>E-Mail Permissions:</b><br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_requirerealmail?>" value="1" <?php echo get_option($opt_jfbp_requirerealmail)?'checked="checked"':''?> /> Enforce access to user's real (unproxied) email
-        <dfn title="The basic option to request user emails will prompt your visitors, but they can still hide their true addresses by using a Facebook proxy (click 'change' in the permissions dialog, and select 'xxx@proxymail.facebook.com').  This option performs a secondary check to enforce that they allow access to their REAL e-mail.  Note that the check requires several extra queries to Facebook's servers, so it could result in a slightly longer delay before the login initiates.">(Mouseover for more info)</dfn><br /><br />
+        <?php jfb_output_simple_lightbox("(Click for more info)", "The basic option to request user emails will prompt your visitors, but they can still hide their true addresses by using a Facebook proxy (click 'change' in the permissions dialog, and select 'xxx@proxymail.facebook.com').  This option performs a secondary check to enforce that they allow access to their REAL e-mail.  Note that the check requires several extra queries to Facebook's servers, so it could result in a slightly longer delay before the login initiates.")?><br /><br />
         
         <b>Wordbooker Avatar Integration:</b><br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wordbooker_integrate?>" value="1" <?php echo get_option($opt_jfbp_wordbooker_integrate)?'checked="checked"':''?> /> Use Facebook avatars for <a href="http://wordpress.org/extend/plugins/wordbooker/">Wordbooker</a>-imported comments
-        <dfn title="The Wordbooker plugin allows you to push blog posts to your Facebook wall, and also to import comments on these posts back to your blog.  This option will display real Facebook avatars for imported comments, provided the commentor logs into your site at least once.">(Mouseover for more info)</dfn><br /><br />
+        <?php jfb_output_simple_lightbox("(Click for more info)", "The Wordbooker plugin allows you to push blog posts to your Facebook wall, and also to import comments on these posts back to your blog.  This option will display real Facebook avatars for imported comments, provided the commentor logs into your site at least once.")?><br /><br />
         
         <b>Disassociation:</b><br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_allow_disassociate?>" value="1" <?php echo get_option($opt_jfbp_allow_disassociate)?'checked="checked"':''?> /> Allow users to disassociate their Wordpress accounts from Facebook
-        <dfn title="This will add a button to each connected user's Wordpress profile page, allowing them to disassociate their blog account from their Facebook profile.  User accounts which are not connected to Facebook will display 'Not Connected' in place of a button.">(Mouseover for more info)</dfn><br />
+        <?php jfb_output_simple_lightbox("(Click for more info)", "This will add a button to each connected user's Wordpress profile page, allowing them to disassociate their blog account from their Facebook profile.  User accounts which are not connected to Facebook will display 'Not Connected' in place of a button.")?><br />
         <input disabled='disabled' type="checkbox" name="admindisassociate" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> /> Allow administrators to disassociate Wordpress user accounts from Facebook
-        <dfn title="This option is always enabled for administrators.">(Mouseover for more info)</dfn><br /><br />
+        <?php jfb_output_simple_lightbox("(Click for more info)", "This option is always enabled for administrators.")?><br /><br />
 
         <b>Autoregistered User Role:</b><br />
         <?php
@@ -529,7 +557,7 @@ function jfb_output_premium_panel_tease()
 
         <b>Widget Appearance:</b><br />
         Please use the <a href="<?php echo admin_url('widgets.php') ?>" target="widgets">WP-FB AutoConnect <b><i>Premium</i></b> Widget</a> if you'd like to:<br />
-        &bull; Customize the Widget's text <dfn title="You can customize the text of: User, Pass, Login, Remember, Forgot, Logout, Edit Profile, Welcome.">(Mouseover for more info)</dfn><br />
+        &bull; Customize the Widget's text <?php jfb_output_simple_lightbox("(Click for more info)", "You can customize the text of: User, Pass, Login, Remember, Forgot, Logout, Edit Profile, Welcome.")?><br />
         &bull; Show/Hide the User/Pass fields (leaving Facebook as the only way to login)<br />
         &bull; Show/Hide the user's avatar (when logged in)<br />
         &bull; Show/Hide a "Remember" tickbox<br />
@@ -547,10 +575,10 @@ function jfb_output_premium_panel_tease()
         <?php add_option($opt_jfbp_restrict_reg_url, '/') ?>
         <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="0" <?php echo (get_option($opt_jfbp_restrict_reg)==0?"checked='checked'":"")?>>Open: Anyone can login (Default)<br />
         <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="1" <?php echo (get_option($opt_jfbp_restrict_reg)==1?"checked='checked'":"")?>>Closed: Only login existing blog users<br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="2" <?php echo (get_option($opt_jfbp_restrict_reg)==2?"checked='checked'":"")?>>Invitational: Only login users who've been invited via the <a href="http://wordpress.org/extend/plugins/wordpress-mu-secure-invites/">Secure Invites</a> plugin <dfn title="For invites to work, the connecting user's Facebook email must be accessible, and it must match the email to which the invitation was sent.">(Mouseover for more info)</dfn><br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="3" <?php echo (get_option($opt_jfbp_restrict_reg)==3?"checked='checked'":"")?>>Friendship: Only login users who are friends with uid <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_uid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_uid) ?>" /> on Facebook <dfn title="To find your Facebook uid, login and view your Profile Pictures album.  The URL will be something like 'http://www.facebook.com/media/set/?set=a.123.456.789'.  In this example, your uid would be 789 (the numbers after the last decimal point).">(Mouseover for more info)</dfn><br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="4" <?php echo (get_option($opt_jfbp_restrict_reg)==4?"checked='checked'":"")?>>Membership: Only login users who are members of group id <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_gid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_gid); ?>" /> on Facebook <dfn title="To find a groups's id, view its URL.  It will be something like 'http://www.facebook.com/group.php?gid=12345678'.  In this example, the group id would be 12345678.">(Mouseover for more info)</dfn><br />
-        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="5" <?php echo (get_option($opt_jfbp_restrict_reg)==5?"checked='checked'":"")?>>Fanpage: Only login users who are fans of page id <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_pid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_pid); ?>" /> on Facebook <dfn title="To find a page's id, view one of its photo albums.  The URL will be something like 'http://www.facebook.com/media/set/?set=a.123.456.789'.  In this example, the id would be 789 (the numbers after the last decimal point).">(Mouseover for more info)</dfn><br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="2" <?php echo (get_option($opt_jfbp_restrict_reg)==2?"checked='checked'":"")?>>Invitational: Only login users who've been invited via the <a href="http://wordpress.org/extend/plugins/wordpress-mu-secure-invites/">Secure Invites</a> plugin <?php jfb_output_simple_lightbox("(Click for more info)", "For invites to work, the connecting user's Facebook email must be accessible, and it must match the email to which the invitation was sent.")?><br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="3" <?php echo (get_option($opt_jfbp_restrict_reg)==3?"checked='checked'":"")?>>Friendship: Only login users who are friends with uid <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_uid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_uid) ?>" /> on Facebook <?php jfb_output_simple_lightbox("(Click for more info)", "To find your Facebook uid, login and view your Profile Pictures album.  The URL will be something like 'http://www.facebook.com/media/set/?set=a.123.456.789'.  In this example, your uid would be 789 (the numbers after the last decimal point).")?><br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="4" <?php echo (get_option($opt_jfbp_restrict_reg)==4?"checked='checked'":"")?>>Membership: Only login users who are members of group id <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_gid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_gid); ?>" /> on Facebook <?php jfb_output_simple_lightbox("(Click for more info)", "To find a groups's id, view its URL.  It will be something like 'http://www.facebook.com/group.php?gid=12345678'.  In this example, the group id would be 12345678.")?><br />
+        <input <?php disableatt() ?> type="radio" name="<?php echo $opt_jfbp_restrict_reg; ?>" value="5" <?php echo (get_option($opt_jfbp_restrict_reg)==5?"checked='checked'":"")?>>Fanpage: Only login users who are fans of page id <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_restrict_reg_pid?>" value="<?php echo get_option($opt_jfbp_restrict_reg_pid); ?>" /> on Facebook <?php jfb_output_simple_lightbox("(Click for more info)", "To find a page's id, view one of its photo albums.  The URL will be something like 'http://www.facebook.com/media/set/?set=a.123.456.789'.  In this example, the id would be 789 (the numbers after the last decimal point).")?><br />
         Redirect URL for denied logins: <input <?php disableatt() ?> type="text" size="30" name="<?php echo $opt_jfbp_restrict_reg_url?>" value="<?php echo get_option($opt_jfbp_restrict_reg_url) ?>" /><br /><br />
                 
         <b>Custom Redirects:</b><br />
@@ -588,8 +616,8 @@ function jfb_output_premium_panel_tease()
         <b>BuddyPress X-Profile Mappings</b><br />
         This section will let you automatically fill in your Buddypress users' X-Profile data from their Facebook profiles.<br />
         <small>&bull; Facebook fields marked with an asterisk (i.e. Birthday*) require the user to approve extra permissions during login.</small><br />
-        <small>&bull; Some limitations exist regarding which X-Profile fields can be populated <dfn title="Only 'Text Box,' 'Multi-Line Text Box,' and 'Date Selector'-type profile fields can be mapped at this time.  Due to unpredictability in matching freeform values from Facebook to pre-defined values on BuddyPress, support for dropdowns, radiobuttons, and checkboxes MAY be added in the future.">(Mouseover for more info)</dfn></small><br />
-        <small>&bull; Some limitations exist regarding which Facebook fields can be imported <dfn title="Because some Facebook fields are formatted differently, each one needs to be explicitly implemented.  I've included an initial selection of fields (i.e. Name, Gender, Birthday, Bio, etc), but if you need another field to be available, please request it on the support page and I'll do my best to add it to the next update.">(Mouseover for more info)</dfn></small><br /><br />
+        <small>&bull; Some limitations exist regarding which X-Profile fields can be populated</small> <?php jfb_output_simple_lightbox("(Click for more info)", "Only 'Text Box,' 'Multi-Line Text Box,' and 'Date Selector'-type profile fields can be mapped at this time.  Due to unpredictability in matching freeform values from Facebook to pre-defined values on BuddyPress, support for dropdowns, radiobuttons, and checkboxes MAY be added in the future.")?><br />
+        <small>&bull; Some limitations exist regarding which Facebook fields can be imported</small> <?php jfb_output_simple_lightbox("(Click for more info)", "Because some Facebook fields are formatted differently, each one needs to be explicitly implemented.  I've included an initial selection of fields (i.e. Name, Gender, Birthday, Bio, etc), but if you need another field to be available, please request it on the support page and I'll do my best to add it to the next update.")?><br /><br />
         
          <?php
          //If people report problems with Buddypress detection, use this more robust method: http://codex.buddypress.org/plugin-development/checking-buddypress-is-active/

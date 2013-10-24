@@ -3,8 +3,8 @@ Contributors: Justin_K
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T88Y2AZ53836U
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
-Tested up to: 3.5.1
-Stable tag: 3.1.2
+Tested up to: 3.6.1
+Stable tag: 3.1.3
 
 A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
 
@@ -60,6 +60,11 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 3.1.3 (2013-10-24) =
+* Fix PHP warnings when saving plugin options with WP_DEBUG enabled (Thanks Christian Wach!)
+* Replace "Mouseover for more" info links in the admin panel with "Click for more," which uses a more mobile-compatible lightbox.
+* Update WP compatibility number
+
 = 3.1.2 (2013-06-27) =
 * Widget uses wp_lostpassword_url() instead of site_url( 'wp-login.php' ), so that wp-login.php can be moved/renamed.
 * Remove the "cURL not found" admin panel warning; it's no longer required (as of v3.0.0) 
