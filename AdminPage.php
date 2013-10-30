@@ -64,6 +64,30 @@ function jfb_admin_notices()
 	{
   	 	?><div class="error"><p><strong>Warning:</strong> WP-FB-AutoConnect requires the JSON PHP extension to work.  Please install / enable it before attempting to use this plugin.</p></div><?php
 	}
+    
+    //Warn if w3 total cache is enabled
+    global $opt_jfb_hidew3warning;
+    if( isset($_REQUEST[$opt_jfb_hidew3warning]) ) update_option($opt_jfb_hidew3warning, 1);
+    if (!get_option($opt_jfb_hidew3warning) && is_plugin_active("w3-total-cache/w3-total-cache.php"))
+    {?>
+        <div class="error">
+            <p><strong>Warning:</strong> In some situations, W3-Total-Cache has been reported to cause problems with WP-FB-AutoConnect's Facebook logins.  If you're experiencing issues with WP-FB-AutoConnect (for instance, the Widget doesn't properly show the logged-in state immediately after a login), please try temporarily disabling W3-Total-Cache.  If that fixes it, you may re-enable W3-Total-Cache and try selectively enabling its various caching/CDN options until you find a combination that works for you.</p>
+            <?php echo '<a href="?' . http_build_query(array_merge($_GET, array($opt_jfb_hidew3warning => "1"))) . '">Hide this message</a>'; ?>
+        </div>
+    <?php
+    }
+    
+    //Warn if it looks like we're on wpengine
+    global $opt_jfb_hidewpenginewarning;
+    if( isset($_REQUEST[$opt_jfb_hidewpenginewarning]) ) update_option($opt_jfb_hidewpenginewarning, 1);
+    if (!get_option($opt_jfb_hidewpenginewarning) && defined('WPMU_PLUGIN_DIR') && file_exists(WPMU_PLUGIN_DIR . "/wpengine-common/plugin.php"))
+    {?>
+        <div class="error">
+            <p><strong>Warning:</strong> It looks like your site is running on WPEngine.  Some users have reported that WPEngine's built-in caching causes problems with WP-FB-AutoConnect's Facebook logins.  If you're experiencing issues with WP-FB-AutoConnect (for instance, the Widget doesn't properly show the logged-in state immediately after a login), please contact WPEngine support and ask them to add a cache exclusion for the WP-FB-AutoConnect plugin folder (and for the Premium addon, if you're using it).</p>
+            <?php echo '<a href="?' . http_build_query(array_merge($_GET, array($opt_jfb_hidewpenginewarning => "1"))) . '">Hide this message</a>'; ?>
+        </div>
+    <?php
+    }
 } 
 
 
@@ -189,6 +213,8 @@ function jfb_admin_page()
         delete_option($opt_jfb_show_credit);
         delete_option($opt_jfb_username_style);
         delete_option($opt_jfb_hidesponsor);
+        delete_option($opt_jfb_hidew3warning);
+        delete_option($opt_jfb_hidewpenginewarning);
         delete_option($opt_jfb_reportstats);
         if( function_exists('jfb_delete_premium_opts') ) jfb_delete_premium_opts();
         ?><div class="updated"><p><strong><?php _e('All plugin settings have been cleared.' ); ?></strong></p></div><?php
@@ -309,7 +335,7 @@ function jfb_admin_page()
         
         		<br /><b>Debug:</b><br />
         		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
-        		<input type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send all event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /><br />
+        		<input type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send all event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /> <?php jfb_output_simple_lightbox("(Click for more info)", "Event logs show detailed information about the login process, and are useful for debugging various types of issues.  However, note that this option will send you an e-mail <i>every time</i> the login form is submitted - whether it's by a person or an automated spambot probing your site for vulnerabilities.  The latter type of submission is very common and is nothing to worry about, as both Wordpress and this plugin have various types of security to prevent the bots from getting in - however, to avoid these constant annoyances it's recommended that you only enable this option when you're actually trying to debug a problem.");?><br />
         		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
                 <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
                 <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />

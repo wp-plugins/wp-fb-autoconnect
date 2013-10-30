@@ -3,7 +3,7 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "3.1.3";
+$jfb_version    = "3.1.4";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 $jfb_data_url   = plugins_url(dirname(plugin_basename(__FILE__)));
 
@@ -15,6 +15,7 @@ global $opt_jfb_mod_done, $opt_jfb_valid, $opt_jfb_app_token;
 global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
 global $opt_jfb_username_style, $opt_jfb_invalids;
 global $opt_jfb_logincount, $opt_jfb_logincount_recent, $opt_jfb_reportstats;
+global $opt_jfb_hidesponsor, $opt_jfb_hidew3warning, $opt_jfb_hidewpenginewarning;
 $opt_jfb_app_id     = "jfb_app_id";
 $opt_jfb_api_key    = "jfb_api_key";
 $opt_jfb_api_sec    = "jfb_api_sec";
@@ -34,6 +35,8 @@ $opt_jfb_wp_avatars = "jfb_wp_avatars";
 $opt_jfb_show_credit= "jfb_credit";
 $opt_jfb_username_style = "jfb_username_style"; 
 $opt_jfb_hidesponsor = "jfb_hidesponsor";
+$opt_jfb_hidew3warning = "jfb_hidew3warning";
+$opt_jfb_hidewpenginewarning = "jfb_hide_wpenginewarning";
 $opt_jfb_logincount = "jfb_logincount";
 $opt_jfb_logincount_recent = "jfb_logincount_recent";
 $opt_jfb_invalids = "jfb_invalids";

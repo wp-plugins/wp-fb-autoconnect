@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible. Supports BuddyPress.
  * Author: Justin Klein
- * Version: 3.1.3
+ * Version: 3.1.4
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  */
@@ -80,7 +80,7 @@ function jfb_enqueue_styles()
 /*
  * Output a Login with Facebook Button.
  */
-function jfb_output_facebook_btn()
+function jfb_output_facebook_btn($callbackName=0)
 {
     //Make sure the plugin has been setup
     global $jfb_name, $jfb_version, $jfb_js_callbackfunc, $opt_jfb_valid;
@@ -91,6 +91,9 @@ function jfb_output_facebook_btn()
         echo "<!--WARNING: Invalid or Unset Facebook API Key-->";
         return;
     }
+    
+    //If a callback name is explicitly specified, use that.  Otherwise, use the global (main) callback.
+    if( !$callbackName ) $callbackName = $jfb_js_callbackfunc;
     
     //Figure out our scope (aka extended permissions)
     $email_perms = get_option($opt_jfb_ask_perms) || get_option($opt_jfbp_requirerealmail);
@@ -104,7 +107,14 @@ function jfb_output_facebook_btn()
     //Output the button for the Premium version.  NOTE: This will not work with pre-v30 Premium addons.
     if(defined('JFB_PREMIUM_VER') && function_exists('jfb_output_facebook_btn_premium_30'))
     {
+        //The $callbackName param was introduced to this fxn in v3.1.4.  In order to avoid having to simultaneously
+        //update both the premium addon and the core plugin, I'm gonna use this kinda "hacky" way to tell the addon
+        //about the $callbackName.  If no $callbackName param was specified, it'll be the same as $jfb_js_callbackfunc
+        //(aka the global option), so this save-and-restore approach will have no effect.
+        $savedGlobalCallback = $jfb_js_callbackfunc;
+        $jfb_js_callbackfunc = $callbackName;
         jfb_output_facebook_btn_premium_30($scope);
+        $jfb_js_callbackfunc = $savedGlobalCallback;
     }
     
     //Output the button for the free version.  NOTE that I explicitly check that this is the free version, vs an older 
@@ -113,7 +123,7 @@ function jfb_output_facebook_btn()
     else if(!defined('JFB_PREMIUM_VER'))
     {
         ?><span class="fbLoginButton"><script type="text/javascript">//<!--
-            document.write('<fb:login-button scope="<?php echo $scope ?>" v="2" size="small" onlogin="<?php echo $jfb_js_callbackfunc ?>();"><?php echo apply_filters('wpfb_button_text', 'Login with Facebook') ?></fb:login-button>');
+            document.write('<fb:login-button scope="<?php echo $scope ?>" v="2" size="small" onlogin="<?php echo $callbackName ?>();"><?php echo apply_filters('wpfb_button_text', 'Login with Facebook') ?></fb:login-button>');
         //--></script></span><?php
     }
 
