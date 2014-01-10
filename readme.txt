@@ -26,9 +26,7 @@ The simple concept behind WP-FB AutoConnect is to offer an easy-to-use widget th
 
 = Premium Addon =
 
-In addition to the free features listed above, I also offer a Premium addon to provide some more advanced functionality.  Premium customers always receive priority support, and while I continue to update the free plugin with maintenance updates and bug fixes, new features are now only being implemented in the addon.  
-
-The following is an abbreviated list of Premium features; a more complete list, along with details on each item, is available on the [plugin homepage](http://www.justin-klein.com/projects/wp-fb-autoconnect/#premium):
+In addition to the free features listed above, I also offer a Premium addon to provide some more advanced functionality.  The following is an abbreviated list of Premium features; a more complete list, along with details on each item, is available on the [plugin homepage](http://www.justin-klein.com/projects/wp-fb-autoconnect/#premium):
 
 * Multisite Support
 * Shortcode Support
@@ -41,9 +39,10 @@ The following is an abbreviated list of Premium features; a more complete list, 
 * Add a Facebook button to the comment form, login form, registration form, and WPMU signup form
 * Customize the redirect URL for first-time visitors, returning visitors, and logged-out visitors
 * Restrict autoregistration to Facebook friends, Facebook fans, Facebook group members, explicitly invited users, everyone, or no one
-* Send a customizable welcome mail to autoregistered users (with their generated login and password)
+* Send a customizable welcome mail to autoregistered users
 * Customize the role assigned to autoregistered users
 * Show/Hide/Customize the Widget's links, checkboxes, and textfields.  Show the logged-in user's avatar in the Widget.
+* Priority support
 * ...And more
 
 == Installation ==
