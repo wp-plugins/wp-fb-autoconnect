@@ -441,21 +441,20 @@ function jfb_output_simple_lightbox($linkCaption, $contents)
 function jfb_output_premium_panel_tease()
 {
     global $jfb_homepage;
-    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_registrationfrmlogin, $opt_jfbp_cache_avatars, $opt_jfbp_cache_avatars_fullsize, $opt_jfbp_cache_avatar_dir, $opt_jfbp_cachedir_changetoblog;
+    global $opt_jfbp_notifyusers, $opt_jfbp_notifyusers_subject, $opt_jfbp_notifyusers_content, $opt_jfbp_commentfrmlogin, $opt_jfbp_wploginfrmlogin, $opt_jfbp_registrationfrmlogin, $opt_jfbp_bpregistrationfrmlogin, $opt_jfbp_cache_avatars, $opt_jfbp_cache_avatars_fullsize, $opt_jfbp_cache_avatar_dir, $opt_jfbp_cachedir_changetoblog;
     global $opt_jfbp_buttonstyle, $opt_jfbp_buttonsize, $opt_jfbp_buttontext, $opt_jfbp_buttonimg, $opt_jfbp_requirerealmail;
     global $opt_jfbp_redirect_new, $opt_jfbp_redirect_new_custom, $opt_jfbp_redirect_existing, $opt_jfbp_redirect_existing_custom, $opt_jfbp_redirect_logout, $opt_jfbp_redirect_logout_custom;
     global $opt_jfbp_restrict_reg, $opt_jfbp_restrict_reg_url, $opt_jfbp_restrict_reg_uid, $opt_jfbp_restrict_reg_pid, $opt_jfbp_restrict_reg_gid;
-    global $opt_jfbp_show_spinner, $opt_jfbp_allow_disassociate, $opt_jfbp_autoregistered_role, $jfb_data_url;
+    global $opt_jfbp_show_spinner, $opt_jfbp_allow_link, $opt_jfbp_allow_disassociate, $opt_jfbp_autoregistered_role, $jfb_data_url;
     global $opt_jfbp_wordbooker_integrate, $opt_jfbp_signupfrmlogin, $opt_jfbp_localize_facebook;
     global $opt_jfbp_xprofile_map, $opt_jfbp_xprofile_mappings, $jfb_xprofile_field_prefix;
     global $opt_jfbp_bpstream_login, $opt_jfbp_bpstream_logincontent, $opt_jfbp_bpstream_register, $opt_jfbp_bpstream_registercontent;
-    global $opt_jfbp_latestversion;
     function disableatt() { echo (defined('JFB_PREMIUM')?"":"disabled='disabled'"); }
     ?>
     <!--Show the Premium version number along with a link to immediately check for updates-->
     <form name="formPremUpdateCheck" method="post" action="">
-        <h3>Premium Options <?php echo (defined('JFB_PREMIUM_VER')?"<small>(<a href=\"javascript:document.formPremUpdateCheck.submit();\">Version " . JFB_PREMIUM_VER . "</a>)</small>":""); ?></h3>
-        <input type="hidden" name="<?php echo $opt_jfbp_latestversion?>" value="1" />
+        <h3>Premium Options <?php echo (defined('JFB_PREMIUM_VER')?"<span style='font-size:x-small;'>(<a href=\"javascript:document.formPremUpdateCheck.submit();\">Check for Updates</a>)</span>":""); ?></h3>
+        <input type="hidden" name="VersionCheckNow" value="1" />
     </form>
     
     <?php 
@@ -500,6 +499,7 @@ function jfb_output_premium_panel_tease()
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_commentfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_commentfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button below the comment form<br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wploginfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_wploginfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the standard Login page (wp-login.php)<br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_registrationfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_registrationfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the Registration page (wp-login.php)<br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_bpregistrationfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_bpregistrationfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the BuddyPress Registration page (/register)<br />
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_signupfrmlogin?>" value="1" <?php echo get_option($opt_jfbp_signupfrmlogin)?'checked="checked"':''?> /> Add a Facebook Login button to the Signup page (wp-signup.php) (WPMU Only)<br /><br />
                         
         <!-- Facebook's OAuth 2.0 migration BROKE my ability to localize the XFBML-generated dialog.  I've reported a bug, and will do my best to fix it as soon as possible.
@@ -550,6 +550,19 @@ function jfb_output_premium_panel_tease()
         <input <?php disableatt() ?> type="text" size="15" name="<?php echo $opt_jfbp_cache_avatar_dir; ?>" value="<?php echo get_option($opt_jfbp_cache_avatar_dir); ?>" />
         <?php jfb_output_simple_lightbox("(Click for more info)", "Changing the cache directory will not move existing avatars or update existing users; it only applies to subsequent logins.  It's therefore recommended that you choose a cache directory once, then leave it be.")?><br /><br />
 
+        <b>Manual Linking &amp; Unlinking:</b><br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_allow_link?>" value="1" <?php echo get_option($opt_jfbp_allow_link)?'checked="checked"':''?> /> Allow users to manually link their Wordpress/Buddypress accounts to Facebook
+        <?php jfb_output_simple_lightbox("(Click for more info)", "This will add a button to each non-Facebook-connected user's Wordpress (and Buddypress) profile page, allowing them to manually link their blog account to their Facebook profile.  Although this plugin does try to match connecting Facebook users to existing Wordpress accounts by e-mail, this option provides a way for users to explicitly identify their local blog account - even if their e-mails don't match.")?><br />
+        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_allow_disassociate?>" value="1" <?php echo get_option($opt_jfbp_allow_disassociate)?'checked="checked"':''?> /> Allow users to disassociate their Wordpress/Buddypress accounts from Facebook
+        <?php jfb_output_simple_lightbox("(Click for more info)", "This will add a button to each connected user's Wordpress (and Buddypress) profile page, allowing them to disassociate their blog account from their Facebook profile.  User accounts which are not connected to Facebook will display 'Not Connected' in place of a button.")?><br />
+        <input disabled='disabled' type="checkbox" name="admindisassociate" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> /> Allow administrators to disassociate Wordpress/Buddypress user accounts from Facebook
+        <?php jfb_output_simple_lightbox("(Click for more info)", "This option is always enabled for administrators.")?><br /><br />
+
+        <b>Shortcode Support:</b><br />
+        <input disabled='disabled' type="checkbox" name="shortcodesupport" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> />
+        Enable shortcode for rendering Facebook buttons to your posts and pages
+        <?php jfb_output_simple_lightbox("(Click for more info)", "Shortcode support will allow you to manually place Facebook login buttons in your posts or pages, simply by inserting the tag <b>[jfb_facebook_btn]</b> in their content. The Facebook button will only be shown when nobody is logged into the site; otherwise, nothing is shown.  If you'd like to specify something to output for logged-in users, you can use the 'loggedin' parameter, like <b>[jfb_facebook_btn loggedin='Welcome!']</b>.<br/><br/>With the Premium addon installed, shortcode support is always enabled.  For general information on Wordpress shortcode, please see <a href='http://codex.wordpress.org/Shortcode' target='shortcode'>here</a>.")?><br /><br />
+            
         <b>Double Logins:</b><br />
         <input disabled='disabled' type="checkbox" name="doublelogin" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> />
         Automatically handle double logins 
@@ -563,12 +576,6 @@ function jfb_output_premium_panel_tease()
         <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_wordbooker_integrate?>" value="1" <?php echo get_option($opt_jfbp_wordbooker_integrate)?'checked="checked"':''?> /> Use Facebook avatars for <a href="http://wordpress.org/extend/plugins/wordbooker/">Wordbooker</a>-imported comments
         <?php jfb_output_simple_lightbox("(Click for more info)", "The Wordbooker plugin allows you to push blog posts to your Facebook wall, and also to import comments on these posts back to your blog.  This option will display real Facebook avatars for imported comments, provided the commentor logs into your site at least once.")?><br /><br />
         
-        <b>Disassociation:</b><br />
-        <input <?php disableatt() ?> type="checkbox" name="<?php echo $opt_jfbp_allow_disassociate?>" value="1" <?php echo get_option($opt_jfbp_allow_disassociate)?'checked="checked"':''?> /> Allow users to disassociate their Wordpress accounts from Facebook
-        <?php jfb_output_simple_lightbox("(Click for more info)", "This will add a button to each connected user's Wordpress profile page, allowing them to disassociate their blog account from their Facebook profile.  User accounts which are not connected to Facebook will display 'Not Connected' in place of a button.")?><br />
-        <input disabled='disabled' type="checkbox" name="admindisassociate" value="1" <?php echo (defined('JFB_PREMIUM')?"checked='checked'":"")?> /> Allow administrators to disassociate Wordpress user accounts from Facebook
-        <?php jfb_output_simple_lightbox("(Click for more info)", "This option is always enabled for administrators.")?><br /><br />
-
         <b>Autoregistered User Role:</b><br />
         <?php
         add_option($opt_jfbp_autoregistered_role, get_option('default_role'));
@@ -584,12 +591,10 @@ function jfb_output_premium_panel_tease()
         <b>Widget Appearance:</b><br />
         Please use the <a href="<?php echo admin_url('widgets.php') ?>" target="widgets">WP-FB AutoConnect <b><i>Premium</i></b> Widget</a> if you'd like to:<br />
         &bull; Customize the Widget's text <?php jfb_output_simple_lightbox("(Click for more info)", "You can customize the text of: User, Pass, Login, Remember, Forgot, Logout, Edit Profile, Welcome.")?><br />
-        &bull; Show/Hide the User/Pass fields (leaving Facebook as the only way to login)<br />
-        &bull; Show/Hide the user's avatar (when logged in)<br />
-        &bull; Show/Hide a "Remember" tickbox<br />
-        &bull; Show/Hide the "Register" link (only applicable if registration is enabled on the site/network)<br/>
-        &bull; Show/Hide the "Edit Profile" link<br/>
-        &bull; Point the "Edit Profile" link to the BP profile, rather than WP (if available)<br/>
+        &bull; Show/Hide any of the Widget's links, checkboxes, or textfields  <?php jfb_output_simple_lightbox("(Click for more info)", "You can show or hide:<ul style='list-style-type:disc;list-style-position:inside;'><li>The User/Pass fields (leaving Facebook as the only way to login)</li><li>The 'Register' link (only applicable if registration is enabled on the site/network)</li><li>The 'Remember' tickbox</li><li>The 'Edit Profile' link</li><li>The 'Forgot Password' link</li></ul>")?><br />      
+        &bull; Show the user's avatar next to their username (when logged in)<br />
+        &bull; Point the "Edit Profile" link to the BP profile, rather than WP<br/>
+        &bull; Point the "Forgot Password" link to a custom URL of your choosing<br />
         &bull; Allow the user to simultaneously logout of your site <i>and</i> Facebook<br /><br />
             
         <b>AJAX Spinner:</b><br />

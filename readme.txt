@@ -4,10 +4,9 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.8
-Stable tag: 3.1.5
+Stable tag: 3.1.6
 
-A LoginLogout widget with Facebook Connect button, offering hassle-free login for your readers. Clean and extensible.  Supports BuddyPress.
-
+A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
 
 == Description ==
 
@@ -15,15 +14,37 @@ The simple concept behind WP-FB AutoConnect is to offer an easy-to-use widget th
 
 * Full support for both Wordpress and Buddypress.
 * No user interaction is required - the login process is transparent to new and returning users alike.
-* Existing users who connect with FB retain the same local user accounts as before.
+* Existing users who connect with FB retain the same local user accounts as before (matched via e-mail).
 * New visitors will be given new user accounts, which can be retained even if you remove the plugin.
-* Facebook profile pictures can be used as avatars, even on pre-existing comments.
+* Facebook profile pictures can be used as avatars.
 * User registration announcements can be pushed to Facebook walls.
 * No contact with the Facebook API after the login completes - so no slow pageloads.
 * Won't bloat your database with duplicate user accounts, extra fields, or unnecessary complications.
 * Custom logging options can notify you whenever someone connects with Facebook.
 * A powerful set of hooks and filters allow developers to easily tailor the login process to their personal needs: redirect to a custom page, fill xProfile data with information from Facebook, setup permissions based on social connections, and more.
 * Fully HTML/CSS valid.
+
+= Premium Addon =
+
+In addition to the free features listed above, I also offer a Premium addon to provide some more advanced functionality.  Premium customers always receive priority support, and while I continue to update the free plugin with maintenance updates and bug fixes, new features are now only being implemented in the addon.  
+
+The following is an abbreviated list of Premium features; a more complete list, along with details on each item, is available on the [plugin homepage](http://www.justin-klein.com/projects/wp-fb-autoconnect/#premium):
+
+* Multisite Support
+* Shortcode Support
+* Image-based login buttons
+* Cache Facebook avatars to your local server
+* Allow users to manually associate/disassociate their existing accounts with Facebook
+* Automatically populate BuddyPress X-Profiles with information from Facebook
+* Announce Facebook logins to the BuddyPress Activity Stream
+* Show an AJAX spinner to indicate login-in-progress
+* Add a Facebook button to the comment form, login form, registration form, and WPMU signup form
+* Customize the redirect URL for first-time visitors, returning visitors, and logged-out visitors
+* Restrict autoregistration to Facebook friends, Facebook fans, Facebook group members, explicitly invited users, everyone, or no one
+* Send a customizable welcome mail to autoregistered users (with their generated login and password)
+* Customize the role assigned to autoregistered users
+* Show/Hide/Customize the Widget's links, checkboxes, and textfields.  Show the logged-in user's avatar in the Widget.
+* ...And more
 
 == Installation ==
 
@@ -32,7 +53,7 @@ To allow your users to login with their Facebook accounts, you must first setup 
 1. Visit [developers.facebook.com/apps](http://developers.facebook.com/apps) and click the "Create New App" button.
 2. Type in a name (i.e. the name of your blog). This is what Facebook will show on the login popup.
 3. Facebook may now require you to verify your account before continuing (see [here](https://developers.facebook.com/blog/post/386/) for more information).
-4. Once your app has been created, fill in your "Site URL" under "Select how your app integrates with Facebook -&gt; Website".  Note: http://example.com/ and http://www.example.com/ are *not* the same.
+4. Once your app has been created, fill in your "Site URL" under "Select how your app integrates with Facebook -> Website".  Note: http://example.com/ and http://www.example.com/ are *not* the same.
 5. Make sure "Sandbox Mode" is disabled, and click "Save Changes."
 6. Note the App ID and Secret (you'll need them in a minute).
 
@@ -42,7 +63,7 @@ Then you can install the plugin:
 2. Login to your Wordpress admin panel and activate the plugin.
 3. Navigate to Settings -> WP-FB AutoConn.
 4. Enter your App ID and Secret (obtained above), and click "Save."
-5. If you're using BuddyPress, a Facebook button will automatically be added to its built-in login panel.  If not, navigate to Appearance -&gt; Widgets and add the WP-FB AutoConnect widget to your sidebar. 
+5. If you're using BuddyPress, a Facebook button will automatically be added to its built-in login panel.  If not, navigate to Appearance -> Widgets and add the WP-FB AutoConnect widget to your sidebar. 
 
 That's it - users should now be able to use the widget to login to your blog with their Facebook accounts.
 
@@ -60,6 +81,12 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 3.1.6 (2014-01-10) =
+* Minor security fix
+* Update the summary in the 'plugins' page of the WP admin panel
+* Update the Premium admin panel tab with features from addon v33
+* Update the ReadMe (tagline, list premium features, etc)
+
 = 3.1.5 (2013-12-13) =
 * Verified compatibility with WP 3.8
 

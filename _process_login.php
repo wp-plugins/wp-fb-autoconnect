@@ -53,14 +53,14 @@ function jfb_process_login()
     //Get the Facebook access token
     if( !isset($_POST['access_token']) || !$_POST['access_token'] )
         j_die("Error: Missing POST Data (access_token).\n\nIf you're receiving this notice via e-mail as a site administrator, it's nearly always safe to ignore (these errors are due to spambots automatically hitting your site).  If you're seeing this as a real person attempting to login, please report it to the plugin author at " . $jfb_homepage.".");
-    $access_token = $_POST['access_token'];
+    $access_token = esc_html($_POST['access_token']);
     $jfb_log .= "FB: Found access token (" . substr($access_token, 0, 30) . "...)\n"; 
 
     //Get the basic user info and make sure the access_token is valid  
     $jfb_log .= "FB: Initiating Facebook connection...\n";
     $fbuser = jfb_api_get("https://graph.facebook.com/me?access_token=$access_token");
     if( isset($fbuser['error']) ) j_die("Error: Failed to get the Facebook user session (" . $fbuser['error']['message'] . ")");
-    $fb_uid = $fbuser['id'];
+    $fb_uid = (int)$fbuser['id'];
     do_action('wpfb_session_established', array('FB_ID' => $fb_uid, 'access_token'=>$access_token) );
     $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
