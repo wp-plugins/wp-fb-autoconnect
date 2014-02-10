@@ -3,8 +3,8 @@ Contributors: Justin_K
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T88Y2AZ53836U
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
-Tested up to: 3.8
-Stable tag: 3.1.6
+Tested up to: 3.8.1
+Stable tag: 3.1.7
 
 A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
 
@@ -49,12 +49,12 @@ In addition to the free features listed above, I also offer a Premium addon to p
 
 To allow your users to login with their Facebook accounts, you must first setup an Application for your site:
 
-1. Visit [developers.facebook.com/apps](http://developers.facebook.com/apps) and click the "Create New App" button.
-2. Type in a name (i.e. the name of your blog). This is what Facebook will show on the login popup.
-3. Facebook may now require you to verify your account before continuing (see [here](https://developers.facebook.com/blog/post/386/) for more information).
-4. Once your app has been created, fill in your "Site URL" under "Select how your app integrates with Facebook -> Website".  Note: http://example.com/ and http://www.example.com/ are *not* the same.
-5. Make sure "Sandbox Mode" is disabled, and click "Save Changes."
-6. Note the App ID and Secret (you'll need them in a minute).
+1. Visit [developers.facebook.com/apps](http://developers.facebook.com/apps) and select "Create a New App" from the "Apps" menu at the top.
+2. Type in a name (i.e. the name of your site), select a category, and click "Create App."
+3. Note the App ID and App Secret (you'll need them in a minute).
+4. Go to the "Settings" page and click "Add Platform," then "Website," then fill in your "Site URL."  Note: http://example.com/ and http://www.example.com/ are *not* the same.
+5. Also on the "Settings" page, enter a Contact EMail and save changes.
+6. Go to the "Status & Review" page and make the app live (flip the switch at the top).
 
 Then you can install the plugin:
 
@@ -80,6 +80,10 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 3.1.7 (2014-02-11) =
+* Facebook has rearranged their developers page again; updated the setup instructions in the admin panel & readme
+* Checked compatibility with WP 3.8.1
+
 = 3.1.6 (2014-01-10) =
 * Minor security fix
 * Update the summary in the 'plugins' page of the WP admin panel

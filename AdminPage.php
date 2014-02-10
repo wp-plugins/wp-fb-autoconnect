@@ -281,13 +281,13 @@ function jfb_admin_page()
         	<h3>Setup Instructions</h3>
             To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:<br /><br />
             <ol>
-              <li>Visit <a href="http://developers.facebook.com/apps" target="_lnk">developers.facebook.com/apps</a> and click the "Create New App" button.</li>
-              <li>Type in a name (i.e. the name of your website) and click "Continue."  This is the name your users will see on the Facebook login popup.</li>
-              <li>Facebook may now require you to verify your account before continuing (see <a target="_fbInfo" href="https://developers.facebook.com/blog/post/386/">here</a> for more information).</li>
-              <li>Once your app has been created, scroll down and fill in your "Site URL" under "Website with Facebook Login."  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
-              <li>Make sure "Sandbox Mode" is disabled, and click "Save Changes."</li>
-              <li>Copy the App ID and App Secret to the boxes below.</li>
-              <li>Click "Save" below.</li>
+			  <li>Visit <a href="http://developers.facebook.com/apps" target="lnk">developers.facebook.com/apps</a> and select "Create a New App" from the "Apps" menu at the top.</li>
+			  <li>Type in a name (i.e. the name of your site), select a category, and click "Create App."</li>
+			  <li>Go to the "Settings" page and click "Add Platform," then "Website," then fill in your "Site URL."<br/>
+			  	  Note: http://example.com/ and http://www.example.com/ are <i>not</i> the same.</li>
+			  <li>Also on the "Settings" page, enter a Contact EMail and save changes.</li>
+			  <li>Go to the "Status &amp; Review" page and make the app live (flip the switch at the top).</li>
+			  <li>Copy the App ID and App Secret to the boxes below, and click the "Connect" button.</li>
             </ol>
             <br />That's it!  Now you can add this plugin's <a href="<?php echo admin_url('widgets.php')?>">sidebar widget</a>, or if you're using BuddyPress, a Facebook button will be automatically added to its built-in login panel.<br /><br />
             For more complete documentation and help, visit the <a href="<?php echo $jfb_homepage?>">plugin homepage</a>.<br />
