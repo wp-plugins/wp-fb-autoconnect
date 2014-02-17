@@ -60,7 +60,7 @@ function jfb_process_login()
     $jfb_log .= "FB: Initiating Facebook connection...\n";
     $fbuser = jfb_api_get("https://graph.facebook.com/me?access_token=$access_token");
     if( isset($fbuser['error']) ) j_die("Error: Failed to get the Facebook user session (" . $fbuser['error']['message'] . ")");
-    $fb_uid = (int)$fbuser['id'];
+    $fb_uid = $fbuser['id'];
     do_action('wpfb_session_established', array('FB_ID' => $fb_uid, 'access_token'=>$access_token) );
     $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
