@@ -11,7 +11,6 @@
 
 .widget_loginlogout #user_pass, .widget_autoconnect_premium #user_pass,
 .widget_loginlogout #user_login, .widget_autoconnect_premium #user_login{
-	height:18px;
 	width:86px;
 	padding:3px;
 }
