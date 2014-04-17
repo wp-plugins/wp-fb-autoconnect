@@ -14,7 +14,7 @@ function jfb_process_login()
     global $jfb_log, $jfb_version, $opt_jfb_app_id, $jfb_homepage;
     jfb_debug_checkpoint('start');
     $browser = jfb_get_browser();
-    $jfb_log = "Starting login process (IP: " . $_SERVER['REMOTE_ADDR'] . ", User: " . $_POST['fbuid'] . ", App: " . get_option($opt_jfb_app_id) . ", Version: $jfb_version, Browser: " . $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . ")\n";
+    $jfb_log = "Starting login process (IP: " . $_SERVER['REMOTE_ADDR'] . ", User: " . $_POST['fbuid'] . ", App: " . get_option($opt_jfb_app_id) . ", Version: $jfb_version, WP: " . $GLOBALS['wp_version'] . ", Browser: " . $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . ")\n";
 
     //Run one hook before ANYTHING happens.
     $jfb_log .= "WP: Running action wpfb_prelogin\n";
