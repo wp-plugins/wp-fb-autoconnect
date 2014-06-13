@@ -3,8 +3,8 @@ Contributors: Justin_K
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T88Y2AZ53836U
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
-Tested up to: 3.9
-Stable tag: 3.1.10
+Tested up to: 3.9.1
+Stable tag: 3.1.11
 
 A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
 
@@ -80,6 +80,12 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 3.1.11 (2014-06-13) =
+* Add a new debug option to disable the "Missing POST Data" login logs
+* Add instructions to the admin panel for submitting your app for review (now required to post announcements to your users' walls)
+* Change the publish_stream permission to publish_actions
+* Confirmed working with WP 3.9.1
+
 = 3.1.10 (2014-04-17) =
 * Tested with WP 3.9
 * Include the WP version in login logs

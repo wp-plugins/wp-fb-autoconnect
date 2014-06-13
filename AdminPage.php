@@ -98,7 +98,7 @@ function jfb_admin_notices()
 function jfb_admin_page()
 {
     global $jfb_name, $jfb_version, $opt_jfb_app_token;
-    global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_delay_redir, $jfb_homepage;
+    global $opt_jfb_app_id, $opt_jfb_api_key, $opt_jfb_api_sec, $opt_jfb_email_to, $opt_jfb_email_logs, $opt_jfb_email_logs_missingpost, $opt_jfb_delay_redir, $jfb_homepage;
     global $opt_jfb_ask_perms, $opt_jfb_mod_done, $opt_jfb_ask_stream, $opt_jfb_stream_content;
     global $opt_jfb_bp_avatars, $opt_jfb_wp_avatars, $opt_jfb_valid, $opt_jfb_fulllogerr, $opt_jfb_disablenonce, $opt_jfb_show_credit;
     global $opt_jfb_username_style, $opt_jfb_hidesponsor, $opt_jfb_reportstats;
@@ -180,6 +180,7 @@ function jfb_admin_page()
         update_option( $opt_jfb_show_credit, ( isset( $_POST[$opt_jfb_show_credit] ) ? $_POST[$opt_jfb_show_credit] : 0 ) );
         update_option( $opt_jfb_email_to, ( isset( $_POST[$opt_jfb_email_to] ) ? $_POST[$opt_jfb_email_to] : '' ) );
         update_option( $opt_jfb_email_logs, ( isset( $_POST[$opt_jfb_email_logs] ) ? $_POST[$opt_jfb_email_logs] : 0 ) );
+		update_option( $opt_jfb_email_logs_missingpost, ( isset( $_POST[$opt_jfb_email_logs_missingpost] ) ? $_POST[$opt_jfb_email_logs_missingpost] : 0 ) );
         update_option( $opt_jfb_delay_redir, ( isset( $_POST[$opt_jfb_delay_redir] ) ? $_POST[$opt_jfb_delay_redir] : 0 ) );
         update_option( $opt_jfb_fulllogerr, ( isset( $_POST[$opt_jfb_fulllogerr] ) ? $_POST[$opt_jfb_fulllogerr] : 0 ) );
         update_option( $opt_jfb_disablenonce, ( isset( $_POST[$opt_jfb_disablenonce] ) ? $_POST[$opt_jfb_disablenonce] : 0 ) );
@@ -199,6 +200,7 @@ function jfb_admin_page()
         delete_option($opt_jfb_api_sec);
         delete_option($opt_jfb_email_to);
         delete_option($opt_jfb_email_logs);
+		delete_option($opt_jfb_email_logs_missingpost);
         delete_option($opt_jfb_delay_redir);
         delete_option($opt_jfb_ask_perms);
         delete_option($opt_jfb_ask_stream);
@@ -325,6 +327,7 @@ function jfb_admin_page()
         		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
         		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> Request permission to post the following announcement on users' Facebook walls when they connect for the first time:<br />
         		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo get_option($opt_jfb_stream_content) ?>" /><br />
+        		<small><i><b>*Note:</b> In order to use this feature, you'll need to submit your app for review by Facebook.</i></small>  <?php jfb_output_simple_lightbox("(Click for more info)", "As a new requirement Facebook introduced in 2014, asking for anything more than a user's basic profile, e-mail, and friends list requires you to submit your app for review.  For more information, see <a target='app-review' href='https://developers.facebook.com/docs/apps/review/login'>here</a>.<br/><br/>In order to post to your users' timelines, your app will need the 'publish_actions' extended permission.  To request it:<br/>1) Visit to your app's configuration page on <a target='appconsole' href='https://developers.facebook.com/apps'>developers.facebook.com/apps</a><br />2) Go to 'Status &amp; Review-&gt;Start a Submission'<br/>3) Check 'publish_actions,' and proceed with the submission<br/><br/>Facebook claims the review process will take 7-14 days, after which this feature will work properly.") ?><br/>
         
         		<br /><b>Avatars:</b><br />
                 <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> Use Facebook profile pictures as avatars<br />
@@ -335,10 +338,24 @@ function jfb_admin_page()
         
         		<br /><b>Debug:</b><br />
         		<?php add_option($opt_jfb_email_to, get_bloginfo('admin_email')); ?>
-        		<input type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send all event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /> <?php jfb_output_simple_lightbox("(Click for more info)", "Event logs show detailed information about the login process, and are useful for debugging various types of issues.  However, note that this option will send you an e-mail <i>every time</i> the login form is submitted - whether it's by a person or an automated spambot probing your site for vulnerabilities.  The latter type of submission is very common and is nothing to worry about, as both Wordpress and this plugin have various types of security to prevent the bots from getting in - however, to avoid these constant annoyances it's recommended that you only enable this option when you're actually trying to debug a problem.");?><br />
+        		<input id="log_mainoption" type="checkbox" name="<?php echo $opt_jfb_email_logs?>" value="1" <?php echo get_option($opt_jfb_email_logs)?'checked="checked"':''?> /> Send event logs to <input type="text" size="40" name="<?php echo $opt_jfb_email_to?>" value="<?php echo get_option($opt_jfb_email_to) ?>" /> <?php jfb_output_simple_lightbox("(Click for more info)", "Event logs show detailed information about the login process, and are useful for debugging various types of issues.  However, note that this option will send you an e-mail <i>every time</i> the login form is submitted - whether it's by a person or an automated spambot probing your site for vulnerabilities.  The latter type of submission is very common and is nothing to worry about, as both Wordpress and this plugin have various types of security to prevent the bots from getting in.  To avoid these spambot-generated messages, you may disable the suboption below.");?><br />
+        		<input id="log_suboption" style="margin-left:20px;" type="checkbox" name="<?php echo $opt_jfb_email_logs_missingpost?>" value="1" <?php echo get_option($opt_jfb_email_logs_missingpost)?'checked="checked"':''?> /> ...Including "Missing POST Data" error events<br />
         		<input type="checkbox" name="<?php echo $opt_jfb_disablenonce?>" value="1" <?php echo get_option($opt_jfb_disablenonce)?'checked="checked"':''?> /> Disable nonce security check (Not recommended)<br />
                 <input type="checkbox" name="<?php echo $opt_jfb_delay_redir?>" value="1" <?php echo get_option($opt_jfb_delay_redir)?'checked="checked"':''?> /> Delay redirect after login (<i><u>Not for production sites!</u></i>)<br />
                 <input type="checkbox" name="<?php echo $opt_jfb_fulllogerr?>" value="1" <?php echo get_option($opt_jfb_fulllogerr)?'checked="checked"':''?> /> Show full log on error (<i><u>Not for production sites!</u></i>)<br />
+                <script type="text/javascript">
+	                jQuery('#log_suboption').change(function()
+	                {
+					  if(jQuery(this).is(':checked'))
+					    jQuery('#log_mainoption').prop('checked', true);
+					});
+					jQuery('#log_mainoption').change(function()
+	                {
+					  if(!jQuery(this).is(':checked'))
+					    jQuery('#log_suboption').prop('checked', false);
+					});
+				</script>
+
                 <input type="hidden" name="main_opts_updated" value="1" />
                 <div class="submit"><input type="submit" name="Submit" value="Save" /></div>
             </form>
