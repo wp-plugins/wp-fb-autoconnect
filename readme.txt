@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 3.9.1
-Stable tag: 4.0.1
+Stable tag: 4.0.2
 
 A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
 
@@ -80,13 +80,16 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 4.0.2 (2014-08-12) =
+* Fix to prevent WPEngine's "Login Protection" from breaking Facebook logins
+
 = 4.0.1 (2014-08-12) =
 * Just a version number mixup in the Wp.org repository 
 
 = 4.0.0 (2014-08-12) =
 * By popular demand, this plugin finally supports gettext localization.  Please submit your translations - or let me know if I've missed any strings (there are bound to be a few!)
-* Add Spanish translation (thanks to Ogi Djuraskovic from firstsiteguide.com)
-* Add Serbian translation (thanks to Ogi Djuraskovic from firstsiteguide.com)
+* Add Spanish translation (thanks to Ogi Djuraskovic from [firstsiteguide.com](http://firstsiteguide.com))
+* Add Serbian translation (thanks to Ogi Djuraskovic from [firstsiteguide.com](http://firstsiteguide.com))
 * FB Graph API v2.0 introduces scoped userIDs, meaning profile urls can no longer be inferred from IDs alone.  I now explicitly store Facebook profile urls to usermeta.
 * FB Graph API v2.1 removes support for FQL; I've rewritten the avatar-fetching code so they it will work with newly-created apps.
 * FB Graph API v2.1 breaks the "Enforce access to e-mail" premium feature.  Until I have time to rewrite it, I've added a quick check to prevent it from breaking logins (note: this only applies to newly-created apps; the feature will continue work if you were already using it before).
