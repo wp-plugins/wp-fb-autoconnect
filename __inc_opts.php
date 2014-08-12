@@ -3,10 +3,12 @@
 //General Info
 global $jfb_name, $jfb_version, $jfb_homepage;
 $jfb_name       = "WP-FB AutoConnect";
-$jfb_version    = "3.1.11";
+$jfb_version    = "4.0.0";
 $jfb_homepage   = "http://www.justin-klein.com/projects/wp-fb-autoconnect";
 $jfb_data_url   = plugins_url(dirname(plugin_basename(__FILE__)));
 
+//Localization
+load_plugin_textdomain("wp-fb-ac", false, dirname( plugin_basename(__FILE__) ) . '/languages');
 
 //Database options
 //Note: Premium options are included by the addon itself, if present.
@@ -44,9 +46,10 @@ $opt_jfb_invalids = "jfb_invalids";
 $opt_jfb_reportstats = "jfb_reportstats";
 
 //Shouldn't ever need to change these
-global $jfb_nonce_name, $jfb_uid_meta_name, $jfb_js_callbackfunc, $jfb_default_email;
+global $jfb_nonce_name, $jfb_uid_meta_name, $jfb_url_meta_name, $jfb_js_callbackfunc, $jfb_default_email;
 $jfb_nonce_name     = "autoconnect_nonce";
 $jfb_uid_meta_name  = "facebook_uid";
+$jfb_url_meta_name  = "jfb_facebook_url";
 $jfb_js_callbackfunc= "jfb_js_login_callback";
 $jfb_default_email  = '@unknown.com';
 

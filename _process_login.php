@@ -30,13 +30,13 @@ function jfb_process_login()
             $currUser = wp_get_current_user(); 
             if( $currUser->ID )
             {
-                $msg = "User \"$currUser->user_login\" has already logged in via another browser session.\n";
+                $msg = sprintf(__("User '%s' has already logged in via another browser session.", 'wp-fb-ac'), $currUser->user_login) . "\n";
                 $jfb_log .= $msg;
                 j_mail("FB Double-Login: " . $currUser->user_login . " -> " . get_bloginfo('name'));
-                die($msg . "<br /><br /><a href=\"".$_POST['redirectTo']."\">Continue</a>");
+                die($msg . "<br /><br /><a href=\"".$_POST['redirectTo']."\">" . __("Continue", 'wp-fb-ac')."</a>");
             }
               
-            j_die("Nonce check failed, login aborted.\nThis usually due to your browser's privacy settings or a server-side caching plugin.  If you get this error on multiple browsers, please contact the site administrator.\n");
+            j_die("Nonce check failed, login aborted.\n<br/><br/>\n" . __("This error is usually due to your browser's privacy settings or a server-side caching plugin.  If you get this error on multiple browsers, please contact the site administrator.", 'wp-fb-ac'));
         }
         $jfb_log .= "WP: nonce check passed\n";
     }
@@ -54,7 +54,7 @@ function jfb_process_login()
     if( !isset($_POST['access_token']) || !$_POST['access_token'] )
 	{
 		global $opt_jfb_email_logs_missingpost;
-		j_die("Error: Missing Facebook access token.\n\nIf you're receiving this notice via e-mail as a site administrator, it's nearly always safe to ignore (these errors are due to spambots automatically hitting your site).  If you're seeing this as a real person attempting to login, please report it to the plugin author at " . $jfb_homepage.".", !get_option($opt_jfb_email_logs_missingpost));
+		j_die("Error: Missing Facebook access token.\n<br/><br/>\n" . sprintf(__("If you're receiving this notice via e-mail as a site administrator, it's nearly always safe to ignore (these errors are due to spambots automatically hitting your site).  If you're seeing this as a real person attempting to login, please report it to the plugin author at %s.", 'wp-fb-ac'), $jfb_homepage), !get_option($opt_jfb_email_logs_missingpost));
 	}
     $access_token = esc_html($_POST['access_token']);
     $jfb_log .= "FB: Found access token (" . substr($access_token, 0, 30) . "...)\n"; 
@@ -67,13 +67,17 @@ function jfb_process_login()
     do_action('wpfb_session_established', array('FB_ID' => $fb_uid, 'access_token'=>$access_token) );
     $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
 
-    //Get some extra stuff (TODO: I should combine these into one query with the above, for better efficiency)
+    //Get the profile URL & avatars.  TODO: I should try to combine these into fewer queries, for better efficiency.
+    //NOTE: Up to 08/11/2014, I was fetching both avatars in one fql call:
+    //jfb_api_get("https://graph.facebook.com/fql?q=".urlencode("SELECT pic_square,pic_big FROM user WHERE uid=$fb_uid")."&access_token=$access_token");
+    //However, Graph API 2.1 removed fql - so I now have fetch them separately :(
     $fbuser['profile_url'] = $fbuser['link'];
-    $pic = jfb_api_get("https://graph.facebook.com/fql?q=".urlencode("SELECT pic_square,pic_big FROM user WHERE uid=$fb_uid")."&access_token=$access_token");
-    $fbuser['pic_square'] = $pic['data'][0]['pic_square']; 
-    $fbuser['pic_big'] = $pic['data'][0]['pic_big'];
+    $pic = jfb_api_get("https://graph.facebook.com/me/picture?type=square&redirect=false&access_token=$access_token");
+    $fbuser['pic_square'] = $pic['data']['url']; 
+	$pic = jfb_api_get("https://graph.facebook.com/me/picture?type=large&redirect=false&access_token=$access_token");
+    $fbuser['pic_big'] = $pic['data']['url'];
     $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
-
+	
     //See if we were given permission to access the user's email
     //This isn't required, and will only matter if it's a new user without an existing WP account
     //(since we'll auto-register an account for them, using the contact_email we get from Facebook - if we can...)
@@ -210,12 +214,15 @@ function jfb_process_login()
         $user_login_id   = wp_insert_user($user_data);
         if( is_wp_error($user_login_id) )
         {
-            j_die("Error: wp_insert_user failed!<br/><br/>".
-                  "If you get this error while running a Wordpress MultiSite installation, it means you'll need to purchase the <a href=\"$jfb_homepage#premium\">premium version</a> of this plugin to enable full MultiSite support.<br/><br/>".
-                  "If you're <u><i>not</i></u> using MultiSite, please report this bug to the plugin author on the support page <a href=\"$jfb_homepage#feedback\">here</a>.<br /><br />".
-                  "Error message: " . (method_exists($user_login_id, 'get_error_message')?$user_login_id->get_error_message():"Undefined") . "<br />".
-                  "WP_ALLOW_MULTISITE: " . (defined('WP_ALLOW_MULTISITE')?constant('WP_ALLOW_MULTISITE'):"Undefined") . "<br />".
-                  "is_multisite: " . (function_exists('is_multisite')?is_multisite():"Undefined"));
+        	$errMsg = "Error: wp_insert_user failed!<br /><br />";
+			$errMsg .= __("If you get this error while running Wordpress MultiSite, it means you'll need to purchase the premium addon to enable full MultiSite support.  Please see here for more information:", 'wp-fb-ac');
+			$errMsg .= " <a href=\"$jfb_homepage#premium\"><b>Premium Addon</b></a><br/>";
+			$errMsg .= __("If you're NOT using MultiSite, please report this bug to the plugin author on the support page:", 'wp-fb-ac');
+			$errMsg .= " <a href=\"$jfb_homepage#feedback\">$jfb_homepage</a>.<br /><br />";
+			$errMsg .= "Message: " . (method_exists($user_login_id, 'get_error_message')?$user_login_id->get_error_message():"Undefined") . "<br />";
+            $errMsg .= "Allow Multisite: " . (defined('WP_ALLOW_MULTISITE')?constant('WP_ALLOW_MULTISITE'):"Undefined") . "<br />";
+            $errMsg .= "Is Multisite: " . (function_exists('is_multisite')?is_multisite():"Undefined");
+            j_die($errMsg);
         }
         
         //Success! Notify the site admin.
@@ -230,7 +237,13 @@ function jfb_process_login()
     //Tag the user with our meta so we can recognize them next time, without resorting to email hashes
     global $jfb_uid_meta_name;
     update_user_meta($user_login_id, $jfb_uid_meta_name, $fb_uid);
-    $jfb_log .= "WP: Updated usermeta ($jfb_uid_meta_name)\n";
+    $jfb_log .= "WP: Updated usermeta ($jfb_uid_meta_name -> $fb_uid)\n";
+    
+    //As of Graph API v2.0, the userID might be a scoped userID - not a "real" userID.  Thus, we can no longer infer the profile URL
+    //from the ID alone, so we have to store it separately.
+    global $jfb_url_meta_name;
+	update_user_meta($user_login_id, $jfb_url_meta_name, $fbuser["profile_url"]);
+    $jfb_log .= "WP: Updated usermeta ($jfb_url_meta_name -> " . $fbuser["profile_url"] . ")\n";
 
     //Also store the user's facebook avatar(s), in case the user wants to use them later
     if( $fbuser['pic_square'] )

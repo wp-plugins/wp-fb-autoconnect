@@ -10,7 +10,7 @@ class Widget_LoginLogout extends WP_Widget
     //Init the Widget
     function Widget_LoginLogout()
     { 
-        $this->WP_Widget( false, "WP-FB AutoConnect Basic", array( 'description' => 'A sidebar Login/Logout form with Facebook Connect button' ) );
+        $this->WP_Widget( false, "WP-FB AutoConnect Basic", array( 'description' => __('A sidebar Login/Logout form with Facebook Connect button', 'wp-fb-ac') ) );
     }
      
     //////////////////////////////////////////////////////
@@ -29,10 +29,10 @@ class Widget_LoginLogout extends WP_Widget
             <div style='text-align:center'>
               <?php 
                 $userdata = wp_get_current_user();
-                echo __('Welcome') . ', ' . $userdata->display_name;
+                _e('Welcome', 'wp-fb-ac') . ', ' . $userdata->display_name;
               ?>!<br />
               <small>
-                <a href="<?php echo get_option('siteurl')?>/wp-admin/profile.php"><?php _e("Edit Profile")?></a> | <a href=" <?php echo wp_logout_url( $_SERVER['REQUEST_URI'] )?>"><?php _e("Logout")?></a>
+                <a href="<?php echo get_option('siteurl')?>/wp-admin/profile.php"><?php _e("Edit Profile", 'wp-fb-ac')?></a> | <a href=" <?php echo wp_logout_url( $_SERVER['REQUEST_URI'] )?>"><?php _e("Logout", 'wp-fb-ac')?></a>
               </small>
             </div>
         <?php
@@ -40,11 +40,11 @@ class Widget_LoginLogout extends WP_Widget
         else:
         ?>
             <form name='loginform' id='loginform' action='<?php echo wp_login_url(); ?>' method='post'>
-                <label>User:</label><br />
-                <input type='text' name='log' id='user_login' class='input' tabindex='20' /><input type='submit' name='wp-submit' id='wp-submit' value='Login' tabindex='23' /><br />
-                <label>Pass:</label><br />
+                <label><?php _e("User", 'wp-fb-ac')?>:</label><br />
+                <input type='text' name='log' id='user_login' class='input' tabindex='20' /><input type='submit' name='wp-submit' id='wp-submit' value='<?php _e("Login", 'wp-fb-ac')?>' tabindex='23' /><br />
+                <label><?php _e("Pass", 'wp-fb-ac')?>:</label><br />
                 <input type='password' name='pwd' id='user_pass' class='input' tabindex='21' />
-                <span id="forgotText"><a href="<?php echo wp_lostpassword_url()?>" rel="nofollow" ><?php _e('Forgot')?>?</a></span><br />
+                <span id="forgotText"><a href="<?php echo wp_lostpassword_url()?>" rel="nofollow" ><?php _e('Forgot', 'wp-fb-ac')?>?</a></span><br />
                 <?php //echo "<input name='rememberme' type='hidden' id='rememberme' value='forever' />";?>
                 <?php echo wp_register('',''); ?>
                 <input type='hidden' name='redirect_to' value='<?php echo htmlspecialchars($_SERVER['REQUEST_URI'])?>' />
@@ -77,7 +77,7 @@ class Widget_LoginLogout extends WP_Widget
     {
         ?>
         <p>
-            <label for="<?php echo $this->get_field_id('title'); ?>"><?php echo 'Title:'; ?></label>
+            <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title', 'wp-fb-ac'); ?>:</label>
             <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" />
         </p>
         <?php
