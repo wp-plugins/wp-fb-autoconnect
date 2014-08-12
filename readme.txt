@@ -80,7 +80,7 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
-= 3.2.0 (2014-08-12) =
+= 4.0.0 (2014-08-12) =
 * By popular demand, this plugin finally supports gettext localization.  Please submit your translations - or let me know if I've missed any strings (there are bound to be a few!)
 * Add Spanish translation (thanks to Ogi Djuraskovic from firstsiteguide.com)
 * Add Serbian translation (thanks to Ogi Djuraskovic from firstsiteguide.com)
