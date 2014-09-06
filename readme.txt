@@ -83,6 +83,7 @@ For more information on exactly how this plugin's login process works and how it
 = 4.0.3 (2014-09-05) =
 * Updated Spanish translations
 * Updated Serbian translations
+* Confirmed compatibility with WP 4.0
 
 = 4.0.2 (2014-08-12) =
 * Fix to prevent WPEngine's "Login Protection" from breaking Facebook logins
