@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
  * Author: Justin Klein
- * Version: 4.0.2
+ * Version: 4.0.3
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  * Text Domain: wp-fb-ac
@@ -232,10 +232,12 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         array_push($jfb_callback_list, $callbackName);
 
      //Output an html form that we'll submit via JS once the FB popup is dismissed.
-     //Note that we submit to wp_login_url(), but the FB login is actually handled completely by _process_login.php,
-     //which runs in the "init" action and then immediately redirects elsewhere.  We could basically submit this
-     //form to anywhere and it would still work; I just use wp_login_url for simplicity (and because WP will
-     //automatically guarantee that it's https if ssl logins are required).      
+     //NOTE: Regardless of where we submit the form to (the "action"), the FB login is handled completely by _process_login.php,
+     //which runs in the "init" action and then immediately redirects elsewhere.  We could basically submit this form to 
+     //anywhere and it'd still work; I just use wp-login.php for simplicity (and because WP will guarantee that it's https
+     //if ssl logins are required).
+     //NOTE: I was previously submitting to wp_login_url(), which broke WPEngine.  They specifically require I post to 
+     //      site_url(), with the 'login_post' param...)
      ?><form id="wp-fb-ac-fm" name="<?php echo $callbackName ?>_form" method="post" action="<?php echo esc_url(site_url( 'wp-login.php', 'login_post' )); ?>" >
           <input type="hidden" name="redirectTo" value="<?php echo $redirectTo?>" />
           <input type="hidden" name="access_token" id="jfb_access_token" value="0" />
