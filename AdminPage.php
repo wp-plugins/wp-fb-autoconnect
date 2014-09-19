@@ -290,11 +290,12 @@ function jfb_admin_page()
 		<h3><?php _e("Setup Instructions", 'wp-fb-ac')?></h3>
 			<?php _e("To allow your users to login with their Facebook accounts, you must first setup a Facebook Application for your website:",'wp-fb-ac')?><br /><br />
             <ol>
-			  <li><?php echo sprintf(__("Visit %s and select 'Create a New App' from the 'Apps' menu at the top.", 'wp-fb-ac'), "<a href='http://developers.facebook.com/apps' target='lnk'>developers.facebook.com/apps</a>")?></li>
+			  <li><?php echo sprintf(__("Visit %s and select 'Add a New App' from the 'Apps' menu at the top.", 'wp-fb-ac'), "<a href='http://developers.facebook.com/apps' target='lnk'>developers.facebook.com/apps</a>")?></li>
+			  <li><?php _e("When the 'Add a New App' window pops up, click the 'advanced setup' link at the bottom.", 'wp-fb-ac')?></li>
 			  <li><?php _e("Type in a name (i.e. the name of your site), select a category, and click 'Create App.'", 'wp-fb-ac')?></li>
 			  <li><?php _e("Go to the 'Settings' page and click 'Add Platform,' then 'Website,' then fill in your 'Site URL.'", 'wp-fb-ac')?><br/>
 			  	  <?php _e("Note: http://example.com/ and http://www.example.com/ are NOT the same.", 'wp-fb-ac')?></li>
-			  <li><?php _e("Also on the 'Settings' page, enter a Contact EMail and save changes.", 'wp-fb-ac')?></li>
+			  <li><?php _e("Also on the 'Settings' page, enter a Contact EMail, note the App ID and App Secret (you'll need them in a minute), and save changes.", 'wp-fb-ac')?></li>
 			  <li><?php _e("Go to the 'Status & Review' page and make the app live (flip the switch at the top).", 'wp-fb-ac')?></li>
 			  <li><?php _e("Copy the App ID and App Secret to the boxes below, and click the 'Connect' button.", 'wp-fb-ac')?></li>
 			  <li><?php echo sprintf(__("If you're using the default BuddyPress theme, a Facebook button will now automatically appear in its built-in login panel. Otherwise, navigate to Appearance->Widgets and add the WP-FB AutoConnect widget to your sidebar (%s).", 'wp-fb-ac'), "<a href='".admin_url('widgets.php')."'><b>here</b></a>");?></li>
