@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 4.0
-Stable tag: 4.0.4
+Stable tag: 4.0.5
 
 A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
 
@@ -80,6 +80,9 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 4.0.5 (2014-09-24) =
+* Fix the "Application request limit reached (#4)" error when validating your appid & secret
+
 = 4.0.4 (2014-09-19) =
 * Update Facebook App setup instructions in the admin panel & readme (they changed them yet again...)
 
