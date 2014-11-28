@@ -221,7 +221,9 @@ function jfb_process_login()
 			$errMsg .= " <a href=\"$jfb_homepage#feedback\">$jfb_homepage</a>.<br /><br />";
 			$errMsg .= "Message: " . (method_exists($user_login_id, 'get_error_message')?$user_login_id->get_error_message():"Undefined") . "<br />";
             $errMsg .= "Allow Multisite: " . (defined('WP_ALLOW_MULTISITE')?constant('WP_ALLOW_MULTISITE'):"Undefined") . "<br />";
-            $errMsg .= "Is Multisite: " . (function_exists('is_multisite')?is_multisite():"Undefined");
+            $errMsg .= "Is Multisite: " . (function_exists('is_multisite')?is_multisite():"Undefined") . "<br />";
+			$user_data['user_pass'] = '(Removed)';
+			$errMsg .= "Userdata: " . print_r($user_data, true);
             j_die($errMsg);
         }
         

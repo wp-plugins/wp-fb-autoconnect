@@ -178,25 +178,25 @@ function jfb_admin_page()
 
         //We can save these either way, because if "valid" isn't set, a button won't be shown.
         update_option( $opt_jfb_app_id, ( isset($result['id']) ? $result['id'] : "") );
-        update_option( $opt_jfb_api_key, $_POST[$opt_jfb_api_key] );
-        update_option( $opt_jfb_api_sec, $_POST[$opt_jfb_api_sec] );
+        update_option( $opt_jfb_api_key, esc_html($_POST[$opt_jfb_api_key]) );
+        update_option( $opt_jfb_api_sec, esc_html($_POST[$opt_jfb_api_sec]) );
     }
     if( isset($_POST['main_opts_updated']) )
     {
         $shownTab = 1;
-        update_option( $opt_jfb_ask_perms, ( isset( $_POST[$opt_jfb_ask_perms] ) ? $_POST[$opt_jfb_ask_perms] : 0 ) );
-        update_option( $opt_jfb_ask_stream, ( isset( $_POST[$opt_jfb_ask_stream] ) ? $_POST[$opt_jfb_ask_stream] : 0 ) );
-        update_option( $opt_jfb_wp_avatars, ( isset( $_POST[$opt_jfb_wp_avatars] ) ? $_POST[$opt_jfb_wp_avatars] : 0 ) );
-        update_option( $opt_jfb_stream_content, ( isset( $_POST[$opt_jfb_stream_content] ) ? $_POST[$opt_jfb_stream_content] : '' ) );        
-        update_option( $opt_jfb_show_credit, ( isset( $_POST[$opt_jfb_show_credit] ) ? $_POST[$opt_jfb_show_credit] : 0 ) );
-        update_option( $opt_jfb_email_to, ( isset( $_POST[$opt_jfb_email_to] ) ? $_POST[$opt_jfb_email_to] : '' ) );
-        update_option( $opt_jfb_email_logs, ( isset( $_POST[$opt_jfb_email_logs] ) ? $_POST[$opt_jfb_email_logs] : 0 ) );
-		update_option( $opt_jfb_email_logs_missingpost, ( isset( $_POST[$opt_jfb_email_logs_missingpost] ) ? $_POST[$opt_jfb_email_logs_missingpost] : 0 ) );
-        update_option( $opt_jfb_delay_redir, ( isset( $_POST[$opt_jfb_delay_redir] ) ? $_POST[$opt_jfb_delay_redir] : 0 ) );
-        update_option( $opt_jfb_fulllogerr, ( isset( $_POST[$opt_jfb_fulllogerr] ) ? $_POST[$opt_jfb_fulllogerr] : 0 ) );
-        update_option( $opt_jfb_disablenonce, ( isset( $_POST[$opt_jfb_disablenonce] ) ? $_POST[$opt_jfb_disablenonce] : 0 ) );
-        update_option( $opt_jfb_username_style, ( isset( $_POST[$opt_jfb_username_style] ) ? $_POST[$opt_jfb_username_style] : 0 ) );
-        update_option( $opt_jfb_reportstats, ( isset( $_POST[$opt_jfb_reportstats] ) ? $_POST[$opt_jfb_reportstats] : 0 ) );
+        update_option( $opt_jfb_ask_perms, esc_html( isset( $_POST[$opt_jfb_ask_perms] ) ? $_POST[$opt_jfb_ask_perms] : 0 ) );
+        update_option( $opt_jfb_ask_stream, esc_html( isset( $_POST[$opt_jfb_ask_stream] ) ? $_POST[$opt_jfb_ask_stream] : 0 ) );
+        update_option( $opt_jfb_wp_avatars, esc_html( isset( $_POST[$opt_jfb_wp_avatars] ) ? $_POST[$opt_jfb_wp_avatars] : 0 ) );
+        update_option( $opt_jfb_stream_content, esc_html( isset( $_POST[$opt_jfb_stream_content] ) ? $_POST[$opt_jfb_stream_content] : '' ) );        
+        update_option( $opt_jfb_show_credit, esc_html( isset( $_POST[$opt_jfb_show_credit] ) ? $_POST[$opt_jfb_show_credit] : 0 ) );
+        update_option( $opt_jfb_email_to, esc_html( isset( $_POST[$opt_jfb_email_to] ) ? $_POST[$opt_jfb_email_to] : '' ) );
+        update_option( $opt_jfb_email_logs, esc_html( isset( $_POST[$opt_jfb_email_logs] ) ? $_POST[$opt_jfb_email_logs] : 0 ) );
+		update_option( $opt_jfb_email_logs_missingpost, esc_html( isset( $_POST[$opt_jfb_email_logs_missingpost] ) ? $_POST[$opt_jfb_email_logs_missingpost] : 0 ) );
+        update_option( $opt_jfb_delay_redir, esc_html( isset( $_POST[$opt_jfb_delay_redir] ) ? $_POST[$opt_jfb_delay_redir] : 0 ) );
+        update_option( $opt_jfb_fulllogerr, esc_html( isset( $_POST[$opt_jfb_fulllogerr] ) ? $_POST[$opt_jfb_fulllogerr] : 0 ) );
+        update_option( $opt_jfb_disablenonce, esc_html( isset( $_POST[$opt_jfb_disablenonce] ) ? $_POST[$opt_jfb_disablenonce] : 0 ) );
+        update_option( $opt_jfb_username_style, esc_html( isset( $_POST[$opt_jfb_username_style] ) ? $_POST[$opt_jfb_username_style] : 0 ) );
+        update_option( $opt_jfb_reportstats, esc_html( isset( $_POST[$opt_jfb_reportstats] ) ? $_POST[$opt_jfb_reportstats] : 0 ) );
         ?><div class="updated"><p><strong><?php _e("Options saved", 'wp-fb-ac')?></strong></p></div><?php         
     }
     if( isset($_POST['prem_opts_updated']) && function_exists('jfb_update_premium_opts'))
@@ -236,7 +236,7 @@ function jfb_admin_page()
     
     <?php 
      if( isset($_REQUEST[$opt_jfb_hidesponsor]) )
-          update_option($opt_jfb_hidesponsor, $_REQUEST[$opt_jfb_hidesponsor]);
+          update_option($opt_jfb_hidesponsor, esc_html($_REQUEST[$opt_jfb_hidesponsor]));
      if(!get_option($opt_jfb_hidesponsor) && !defined('JFB_PREMIUM')): ?>
       	<!-- Sponsorship message *was* here, until Automattic demanded they be removed from all plugins - see http://gregsplugins.com/lib/2011/11/26/automattic-bullies/ -->
      <?php endif; ?>
