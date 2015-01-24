@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
  * Author: Justin Klein
- * Version: 4.0.7
+ * Version: 4.0.8
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  * Text Domain: wp-fb-ac
@@ -10,7 +10,7 @@
 
 
 /*
- * Copyright 2010-2014 Justin Klein (www.justin-klein.com)
+ * Copyright 2010-2015 Justin Klein (www.justin-klein.com)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -315,13 +315,16 @@ function jfb_wp_avatar($avatar, $id_or_email, $size, $default, $alt)
 	else if(is_object($id_or_email) && !empty($id_or_email->user_id))
 	   $user_id = $id_or_email->user_id;
 	else
-	   return $avatar; 
+	   return $avatar;
 
 	//If we couldn't get the userID, just return default behavior (email-based gravatar, etc)
 	if(!isset($user_id) || !$user_id) return $avatar;
 
-	//Now that we have a userID, let's see if we have their facebook profile pic stored in usermeta.  If not, fallback on the default.
-	$fb_img = get_user_meta($user_id, 'facebook_avatar_thumb', true);
+	//Now that we have a userID, let's see if we have their facebook profile pic stored in usermeta.
+	//Note: Facebook "thumbs" are 50x50; if they request that resolution or lower, return facebook_avatar_thumb; otherwise,
+	//return facebook_avatar_full.  If neither are available, just fallback on WP's default behavior.
+	if(is_numeric($size) && $size > 50) 		$fb_img = get_user_meta($user_id, 'facebook_avatar_full', true);
+	else if(is_numeric($size) && $size <= 50)	$fb_img = get_user_meta($user_id, 'facebook_avatar_thumb', true);
 	if( !$fb_img ) return $avatar;
 	
 	//Users who didn't update to 2.3.1 when it was released may have some malformed avatar URLs in their db.  Handle this.

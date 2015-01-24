@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
 Tested up to: 4.1
-Stable tag: 4.0.7
+Stable tag: 4.0.8
 
 A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
 
@@ -30,7 +30,7 @@ In addition to the free features listed above, I also offer a Premium addon to p
 
 * Multisite Support
 * Shortcode Support
-* Image-based login buttons
+* Image-based/styleable login buttons
 * Cache Facebook avatars to your local server
 * Allow users to manually associate/disassociate their existing accounts with Facebook
 * Automatically populate BuddyPress X-Profiles with information from Facebook
@@ -80,6 +80,12 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 4.0.8 (2015-01-24) =
+* If you use the "Facebook profile pictures as avatars" feature and your theme displays avatars larger than 50x50, they will now appear MUCH cleaner.
+* Add wpfb_avatar_size filter, to specify the dimensions of Facebook avatars
+* Update the premium admin tab to show some recently-added features.
+* Update .po/.mo files
+
 = 4.0.7 (2014-12-24) =
 * Add admin panel notes about Facebook's new review process
 * Tested with WP 4.1

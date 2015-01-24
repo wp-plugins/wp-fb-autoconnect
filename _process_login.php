@@ -72,9 +72,9 @@ function jfb_process_login()
     //jfb_api_get("https://graph.facebook.com/fql?q=".urlencode("SELECT pic_square,pic_big FROM user WHERE uid=$fb_uid")."&access_token=$access_token");
     //However, Graph API 2.1 removed fql - so I now have fetch them separately :(
     $fbuser['profile_url'] = $fbuser['link'];
-    $pic = jfb_api_get("https://graph.facebook.com/me/picture?type=square&redirect=false&access_token=$access_token");
+    $pic = jfb_api_get("https://graph.facebook.com/me/picture?".apply_filters("wpfb_avatar_size", "type=square", "thumb")."&redirect=false&access_token=$access_token");
     $fbuser['pic_square'] = $pic['data']['url']; 
-	$pic = jfb_api_get("https://graph.facebook.com/me/picture?type=large&redirect=false&access_token=$access_token");
+	$pic = jfb_api_get("https://graph.facebook.com/me/picture?".apply_filters("wpfb_avatar_size", "type=large", "full")."&redirect=false&access_token=$access_token");
     $fbuser['pic_big'] = $pic['data']['url'];
     $jfb_log .= "FB: Got user info (".$fbuser['name'].")\n";
 	
