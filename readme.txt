@@ -84,7 +84,7 @@ For more information on exactly how this plugin's login process works and how it
 * If you use the "Facebook profile pictures as avatars" feature and your theme displays avatars larger than 50x50, they will now appear MUCH cleaner.
 * Add wpfb_avatar_size filter, to specify the dimensions of Facebook avatars
 * Update the premium admin tab to show some recently-added features.
-* Update .po/.mo files
+* Update .po/.mo files 
 
 = 4.0.7 (2014-12-24) =
 * Add admin panel notes about Facebook's new review process
