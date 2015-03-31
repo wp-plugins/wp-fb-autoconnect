@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP-FB-AutoConnect\n"
 "POT-Creation-Date: 2014-08-11 23:43-0800\n"
-"PO-Revision-Date: 2014-08-19 19:29+0100\n"
+"PO-Revision-Date: 2015-02-07 11:55-0800\n"
 "Last-Translator: jelena kovacevic <jecajeca260@gmail.com>\n"
 "Language-Team: \n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.5\n"
+"X-Generator: Poedit 1.6.5\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
@@ -1399,11 +1399,11 @@ msgstr "Usuario"
 
 #: Premium.php:1898 Premium.php:1916 Widget.php:45
 msgid "Pass"
-msgstr "Pasar"
+msgstr "Contraseña"
 
 #: Premium.php:1899 Premium.php:1917 Widget.php:44
 msgid "Login"
-msgstr "Iniciar sesión"
+msgstr "Entrar"
 
 #: Premium.php:1900 Premium.php:1918
 msgid "Remember"
@@ -1411,7 +1411,7 @@ msgstr "Recordar"
 
 #: Premium.php:1901 Premium.php:1919 Widget.php:47
 msgid "Forgot"
-msgstr "Olvidado"
+msgstr "Olvidaste"
 
 #: Premium.php:1902 Premium.php:1920 Widget.php:35
 msgid "Logout"

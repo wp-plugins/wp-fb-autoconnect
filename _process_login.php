@@ -273,7 +273,7 @@ function jfb_process_login()
     //Run a custom action.  You can use this to modify a logging-in user however you like,
     //i.e. add them to a "Recent FB Visitors" log, assign a role if they're friends with you on Facebook, etc.
     $jfb_log .= "WP: Running action wpfb_login\n";
-    do_action('wpfb_login', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'access_token'=>$access_token) );
+    do_action('wpfb_login', array('WP_ID' => $user_login_id, 'FB_ID' => $fb_uid, 'access_token'=>$access_token, 'fb_userdata'=>$fbuser) );
     do_action('wp_login', $user_login_name, get_userdata($user_login_id));
 
 

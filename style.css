@@ -29,7 +29,7 @@
 
 .widget_loginlogout #forgotText, .widget_autoconnect_premium #forgotText{
 	display:inline-block;
-	margin-left:9px;
+	margin-left:6px;
 	height:26px;
 	font-size:80%;
 }
