@@ -3,8 +3,8 @@ Contributors: Justin_K
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T88Y2AZ53836U
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
-Tested up to: 4.1
-Stable tag: 4.0.9
+Tested up to: 4.2.2
+Stable tag: 4.0.10
 
 A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
 
@@ -17,8 +17,8 @@ The simple concept behind WP-FB AutoConnect is to offer an easy-to-use widget th
 * Existing users who connect with FB retain the same local user accounts as before (matched via e-mail).
 * New visitors will be given new user accounts, which can be retained even if you remove the plugin.
 * Facebook profile pictures can be used as avatars.
-* User registration announcements can be pushed to Facebook walls.
 * No contact with the Facebook API after the login completes - so no slow pageloads.
+* No 3rd party services: your site talks directly to Facebook, through an app created and owned by you.
 * Won't bloat your database with duplicate user accounts, extra fields, or unnecessary complications.
 * Custom logging options can notify you whenever someone connects with Facebook.
 * A powerful set of hooks and filters allow developers to easily tailor the login process to their personal needs: redirect to a custom page, fill xProfile data with information from Facebook, setup permissions based on social connections, and more.
@@ -80,6 +80,14 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 4.0.10 (2015-05-13) =
+* Change the default display_name for autoregistered users to the full name (instead of just the first name)
+* Revise the setup instructions (BP no longer ships with its own default theme)
+* Revise documentation for the "wall announcement" feature, which Facebook has decided to kill off.
+* New filter: wpfb_candidate_users_query
+* Additional safety check to prevent spambot logins
+* Tested with WP 4.2.2
+
 = 4.0.9 (2015-03-31) =
 * Fix deprecated function call in admin panel
 * Fix extra slashes getting added when saving login announcements

@@ -63,6 +63,7 @@ function jfb_process_login()
     $jfb_log .= "FB: Initiating Facebook connection...\n";
     $fbuser = jfb_api_get("https://graph.facebook.com/me?access_token=$access_token");
     if( isset($fbuser['error']) ) j_die("Error: Failed to get the Facebook user session (" . $fbuser['error']['message'] . ")");
+    if( !isset($fbuser['id']) || !$fbuser['id']) j_die("Error: Failed to get the Facebook user id (fbuser: " . print_r($fbuser, true) . ")");
     $fb_uid = $fbuser['id'];
     do_action('wpfb_session_established', array('FB_ID' => $fb_uid, 'access_token'=>$access_token) );
     $jfb_log .= "FB: Connected to session (uid $fb_uid)\n";
@@ -118,7 +119,8 @@ function jfb_process_login()
     	$sql = "SELECT user_id, user_id AS ID, user_login, display_name, user_email, meta_value ".
     		   "FROM $wpdb->users, $wpdb->usermeta ".
     		   "WHERE {$wpdb->users}.ID = {$wpdb->usermeta}.user_id AND meta_key = '{$blog_prefix}capabilities' ".
-    		   "AND {$wpdb->users}.ID IN (SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '$jfb_uid_meta_name' AND meta_value = '$fb_uid')"; 
+    		   "AND {$wpdb->users}.ID IN (SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '$jfb_uid_meta_name' AND meta_value = '$fb_uid')";
+        $sql = apply_filters('wpfb_candidate_users_query', $sql, $fb_uid );
     	$wp_users = $wpdb->get_results( $sql );
     }
 
@@ -197,12 +199,17 @@ function jfb_process_login()
         $user_data = array();
         $user_data['user_login']    = "FB_" . $fb_uid;
         $user_data['user_pass']     = wp_generate_password();
-        $user_data['user_nicename'] = sanitize_title($user_data['user_login']);
         $user_data['first_name']    = $fbuser['first_name'];
         $user_data['last_name']     = $fbuser['last_name'];
-        $user_data['display_name']  = $fbuser['first_name'];
         $user_data['user_url']      = $fbuser["profile_url"];
         $user_data['user_email']    = $fbuser["email"];
+        
+        //Nicename is a sanitized copy of the username; it's not visible/editable from the admin panel.  It's what's used for author links.
+        $user_data['user_nicename'] = sanitize_title($user_data['user_login']);
+
+        //Display_name is selectable as the "Display name publicly as" dropdown on the profile page.
+        //BP also duplicates this to the primary XProfile "name" field when a new user is registered.
+        $user_data['display_name']  = $fbuser['first_name'] . " " . $fbuser['last_name'];
         
         //Run a filter so the user can be modified to something different before registration
         //NOTE: If the user has selected "pretty names", this'll change FB_xxx to i.e. "John.Smith"

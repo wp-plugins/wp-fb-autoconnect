@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WP-FB-AutoConnect\n"
-"POT-Creation-Date: 2015-01-24 12:54-0800\n"
-"PO-Revision-Date: 2015-01-24 12:54-0800\n"
+"POT-Creation-Date: 2015-04-30 12:43-0800\n"
+"PO-Revision-Date: 2015-04-30 12:44-0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.5\n"
+"X-Generator: Poedit 1.6.11\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
@@ -204,16 +204,16 @@ msgstr ""
 #: AdminPage.php:309
 #, php-format
 msgid ""
-"If you're using the default BuddyPress theme, a Facebook button will now "
-"automatically appear in its built-in login panel. Otherwise, navigate to "
-"Appearance->Widgets and add the WP-FB AutoConnect widget to your sidebar "
-"(%s)."
+"In your Wordpress admin panel, navigate to Appearance->Widgets (%s) and add "
+"the WP-FB AutoConnect widget to your sidebar."
 msgstr ""
 
 #: AdminPage.php:312
 #, php-format
 msgid ""
-"For more complete documentation and help, visit the %s plugin homepage %s."
+"That's it - users should now be able to login to your blog with their "
+"Facebook accounts.  For more complete documentation and help, please visit "
+"the %s plugin homepage %s."
 msgstr ""
 
 #: AdminPage.php:316
@@ -1018,147 +1018,147 @@ msgstr ""
 msgid "Visit Profile"
 msgstr ""
 
-#: Premium.php:1509
+#: Premium.php:1514
 msgid "Update check failed"
 msgstr ""
 
-#: Premium.php:1520
+#: Premium.php:1525
 msgid ""
 "WP-FB-AutoConnect Premium update notifications will no longer be shown for "
 "this version.  You can re-enable them by manually clicking the 'Check for "
 "Updates' link on the Premium Options page."
 msgstr ""
 
-#: Premium.php:1537
+#: Premium.php:1542
 msgid "Hide for this version"
 msgstr ""
 
-#: Premium.php:1546
+#: Premium.php:1551
 #, php-format
 msgid ""
 "Update check successful. You already have the most up-to-date version of the "
 "Premium addon (%s)."
 msgstr ""
 
-#: Premium.php:1594 Premium.php:1648
+#: Premium.php:1599 Premium.php:1653
 msgid "Link with Facebook"
 msgstr ""
 
-#: Premium.php:1596
+#: Premium.php:1601
 msgid "Not Connected"
 msgstr ""
 
-#: Premium.php:1602
+#: Premium.php:1607
 msgid ""
 "This user cannot be disassociated from Facebook until they have a valid e-"
 "mail address"
 msgstr ""
 
-#: Premium.php:1607 Premium.php:1639
+#: Premium.php:1612 Premium.php:1644
 msgid "Disassociate From Facebook"
 msgstr ""
 
-#: Premium.php:1628
+#: Premium.php:1633
 msgid "Associated Account"
 msgstr ""
 
-#: Premium.php:1650
+#: Premium.php:1655
 msgid "None"
 msgstr ""
 
-#: Premium.php:1773 Premium.php:1775
+#: Premium.php:1778 Premium.php:1780
 msgid "This user account has been disassociated from Facebook."
 msgstr ""
 
-#: Premium.php:1837
+#: Premium.php:1842
 msgid "A sidebar Login/Logout form with Facebook Connect button."
 msgstr ""
 
-#: Premium.php:1882
+#: Premium.php:1887
 msgid "Logout of Facebook too?"
 msgstr ""
 
-#: Premium.php:1971 Premium.php:1989 Widget.php:43
+#: Premium.php:1976 Premium.php:1994 Widget.php:43
 msgid "User"
 msgstr ""
 
-#: Premium.php:1972 Premium.php:1990 Widget.php:45
+#: Premium.php:1977 Premium.php:1995 Widget.php:45
 msgid "Pass"
 msgstr ""
 
-#: Premium.php:1973 Premium.php:1991 Widget.php:44
+#: Premium.php:1978 Premium.php:1996 Widget.php:44
 msgid "Login"
 msgstr ""
 
-#: Premium.php:1974 Premium.php:1992
+#: Premium.php:1979 Premium.php:1997
 msgid "Remember"
 msgstr ""
 
-#: Premium.php:1975 Premium.php:1993 Widget.php:47
+#: Premium.php:1980 Premium.php:1998 Widget.php:47
 msgid "Forgot"
 msgstr ""
 
-#: Premium.php:1976 Premium.php:1994 Widget.php:35
+#: Premium.php:1981 Premium.php:1999 Widget.php:35
 msgid "Logout"
 msgstr ""
 
-#: Premium.php:1977 Premium.php:1995 Widget.php:35
+#: Premium.php:1982 Premium.php:2000 Widget.php:35
 msgid "Edit Profile"
 msgstr ""
 
-#: Premium.php:1978 Premium.php:1996 Widget.php:32
+#: Premium.php:1983 Premium.php:2001 Widget.php:32
 msgid "Welcome"
 msgstr ""
 
-#: Premium.php:1984 Widget.php:80
+#: Premium.php:1989 Widget.php:80
 msgid "Title"
 msgstr ""
 
-#: Premium.php:1988
+#: Premium.php:1993
 msgid "Labels"
 msgstr ""
 
-#: Premium.php:2000
+#: Premium.php:2005
 msgid "Other"
 msgstr ""
 
-#: Premium.php:2002
+#: Premium.php:2007
 msgid "Logout logs out of Facebook too"
 msgstr ""
 
-#: Premium.php:2005
+#: Premium.php:2010
 msgid "Show WP User/Pass Login"
 msgstr ""
 
-#: Premium.php:2008
+#: Premium.php:2013
 msgid "Show 'Remember'"
 msgstr ""
 
-#: Premium.php:2011
+#: Premium.php:2016
 msgid "Show 'Register'"
 msgstr ""
 
-#: Premium.php:2014
+#: Premium.php:2019
 msgid "Show 'Forgot?'"
 msgstr ""
 
-#: Premium.php:2017
+#: Premium.php:2022
 msgid "Show 'Edit Profile'"
 msgstr ""
 
-#: Premium.php:2020
+#: Premium.php:2025
 msgid "Edit profile links to BP (if available)"
 msgstr ""
 
-#: Premium.php:2023
+#: Premium.php:2028
 msgid "Show Avatar (when logged in)"
 msgstr ""
 
-#: Premium.php:2025
+#: Premium.php:2030
 msgid "Avatar Size"
 msgstr ""
 
-#: Premium.php:2027
+#: Premium.php:2032
 msgid "Forgot Pass URL"
 msgstr ""
 
@@ -1191,14 +1191,14 @@ msgid ""
 "login, please report it to the plugin author at %s."
 msgstr ""
 
-#: _process_login.php:218
+#: _process_login.php:223
 msgid ""
 "If you get this error while running Wordpress MultiSite, it means you'll "
 "need to purchase the premium addon to enable full MultiSite support.  Please "
 "see here for more information:"
 msgstr ""
 
-#: _process_login.php:220
+#: _process_login.php:225
 msgid ""
 "If you're NOT using MultiSite, please report this bug to the plugin author "
 "on the support page:"

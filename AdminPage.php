@@ -306,10 +306,10 @@ function jfb_admin_page()
 			  <li><?php _e("Also on the 'Settings' page, enter a Contact EMail, note the App ID and App Secret (you'll need them in a minute), and save changes.", 'wp-fb-ac')?></li>
 			  <li><?php _e("Go to the 'Status & Review' page and make the app live (flip the switch at the top).", 'wp-fb-ac')?></li>
 			  <li><?php _e("Copy the App ID and App Secret to the boxes below, and click the 'Connect' button.", 'wp-fb-ac')?></li>
-			  <li><?php echo sprintf(__("If you're using the default BuddyPress theme, a Facebook button will now automatically appear in its built-in login panel. Otherwise, navigate to Appearance->Widgets and add the WP-FB AutoConnect widget to your sidebar (%s).", 'wp-fb-ac'), "<a href='".admin_url('widgets.php')."'><b>here</b></a>");?></li>
-            </ol>
+			  <li><?php echo sprintf(__("In your Wordpress admin panel, navigate to Appearance->Widgets (%s) and add the WP-FB AutoConnect widget to your sidebar.", 'wp-fb-ac'), "<a href='".admin_url('widgets.php')."' target='widgets'><b>here</b></a>");?></li>
+        </ol>
             <br />
-            <?php echo sprintf(__("For more complete documentation and help, visit the %s plugin homepage %s.", 'wp-fb-ac'), "<a target='moreinfo' href='$jfb_homepage'>", "</a>"); ?><br />
+            <?php echo sprintf(__("That's it - users should now be able to login to your blog with their Facebook accounts.  For more complete documentation and help, please visit the %s plugin homepage %s.", 'wp-fb-ac'), "<a target='moreinfo' href='$jfb_homepage'>", "</a>"); ?><br />
             <br />
             <hr />
             
@@ -342,8 +342,8 @@ function jfb_admin_page()
                 <br /><b><?php _e("Announcement", 'wp-fb-ac')?>:</b><br />
         		<?php add_option($opt_jfb_stream_content, "has connected to " . get_option('blogname') . " with WP-FB AutoConnect."); ?>
         		<input type="checkbox" name="<?php echo $opt_jfb_ask_stream?>" value="1" <?php echo get_option($opt_jfb_ask_stream)?'checked="checked"':''?> /> <?php _e("Request permission to post the following announcement on users' Facebook walls when they connect for the first time:", 'wp-fb-ac')?><br />
-        		<input type="text" size="100" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo stripslashes(get_option($opt_jfb_stream_content)) ?>" /><br />
-        		<small><i>*<?php _e("In order to use this feature, you'll need to submit your app for review by Facebook.  Please see FAQ#56 for more info:", 'wp-fb-ac'); echo " <a href='$jfb_homepage#faq56' target='extendedfaq'>here</a>"; ?></i></small><br/>
+        		<input type="text" size="80" name="<?php echo $opt_jfb_stream_content?>" value="<?php echo stripslashes(get_option($opt_jfb_stream_content)) ?>" />
+        		<?php jfb_output_simple_lightbox("", __("Unfortunately, Facebook has stopped granting this permission for new apps as of April 30 2015, effectively killing off this great feature.  <b>The option will thus only function on sites that were already using it before.</b>", 'wp-fb-ac'))?><br />
         
         		<br /><b><?php _e("Avatars", 'wp-fb-ac')?>:</b><br />
                 <input type="checkbox" name="<?php echo $opt_jfb_wp_avatars?>" value="1" <?php echo get_option($opt_jfb_wp_avatars)?'checked="checked"':''?> /> <?php _e("Use Facebook profile pictures as avatars", 'wp-fb-ac')?><br />
