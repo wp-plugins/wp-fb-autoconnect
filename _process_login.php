@@ -61,7 +61,7 @@ function jfb_process_login()
 
     //Get the basic user info and make sure the access_token is valid  
     $jfb_log .= "FB: Initiating Facebook connection...\n";
-    $fbuser = jfb_api_get("https://graph.facebook.com/me?access_token=$access_token");
+    $fbuser = jfb_api_get("https://graph.facebook.com/me?access_token=$access_token&fields=id,name,first_name,last_name,email,link");
     if( isset($fbuser['error']) ) j_die("Error: Failed to get the Facebook user session (" . $fbuser['error']['message'] . ")");
     if( !isset($fbuser['id']) || !$fbuser['id']) j_die("Error: Failed to get the Facebook user id (fbuser: " . print_r($fbuser, true) . ")");
     $fb_uid = $fbuser['id'];
@@ -83,12 +83,12 @@ function jfb_process_login()
     //This isn't required, and will only matter if it's a new user without an existing WP account
     //(since we'll auto-register an account for them, using the contact_email we get from Facebook - if we can...)
     $userRevealedEmail = false;
-    if( strlen($fbuser['email']) != 0 && strpos($fbuser['email'], 'proxymail.facebook.com') === FALSE )
+    if( isset($fbuser['email']) && strlen($fbuser['email']) != 0 && strpos($fbuser['email'], 'proxymail.facebook.com') === FALSE )
     {
         $jfb_log .= "FB: Email privilege granted (" .$fbuser['email'] . ")\n";
         $userRevealedEmail = true;
     }
-    else if( strlen($fbuser['email']) != 0 )
+    else if( isset($fbuser['email']) && strlen($fbuser['email']) != 0 )
     {
         $jfb_log .= "FB: Email privilege granted, but only for an anonymous proxy address (" . $fbuser['email'] . ")\n";
     }

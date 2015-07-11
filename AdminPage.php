@@ -419,12 +419,10 @@ WP Engine:          <?php echo ((defined('WPMU_PLUGIN_DIR') && file_exists(WPMU_
 Facebook App:       <?php echo (get_option($opt_jfb_app_id)?get_option($opt_jfb_app_id):"&lt;Unset&gt;") . "\n"?>
 Facebook API:       <?php echo (class_exists('Facebook')?"Already present!":"OK") . "\n" ?>
 Facebook Reachable: <?php 
-                $result = jfb_api_get("https://graph.facebook.com/platform");
-                if(!$result)                       echo "NO (Empty Reply)";
-                else if (isset($result['error']))  echo "NO (" . isset($result['error']['message'])?$result['error']['message']:"Unknown" . ")";
-                else if (!$result['is_published']) echo "NO (is_published=false)";
-                else                               echo "OK";
-                echo "\n"; ?>
+                $result = jfb_api_get("https://graph.facebook.com");
+                if(!$result)                                echo "NO (Empty Reply)\n";
+                else if (isset($result['error']['code']))   echo "OK\n"; //I expect it to be "error" - this means that I could contact the graph API, and it gave a response.
+                else                                        echo "ERROR\n"; ?>
 Facebook Validated: <?php echo (get_option($opt_jfb_valid)?"OK":"NO")."\n";?>
 Server:             <?php echo substr($_SERVER['SERVER_SOFTWARE'], 0, 65) . (strlen($_SERVER['SERVER_SOFTWARE'])>65?"...":""); ?>  
 Browser:            <?php $browser = jfb_get_browser(); echo $browser['shortname'] . " " . $browser['version'] . " for " . $browser['platform'] . "\n"; ?>

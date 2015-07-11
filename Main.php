@@ -2,7 +2,7 @@
 /* Plugin Name: WP-FB-AutoConnect
  * Description: A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
  * Author: Justin Klein
- * Version: 4.0.10
+ * Version: 4.1.0
  * Author URI: http://www.justin-klein.com/
  * Plugin URI: http://www.justin-klein.com/projects/wp-fb-autoconnect
  * Text Domain: wp-fb-ac
@@ -259,6 +259,7 @@ function jfb_output_facebook_callback($redirectTo=0, $callbackName=0)
         {
             if (!response.authResponse)
             {
+                //Note to self: if this is happening unexpectedly, it could be because third-party browser cookies are disabled.
                 <?php echo apply_filters('wpfb_login_rejected', ''); ?>
                 return;
             }
