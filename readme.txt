@@ -3,8 +3,8 @@ Contributors: Justin_K
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T88Y2AZ53836U
 Tags: facebook connect, login with facebook, facebook autoconnect, facebook, connect, widget, login, logon, wordpress, buddypress
 Requires at least: 2.5
-Tested up to: 4.2.2
-Stable tag: 4.1.0
+Tested up to: 4.3
+Stable tag: 4.1.1
 
 A lightweight but powerful Facebook login plugin, easy to setup and transparent to new and returning users alike.  Supports Buddypress.
 
@@ -80,6 +80,11 @@ For more information on exactly how this plugin's login process works and how it
 
 
 == Changelog ==
+= 4.1.1 (2015-08-09) =
+* Update PHP4-style class constructors (for compatibility with WP 4.3)
+* Update code for sending admin notifications (for WP 4.3)
+* Add description to the "E-Mail" option in the admin panel
+
 = 4.1.0 (2015-07-10) =
 * Compatilibity fix for Graph API v2.4 when fetching user information
 * Fix for checking API availability in the Support Info tab

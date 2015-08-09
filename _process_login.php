@@ -235,8 +235,14 @@ function jfb_process_login()
         }
         
         //Success! Notify the site admin.
+        //(Implementation comes from pre-4.3's version of wp_new_user_notification)
         $user_login_name = $user_data['user_login'];
-        wp_new_user_notification($user_login_id);
+        $user = get_userdata( $user_login_id );
+        $blogname = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
+        $message  = sprintf(__('New user registration on your site %s:'), $blogname) . "\r\n\r\n";
+        $message .= sprintf(__('Username: %s'), $user->user_login) . "\r\n\r\n";
+        $message .= sprintf(__('E-mail: %s'), $user->user_email) . "\r\n";
+        @wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Registration'), $blogname), $message);
         
         //Run an action so i.e. usermeta can be added to a user after registration
         $jfb_log .= "WP: Running action wpfb_inserted_user\n";

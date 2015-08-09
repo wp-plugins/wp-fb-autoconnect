@@ -10,7 +10,7 @@ class Widget_LoginLogout extends WP_Widget
     //Init the Widget
     function Widget_LoginLogout()
     { 
-        $this->WP_Widget( false, "WP-FB AutoConnect Basic", array( 'description' => __('A sidebar Login/Logout form with Facebook Connect button', 'wp-fb-ac') ) );
+        parent::__construct( false, "WP-FB AutoConnect Basic", array( 'description' => __('A sidebar Login/Logout form with Facebook Connect button', 'wp-fb-ac') ) );
     }
      
     //////////////////////////////////////////////////////
